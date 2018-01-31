@@ -1,0 +1,11 @@
+pairs:
+    mw: Mike Wellen
+    hr: Heather Riddle
+email_addresses:
+    mw: designed4device@gmail.com
+    hr: heather0809@gmail.com
+email:
+    prefix: pair
+    domain: holyguacamole.io
+    no_solo_prefix: true
+global: false
