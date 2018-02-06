@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import io.holyguacamole.bot.message.MessageService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,16 +13,16 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class EventController(@Value("\${slack.token}") val token: String) {
+class EventController(@Value("\${slack.token}") val token: String, val service: MessageService) {
 
     @PostMapping("/messages")
-    fun challenge(@RequestBody request: SlackRequest): ResponseEntity<ChallengeResponse> =
+    fun message(@RequestBody request: SlackRequest): ResponseEntity<SlackResponse> =
             if (request.token != token) {
                 ResponseEntity.status(401).build()
             } else {
                 when (request) {
-                    is ChallengeRequest -> ResponseEntity.ok(ChallengeResponse(challenge = request.challenge))
-                    is MessageEventRequest -> ResponseEntity.status(200).build()
+                    is ChallengeRequest -> ResponseEntity.ok(ChallengeResponse(challenge = request.challenge) as SlackResponse)
+                    is MessageEventRequest -> ResponseEntity.status(200).body(MessageResponse(service.process(request)) as SlackResponse)
                     else -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build()
                 }
             }
@@ -70,5 +71,6 @@ interface SlackRequest {
     val type: String
 }
 
-data class ChallengeResponse(val challenge: String)
-
+interface SlackResponse
+data class ChallengeResponse(val challenge: String) : SlackResponse
+data class MessageResponse(val succeeeded: Boolean): SlackResponse
