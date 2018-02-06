@@ -3,8 +3,3 @@ slack:
   team.id: abc
 
 api.app.id: 123
-
-spring:
-  data:
-    mongodb:
-      uri: $MONGODB_URI
