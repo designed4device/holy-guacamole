@@ -12,9 +12,7 @@ import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @SpringBootApplication
-@EntityScan(basePackages = ["io.holyguacamole.bot.message"])
 class BotApplication
-
 
 const val AVOCADO_TEXT = ":avocado:"
 

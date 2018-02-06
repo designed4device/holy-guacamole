@@ -3,8 +3,7 @@ package io.holyguacamole.bot.message
 import assertk.assert
 import assertk.assertions.containsAll
 import assertk.assertions.isEmpty
-import assertk.assertions.isFalse
-import assertk.assertions.isTrue
+import assertk.assertions.isEqualTo
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
@@ -24,10 +23,10 @@ class MessageServiceTest {
     private val messageService = MessageService(repository)
 
     @Test
-    fun `it knows if someone is trying to send an avocado`() {
-        val message = MockMessages.withMultipleMentionsAndAvocado
+    fun `it knows how many avocados someone is trying to send`() {
+        val message = MockMessages.withMultipleMentionsAndMultipleAvocados
 
-        assert(message.event.hasGuacamoleIngredient()).isTrue()
+        assert(message.event.countGuacamoleIngredients()).isEqualTo(2)
         assert(message.event.findMentionedPeople()).containsAll("U0LAN0Z89", "U0LAN0Z10")
     }
 
@@ -35,7 +34,7 @@ class MessageServiceTest {
     fun `it knows if someone is not trying to send an avocado`() {
         val message = MockMessages.withoutMentionAndAvocado
 
-        assert(message.event.hasGuacamoleIngredient()).isFalse()
+        assert(message.event.countGuacamoleIngredients()).isEqualTo(0)
         assert(message.event.findMentionedPeople()).isEmpty()
     }
 
@@ -51,6 +50,14 @@ class MessageServiceTest {
         messageService.process(MockMessages.withSingleMentionAndAvocado)
 
         val expectedRecords = listOf(receipt)
+        verify(repository).saveAll(expectedRecords)
+    }
+
+    @Test
+    fun `it creates an AvocadoReceipt for each avocado in the message`() {
+        messageService.process(MockMessages.withSingleMentionAndMultipleAvocados)
+
+        val expectedRecords = listOf(receipt, receipt)
         verify(repository).saveAll(expectedRecords)
     }
 

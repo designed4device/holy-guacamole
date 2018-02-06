@@ -36,6 +36,16 @@ class MessageIntegrationTest {
     }
 
     @Test
+    fun `it does not write an AvocadoReceipt if there is no mention and avocado`() {
+
+        val response = controller.message(MockMessages.withoutMentionAndAvocado)
+        assert(response.statusCode).isEqualTo(OK)
+
+        val records = repository.findAll()
+        assert(records).isEmpty()
+    }
+
+    @Test
     fun `it receives a message event and writes an AvocadoReceipt to the database`() {
 
         val response = controller.message(MockMessages.withSingleMentionAndAvocado)
@@ -49,12 +59,19 @@ class MessageIntegrationTest {
     }
 
     @Test
-    fun `it does not write an AvocadoReceipt if there is no mention and avocado`() {
+    fun `it receives a message event with multiple avocados and writes multiple AvocadoReceipts to the database`() {
 
-        val response = controller.message(MockMessages.withoutMentionAndAvocado)
+        val response = controller.message(MockMessages.withSingleMentionAndMultipleAvocados)
         assert(response.statusCode).isEqualTo(OK)
 
         val records = repository.findAll()
-        assert(records).isEmpty()
+        assert(records.size).isEqualTo(2)
+
+        records.forEach {
+            assert(it.id).isNotNull()
+            assert(it.sender).isEqualTo("U12356")
+            assert(it.receiver).isEqualTo("U0LAN0Z89")
+            assert(it.eventId).isEqualTo("12345678")
+        }
     }
 }
