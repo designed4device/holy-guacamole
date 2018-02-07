@@ -58,7 +58,6 @@ dependencies {
 	testCompile "com.nhaarman:mockito-kotlin:$mockitoKotlinVersion"
 
 	testCompile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
-	testCompile 'com.h2database:h2'
 }
 
 dependencyManagement {
