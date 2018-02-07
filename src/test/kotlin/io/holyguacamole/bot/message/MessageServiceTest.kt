@@ -4,21 +4,20 @@ import assertk.assert
 import assertk.assertions.containsAll
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.MockAvocadoReceipts
-import io.holyguacamole.bot.MockAvocadoReceipts.receipt
 import io.holyguacamole.bot.MockMessages
 import org.junit.Test
+import org.mockito.Mockito.anyList
 
 class MessageServiceTest {
 
     private val repository: AvocadoReceiptRepository = mock {
-        whenever(it.saveAll(listOf(any<AvocadoReceipt>()))) doReturn listOf(MockAvocadoReceipts.persistedReceipt)
+        whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn listOf(MockAvocadoReceipts.persistedReceipt)
     }
     private val messageService = MessageService(repository)
 
@@ -47,9 +46,9 @@ class MessageServiceTest {
 
     @Test
     fun `it creates AvocadoReceipts when someone is trying to send an avocado`() {
-        messageService.process(MockMessages.withSingleMentionAndAvocado)
+        messageService.process(MockMessages.withSingleMentionAndSingleAvocado)
 
-        val expectedRecords = listOf(receipt)
+        val expectedRecords = MockAvocadoReceipts.singleMentionSingleAvocadoReceipts
         verify(repository).saveAll(expectedRecords)
     }
 
@@ -57,8 +56,22 @@ class MessageServiceTest {
     fun `it creates an AvocadoReceipt for each avocado in the message`() {
         messageService.process(MockMessages.withSingleMentionAndMultipleAvocados)
 
-        val expectedRecords = listOf(receipt, receipt)
+        val expectedRecords = MockAvocadoReceipts.singleMentionMultipleAvocadoReceipts
         verify(repository).saveAll(expectedRecords)
+    }
+
+    @Test
+    fun `it creates an AvocadoReceipt for each user in the message with a single avocado`() {
+        messageService.process(MockMessages.withMultipleMentionsAndSingleAvocado)
+
+        verify(repository).saveAll(MockAvocadoReceipts.multipleMentionsSingleAvocadoReceipts)
+    }
+
+    @Test
+    fun `it creates an AvocadoReceipt for each user and each avocado in the message`() {
+        messageService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
+
+        verify(repository).saveAll(MockAvocadoReceipts.multipleMentionsMultipleAvocadoReceipts)
     }
 
 }

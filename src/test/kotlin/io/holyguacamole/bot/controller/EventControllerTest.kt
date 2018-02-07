@@ -49,7 +49,7 @@ class EventControllerTest {
     @Test
     fun `it receives message events and returns 200`() {
         mvc.perform(post("/messages")
-                .content(jacksonObjectMapper().writeValueAsString(MockMessages.withSingleMentionAndAvocado))
+                .content(jacksonObjectMapper().writeValueAsString(MockMessages.withSingleMentionAndSingleAvocado))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk)
     }

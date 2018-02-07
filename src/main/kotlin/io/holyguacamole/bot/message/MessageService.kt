@@ -13,13 +13,16 @@ class MessageService(val repository: AvocadoReceiptRepository) {
         val count = messageEvent.event.countGuacamoleIngredients()
         if (count == 0 && mentions.isEmpty()) return false
 
+
         repository.saveAll(
-                mapUntil(count) {
-                    AvocadoReceipt(
-                            eventId = messageEvent.event_id,
-                            sender = messageEvent.event.user,
-                            receiver = mentions.first(),
-                            timestamp = messageEvent.event.ts.toDouble().toLong())
+                mentions.flatMap { mention ->
+                    mapUntil(count) {
+                        AvocadoReceipt(
+                                eventId = messageEvent.event_id,
+                                sender = messageEvent.event.user,
+                                receiver = mention,
+                                timestamp = messageEvent.event.ts.toDouble().toLong())
+                    }
                 }
         )
 

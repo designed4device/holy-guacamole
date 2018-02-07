@@ -12,7 +12,7 @@ object MockMessages {
             challenge = "somechallenge",
             type = "url_verification"
     )
-    val withSingleMentionAndAvocado = MessageEventRequest(
+    val withSingleMentionAndSingleAvocado = MessageEventRequest(
             token = "thisisagoodtoken",
             team_id = "abc",
             api_app_id = "123",
@@ -44,7 +44,7 @@ object MockMessages {
             event_id = "12345678",
             event_time = 1234567890
     )
-    val withMultipleMentionsAndAvocado = MessageEventRequest(
+    val withMultipleMentionsAndSingleAvocado = MessageEventRequest(
             token = "thisisagoodtoken",
             team_id = "abc",
             api_app_id = "123",
@@ -135,5 +135,10 @@ object MockAvocadoReceipts {
             receiver = "U0LAN0Z89",
             timestamp = 1355517523
     )
+    val singleMentionSingleAvocadoReceipts = listOf(receipt)
+    val singleMentionMultipleAvocadoReceipts = listOf(receipt, receipt)
+    val multipleMentionsSingleAvocadoReceipts = listOf(receipt, receipt.copy(receiver = "U0LAN0Z10"))
+    val multipleMentionsMultipleAvocadoReceipts = listOf(receipt, receipt, receipt.copy(receiver = "U0LAN0Z10"), receipt.copy(receiver = "U0LAN0Z10"))
+
     val persistedReceipt = receipt.copy(id = "abcdefg")
 }

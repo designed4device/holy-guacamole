@@ -1,9 +1,11 @@
 package io.holyguacamole.bot.message
 
 import assertk.assert
+import assertk.assertions.containsAll
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.controller.EventController
 import org.junit.After
@@ -48,7 +50,7 @@ class MessageIntegrationTest {
     @Test
     fun `it receives a message event and writes an AvocadoReceipt to the database`() {
 
-        val response = controller.message(MockMessages.withSingleMentionAndAvocado)
+        val response = controller.message(MockMessages.withSingleMentionAndSingleAvocado)
         assert(response.statusCode).isEqualTo(OK)
 
         val records = repository.findAll()
@@ -59,19 +61,21 @@ class MessageIntegrationTest {
     }
 
     @Test
-    fun `it receives a message event with multiple avocados and writes multiple AvocadoReceipts to the database`() {
+    fun `it receives a message event with multiple mentions and multiple avocados and writes multiple AvocadoReceipts to the database`() {
 
-        val response = controller.message(MockMessages.withSingleMentionAndMultipleAvocados)
+        val response = controller.message(MockMessages.withMultipleMentionsAndMultipleAvocados)
         assert(response.statusCode).isEqualTo(OK)
 
         val records = repository.findAll()
-        assert(records.size).isEqualTo(2)
 
-        records.forEach {
+        assert(records.size).isEqualTo(4)
+
+        records.map {
             assert(it.id).isNotNull()
-            assert(it.sender).isEqualTo("U12356")
-            assert(it.receiver).isEqualTo("U0LAN0Z89")
-            assert(it.eventId).isEqualTo("12345678")
+            it.copy(id = null)
+        }.apply {
+            assert(this).containsAll(*MockAvocadoReceipts.multipleMentionsMultipleAvocadoReceipts.toTypedArray())
         }
     }
+
 }
