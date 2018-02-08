@@ -11,22 +11,35 @@ import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockMessages
+import io.holyguacamole.bot.controller.MessageEvent
 import org.junit.Test
 import org.mockito.Mockito.anyList
 
 class MessageServiceTest {
 
     private val repository: AvocadoReceiptRepository = mock {
-        whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn listOf(MockAvocadoReceipts.persistedReceipt)
+        whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn emptyList<AvocadoReceipt>()
     }
     private val messageService = MessageService(repository)
 
     @Test
     fun `it knows how many avocados someone is trying to send`() {
-        val message = MockMessages.withMultipleMentionsAndMultipleAvocados
+        val event = MessageEvent("", "", "", ":avocado:", "")
 
-        assert(message.event.countGuacamoleIngredients()).isEqualTo(2)
-        assert(message.event.findMentionedPeople()).containsAll("U0LAN0Z89", "U0LAN0Z10")
+        assert(event.countGuacamoleIngredients()).isEqualTo(1)
+
+        assert(event.copy(text = ":avocado: :avocado:").countGuacamoleIngredients()).isEqualTo(2)
+
+        assert(event.copy(text = ":avocado::avocado:").countGuacamoleIngredients()).isEqualTo(2)
+
+        assert(event.copy(text = ":avocado:avocado:").countGuacamoleIngredients()).isEqualTo(1)
+    }
+
+    @Test
+    fun `it knows who the avocados were given to`() {
+        val event = MessageEvent("", "", "", "<@USER1> <@USER2>", "")
+
+        assert(event.findMentionedPeople()).containsAll("USER1", "USER2")
     }
 
     @Test
@@ -48,7 +61,7 @@ class MessageServiceTest {
     fun `it creates AvocadoReceipts when someone is trying to send an avocado`() {
         messageService.process(MockMessages.withSingleMentionAndSingleAvocado)
 
-        val expectedRecords = MockAvocadoReceipts.singleMentionSingleAvocadoReceipts
+        val expectedRecords = MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts
         verify(repository).saveAll(expectedRecords)
     }
 
@@ -56,7 +69,7 @@ class MessageServiceTest {
     fun `it creates an AvocadoReceipt for each avocado in the message`() {
         messageService.process(MockMessages.withSingleMentionAndMultipleAvocados)
 
-        val expectedRecords = MockAvocadoReceipts.singleMentionMultipleAvocadoReceipts
+        val expectedRecords = MockAvocadoReceipts.singleMentionAndMultipleAvocadosReceipts
         verify(repository).saveAll(expectedRecords)
     }
 
@@ -64,14 +77,14 @@ class MessageServiceTest {
     fun `it creates an AvocadoReceipt for each user in the message with a single avocado`() {
         messageService.process(MockMessages.withMultipleMentionsAndSingleAvocado)
 
-        verify(repository).saveAll(MockAvocadoReceipts.multipleMentionsSingleAvocadoReceipts)
+        verify(repository).saveAll(MockAvocadoReceipts.multipleMentionsAndSingleAvocadoReceipts)
     }
 
     @Test
     fun `it creates an AvocadoReceipt for each user and each avocado in the message`() {
         messageService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
 
-        verify(repository).saveAll(MockAvocadoReceipts.multipleMentionsMultipleAvocadoReceipts)
+        verify(repository).saveAll(MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts)
     }
 
 }

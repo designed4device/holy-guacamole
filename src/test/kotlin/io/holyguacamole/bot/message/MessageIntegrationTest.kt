@@ -4,7 +4,6 @@ import assertk.assert
 import assertk.assertions.containsAll
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.controller.EventController
@@ -54,10 +53,12 @@ class MessageIntegrationTest {
         assert(response.statusCode).isEqualTo(OK)
 
         val records = repository.findAll()
-        assert(records.first().id).isNotNull()
-        assert(records.first().sender).isEqualTo("U12356")
-        assert(records.first().receiver).isEqualTo("U0LAN0Z89")
-        assert(records.first().eventId).isEqualTo("12345678")
+
+        assert(records.size).isEqualTo(1)
+
+        records.nullifyIds().apply {
+            assert(this).containsAll(*MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.toTypedArray())
+        }
     }
 
     @Test
@@ -70,12 +71,11 @@ class MessageIntegrationTest {
 
         assert(records.size).isEqualTo(4)
 
-        records.map {
-            assert(it.id).isNotNull()
-            it.copy(id = null)
-        }.apply {
-            assert(this).containsAll(*MockAvocadoReceipts.multipleMentionsMultipleAvocadoReceipts.toTypedArray())
+        records.nullifyIds().apply {
+            assert(this).containsAll(*MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts.toTypedArray())
         }
     }
+
+    fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) }
 
 }
