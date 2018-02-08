@@ -14,7 +14,7 @@ class MessageService(val repository: AvocadoReceiptRepository) {
     fun process(messageEvent: MessageEventRequest): Boolean {
         val mentions = messageEvent.event.findMentionedPeople()
         val count = messageEvent.event.countGuacamoleIngredients()
-        if (count == 0 && mentions.isEmpty()) return false
+        if (count == 0 || mentions.isEmpty()) return false
 
         log.info("Avocado sent")
 
@@ -40,4 +40,5 @@ fun MessageEvent.countGuacamoleIngredients(): Int = this.text.split(AVOCADO_TEXT
 fun MessageEvent.findMentionedPeople(): List<String> = Regex("<@(U[0-9A-Z]*?)>")
         .findAll(this.text)
         .mapNotNull { it.groups[1]?.value }
+        .filter { it != this.user }
         .toList()

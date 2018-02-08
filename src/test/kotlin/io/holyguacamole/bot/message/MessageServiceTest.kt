@@ -87,4 +87,10 @@ class MessageServiceTest {
         verify(repository).saveAll(MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts)
     }
 
+    @Test
+    fun `it does not add any AvocadoReceipts if the user sends themself an avocado`() {
+        messageService.process(MockMessages.withSingleMentionAndSingleAvocadoFromThemself)
+
+        verifyZeroInteractions(repository)
+    }
 }
