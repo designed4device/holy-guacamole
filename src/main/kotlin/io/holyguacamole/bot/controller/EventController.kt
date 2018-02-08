@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import java.util.logging.Logger
 
 @RestController
 class EventController(@Value("\${slack.token}") val token: String, val service: MessageService) {
@@ -21,12 +22,12 @@ class EventController(@Value("\${slack.token}") val token: String, val service: 
     @PostMapping("/messages")
     fun message(@RequestBody request: SlackRequest): ResponseEntity<SlackResponse> =
             if (request.token != token) {
-                log.error("Incorrect token")
+                log.error("Attempted with token: ${request.token}")
                 ResponseEntity.status(401).build()
             } else {
                 when (request) {
-                    is MessageEventRequest -> ResponseEntity.status(200).body(MessageResponse(service.process(request)) as SlackResponse)
                     is ChallengeRequest -> ResponseEntity.ok(ChallengeResponse(challenge = request.challenge) as SlackResponse)
+                    is MessageEventRequest -> ResponseEntity.status(200).body(MessageResponse(service.process(request)) as SlackResponse)
                     else -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build()
                 }
             }
