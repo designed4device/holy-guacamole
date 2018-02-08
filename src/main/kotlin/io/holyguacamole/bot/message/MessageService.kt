@@ -3,16 +3,20 @@ package io.holyguacamole.bot.message
 import io.holyguacamole.bot.AVOCADO_TEXT
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.MessageEventRequest
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class MessageService(val repository: AvocadoReceiptRepository) {
+
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     fun process(messageEvent: MessageEventRequest): Boolean {
         val mentions = messageEvent.event.findMentionedPeople()
         val count = messageEvent.event.countGuacamoleIngredients()
         if (count == 0 && mentions.isEmpty()) return false
 
+        log.info("Avocado sent")
 
         repository.saveAll(
                 mentions.flatMap { mention ->
