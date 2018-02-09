@@ -19,8 +19,8 @@ object MockMessages {
     )
     val withSingleMentionAndSingleAvocado = MessageEventRequest(
             token = "thisisagoodtoken",
-            team_id = "abc",
-            api_app_id = "123",
+            teamId = "abc",
+            apiAppId = "123",
             event = MessageEvent(
                     type = "message",
                     channel = "C2147483705",
@@ -29,14 +29,14 @@ object MockMessages {
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authed_users = listOf("U123556"),
-            event_id = "12345678",
-            event_time = 1234567890
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
     val withSingleMentionAndMultipleAvocados = MessageEventRequest(
             token = "thisisagoodtoken",
-            team_id = "abc",
-            api_app_id = "123",
+            teamId = "abc",
+            apiAppId = "123",
             event = MessageEvent(
                     type = "message",
                     channel = "C2147483705",
@@ -45,14 +45,14 @@ object MockMessages {
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authed_users = listOf("U123556"),
-            event_id = "12345678",
-            event_time = 1234567890
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
     val withMultipleMentionsAndSingleAvocado = MessageEventRequest(
             token = "thisisagoodtoken",
-            team_id = "abc",
-            api_app_id = "123",
+            teamId = "abc",
+            apiAppId = "123",
             event = MessageEvent(
                     type = "message",
                     channel = "C2147483705",
@@ -61,14 +61,14 @@ object MockMessages {
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authed_users = listOf("U123556"),
-            event_id = "12345678",
-            event_time = 1234567890
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
     val withMultipleMentionsAndMultipleAvocados = MessageEventRequest(
             token = "thisisagoodtoken",
-            team_id = "abc",
-            api_app_id = "123",
+            teamId = "abc",
+            apiAppId = "123",
             event = MessageEvent(
                     type = "message",
                     channel = "C2147483705",
@@ -77,15 +77,15 @@ object MockMessages {
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authed_users = listOf("U123556"),
-            event_id = "12345678",
-            event_time = 1234567890
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
 
     val withSingleMentionWithoutAvocado = MessageEventRequest(
             token = "thisisagoodtoken",
-            team_id = "abc",
-            api_app_id = "123",
+            teamId = "abc",
+            apiAppId = "123",
             event = MessageEvent(
                     type = "message",
                     channel = "C2147483705",
@@ -94,14 +94,14 @@ object MockMessages {
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authed_users = listOf("U123556"),
-            event_id = "12345678",
-            event_time = 1234567890
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
     val withAvocadoWithoutMention = MessageEventRequest(
             token = "thisisagoodtoken",
-            team_id = "abc",
-            api_app_id = "123",
+            teamId = "abc",
+            apiAppId = "123",
             event = MessageEvent(
                     type = "message",
                     channel = "C2147483705",
@@ -110,14 +110,14 @@ object MockMessages {
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authed_users = listOf("U123556"),
-            event_id = "12345678",
-            event_time = 1234567890
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
     val withoutMentionAndAvocado = MessageEventRequest(
             token = "thisisagoodtoken",
-            team_id = "abc",
-            api_app_id = "123",
+            teamId = "abc",
+            apiAppId = "123",
             event = MessageEvent(
                     type = "message",
                     channel = "C2147483705",
@@ -126,14 +126,14 @@ object MockMessages {
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authed_users = listOf("U123556"),
-            event_id = "12345678",
-            event_time = 1234567890
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
     val withSingleMentionAndSingleAvocadoFromThemself = MessageEventRequest(
             token = "thisisagoodtoken",
-            team_id = "abc",
-            api_app_id = "123",
+            teamId = "abc",
+            apiAppId = "123",
             event = MessageEvent(
                     type = "message",
                     channel = "C2147483705",
@@ -142,9 +142,9 @@ object MockMessages {
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authed_users = listOf("U123556"),
-            event_id = "12345678",
-            event_time = 1234567890
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
 }
 

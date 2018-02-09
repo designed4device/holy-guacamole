@@ -1,6 +1,7 @@
 package io.holyguacamole.bot.controller
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
@@ -36,12 +37,12 @@ class EventController(@Value("\${slack.token}") val token: String, val service: 
 @JsonTypeName("event_callback")
 data class MessageEventRequest(override val token: String,
                                override val type: String,
-                               val team_id: String,
-                               val api_app_id: String,
+                               @JsonProperty("team_id") val teamId: String,
+                               @JsonProperty("api_app_id") val apiAppId: String,
                                val event: MessageEvent,
-                               val authed_users: List<String>,
-                               val event_id: String,
-                               val event_time: Long) : SlackRequest
+                               @JsonProperty("authed_users") val authedUsers: List<String>,
+                               @JsonProperty("event_id") val eventId: String,
+                               @JsonProperty("event_time") val eventTime: Long) : SlackRequest
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageEvent(val type: String,
