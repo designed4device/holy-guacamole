@@ -8,3 +8,5 @@ out/
 *.iws
 *.iml
 *.ipr
+
+ci/secrets.yml

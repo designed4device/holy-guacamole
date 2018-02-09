@@ -1,0 +1,56 @@
+---
+jobs:
+- name: run-tests
+  plan:
+  - get: holy-guacamole-git
+    trigger: true
+  - task: run tests
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: openjdk
+      inputs:
+      - name: holy-guacamole-git
+      run:
+        path: sh
+        dir: holy-guacamole-git
+        args:
+        - -exc
+        - |
+          ./gradlew test
+  - task: deploy to heroku
+    params:
+      HEROKU_EMAIL: ((heroku-email))
+      HEROKU_TOKEN: ((heroku-token))
+      HEROKU_URL: https://git.heroku.com/holy-guacamole.git
+      HEROKU_BRANCH: master:refs/heads/master
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: openjdk
+      inputs:
+      - name: holy-guacamole-git
+      run:
+        path: sh
+        dir: holy-guacamole-git
+        args:
+          - -exc
+          - |
+            cat > /root/.netrc <<EOF
+            machine git.heroku.com
+              login $HEROKU_EMAIL
+              password $HEROKU_TOKEN
+            EOF
+            git push $HEROKU_URL $HEROKU_BRANCH
+
+resources:
+- name: holy-guacamole-git
+  type: git
+  source:
+    uri: git@github.com:designed4device/holy-guacamole.git
+    branch: master
+    private_key: ((git-private-key))
