@@ -4,8 +4,10 @@ import assertk.assert
 import assertk.assertions.containsAll
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import com.nhaarman.mockito_kotlin.whenever
@@ -19,6 +21,7 @@ class MessageServiceTest {
 
     private val repository: AvocadoReceiptRepository = mock {
         whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn emptyList<AvocadoReceipt>()
+        whenever(it.findByEventId(any())) doReturn emptyList<AvocadoReceipt>()
     }
     private val messageService = MessageService(repository)
 
@@ -92,5 +95,29 @@ class MessageServiceTest {
         messageService.process(MockMessages.withSingleMentionAndSingleAvocadoFromThemself)
 
         verifyZeroInteractions(repository)
+    }
+
+    @Test
+    fun `it does not reprocess the same message`() {
+        whenever(repository.findByEventId(any()))
+                .thenReturn(emptyList())
+                .thenReturn(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts)
+
+        messageService.process(MockMessages.withSingleMentionAndSingleAvocado)
+        messageService.process(MockMessages.withSingleMentionAndSingleAvocado)
+
+        verify(repository, times(1)).saveAll(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts)
+    }
+
+    @Test
+    fun `it does not reprocess the same message even when the messages has multiple avocados`() {
+        whenever(repository.findByEventId(any()))
+                .thenReturn(emptyList())
+                .thenReturn(MockAvocadoReceipts.multipleMentionsAndSingleAvocadoReceipts)
+
+        messageService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
+        messageService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
+
+        verify(repository, times(1)).saveAll(MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts)
     }
 }

@@ -15,6 +15,7 @@ class MessageService(val repository: AvocadoReceiptRepository) {
         val mentions = messageEvent.event.findMentionedPeople()
         val count = messageEvent.event.countGuacamoleIngredients()
         if (count == 0 || mentions.isEmpty()) return false
+        if (repository.findByEventId(messageEvent.event_id).isNotEmpty()) return false
 
         log.info("Avocado sent")
 

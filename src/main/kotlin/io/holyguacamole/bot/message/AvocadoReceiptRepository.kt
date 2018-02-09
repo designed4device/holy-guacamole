@@ -12,4 +12,6 @@ data class AvocadoReceipt(
 )
 
 @Repository
-interface AvocadoReceiptRepository: MongoRepository<AvocadoReceipt, String>
+interface AvocadoReceiptRepository: MongoRepository<AvocadoReceipt, String> {
+    fun findByEventId(eventId: String): List<AvocadoReceipt>
+}
