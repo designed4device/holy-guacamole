@@ -19,7 +19,7 @@ class RepositoryTest {
 
     @Before
     fun setUp() {
-        repository.saveAll(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts)
+        repository.saveAvocadoReceipts(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts)
     }
 
     @After
