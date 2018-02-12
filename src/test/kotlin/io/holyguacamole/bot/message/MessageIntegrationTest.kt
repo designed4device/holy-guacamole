@@ -79,15 +79,6 @@ class MessageIntegrationTest {
     }
 
     @Test
-    fun `it finds AvocadoReceipts by eventId`() {
-        repository.saveAll(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts. map { it.copy() })
-
-        val avocadoReceipt = MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first()
-
-        assert(repository.findByEventId(avocadoReceipt.eventId).nullifyIds()).containsExactly(avocadoReceipt)
-    }
-
-    @Test
     fun `it does not store duplicate avocados when the same event is recieved more than once`() {
         controller.message(MockMessages.withSingleMentionAndSingleAvocado)
         controller.message(MockMessages.withSingleMentionAndSingleAvocado)
@@ -97,6 +88,6 @@ class MessageIntegrationTest {
                 .hasSize(1)
     }
 
-    fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) }
+    fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) } //TODO take care of this mike
 
 }

@@ -191,3 +191,5 @@ object MockAvocadoReceipts {
     val multipleMentionsAndMultipleAvocadosReceipts = listOf(jeremyToMark, jeremyToMark, jeremyToPatrick, jeremyToPatrick)
 
 }
+
+fun List<AvocadoReceipt>.copy() = this.map { it.copy() }

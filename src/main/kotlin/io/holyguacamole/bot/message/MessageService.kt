@@ -19,7 +19,7 @@ class MessageService(val repository: AvocadoReceiptRepository) {
 
         log.info("Avocado sent")
 
-        repository.saveAll(
+        repository.saveAvocadoReceipts(
                 mentions.flatMap { mention ->
                     mapUntil(count) {
                         AvocadoReceipt(
