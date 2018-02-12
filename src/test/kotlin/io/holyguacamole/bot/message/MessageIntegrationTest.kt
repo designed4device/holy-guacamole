@@ -80,11 +80,11 @@ class MessageIntegrationTest {
 
     @Test
     fun `it finds AvocadoReceipts by eventId`() {
-        repository.saveAll(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts)
+        repository.saveAll(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts. map { it.copy() })
 
         val avocadoReceipt = MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first()
 
-        assert(repository.findByEventId(avocadoReceipt.eventId)).containsExactly(avocadoReceipt)
+        assert(repository.findByEventId(avocadoReceipt.eventId).nullifyIds()).containsExactly(avocadoReceipt)
     }
 
     @Test
