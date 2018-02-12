@@ -23,4 +23,4 @@ interface AvocadoReceiptRepository: MongoRepository<AvocadoReceipt, String> {
  * @return the saved (possibly modified) list
  */
 fun <ID> MongoRepository<AvocadoReceipt, ID>.saveAvocadoReceipts(entities: Iterable<AvocadoReceipt>): List<AvocadoReceipt> =
-        saveAll(entities.map { it })
+        saveAll(entities.map { it.copy() })
