@@ -2,6 +2,8 @@ package io.holyguacamole.bot.message
 
 import assertk.assert
 import assertk.assertions.containsAll
+import assertk.assertions.containsExactly
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import io.holyguacamole.bot.MockAvocadoReceipts
@@ -74,6 +76,25 @@ class MessageIntegrationTest {
         records.nullifyIds().apply {
             assert(this).containsAll(*MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts.toTypedArray())
         }
+    }
+
+    @Test
+    fun `it finds AvocadoReceipts by eventId`() {
+        repository.saveAll(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts)
+
+        val avocadoReceipt = MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first()
+
+        assert(repository.findByEventId(avocadoReceipt.eventId)).containsExactly(avocadoReceipt)
+    }
+
+    @Test
+    fun `it does not store duplicate avocados when the same event is recieved more than once`() {
+        controller.message(MockMessages.withSingleMentionAndSingleAvocado)
+        controller.message(MockMessages.withSingleMentionAndSingleAvocado)
+        controller.message(MockMessages.withSingleMentionAndSingleAvocado)
+
+        assert(repository.findByEventId(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first().eventId))
+                .hasSize(1)
     }
 
     fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) }
