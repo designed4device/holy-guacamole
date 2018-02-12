@@ -31,6 +31,6 @@ class RepositoryTest {
     fun `it finds AvocadoReceipts by eventId`() {
         val avocadoReceipt = MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first()
 
-        assert(repository.findByEventId(avocadoReceipt.eventId)).containsExactly(avocadoReceipt)
+        assert(repository.findByEventId(avocadoReceipt.eventId).nullifyIds()).containsExactly(avocadoReceipt)
     }
 }

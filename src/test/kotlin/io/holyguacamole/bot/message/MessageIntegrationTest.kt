@@ -88,6 +88,7 @@ class MessageIntegrationTest {
                 .hasSize(1)
     }
 
-    fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) } //TODO take care of this mike
 
 }
+
+fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) } //TODO take care of this mike
