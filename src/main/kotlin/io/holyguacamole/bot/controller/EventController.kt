@@ -25,6 +25,7 @@ class EventController(@Value("\${slack.token}") val token: String, val service: 
                 log.error("Attempted with token: ${request.token}")
                 ResponseEntity.status(401).build()
             } else {
+                log.info(request.toString())
                 when (request) {
                     is ChallengeRequest -> ResponseEntity.ok(ChallengeResponse(challenge = request.challenge) as SlackResponse)
                     is MessageEventRequest -> ResponseEntity.status(200).body(MessageResponse(service.process(request)) as SlackResponse)

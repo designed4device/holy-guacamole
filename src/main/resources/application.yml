@@ -3,3 +3,7 @@ slack:
   team.id: abc
 
 api.app.id: 123
+
+logging:
+  level:
+    io.holyguacamole.bot.controller: INFO
