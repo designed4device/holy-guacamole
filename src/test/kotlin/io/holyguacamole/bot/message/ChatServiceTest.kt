@@ -52,7 +52,7 @@ class ChatServiceTest {
         verify(
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
                         .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
-                                "\"text\":\"$patrick: 3\\n$jeremy: 2\\n$mark: 1\"" +
+                                "\"text\":\"<@$patrick>: 3\\n<@$jeremy>: 2\\n<@$mark>: 1\"" +
                                 "}"))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))

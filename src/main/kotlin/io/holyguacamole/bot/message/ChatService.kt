@@ -28,7 +28,7 @@ class ChatService(@Value("\${slack.host}") val host: String,
     private fun getLeaderboard(): String =
             repository.getLeaderboard()
                     .joinToString(separator = "\n") {
-                        "${it.receiver}: ${it.count}"
+                        "<@${it.receiver}>: ${it.count}"
                     }
 }
 
