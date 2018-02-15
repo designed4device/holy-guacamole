@@ -1,8 +1,8 @@
 slack:
-  token: thisisagoodtoken
-  team.id: abc
-
-api.app.id: 123
+  host: https://slack.com
+  token:
+    verification: thisisagoodtoken
+    bot: iamthebestbot
 
 logging:
   level:

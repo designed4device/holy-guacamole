@@ -2,7 +2,6 @@ package io.holyguacamole.bot.message
 
 import assertk.assert
 import assertk.assertions.containsAll
-import assertk.assertions.containsExactly
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
@@ -26,11 +25,14 @@ class MessageIntegrationTest {
     @Autowired
     lateinit var repository: AvocadoReceiptRepository
 
+    @Autowired
+    lateinit var chatService: ChatService
+
     private lateinit var controller: EventController
 
     @Before
     fun setUp() {
-        controller = EventController(token, MessageService(repository))
+        controller = EventController(token, EventService(repository, chatService))
     }
 
     @After
