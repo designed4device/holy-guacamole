@@ -2,7 +2,6 @@ package io.holyguacamole.bot.message
 
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
-import com.github.tomakehurst.wiremock.client.WireMock.matching
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
@@ -19,16 +18,15 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-
 class ChatServiceTest {
 
     @Rule
     @JvmField
     val wireMockRule = WireMockRule(8089)
 
-    lateinit var chatService: ChatService
+    private lateinit var chatService: ChatService
 
-    val repository = mock<AvocadoReceiptRepository> {
+    private val repository = mock<AvocadoReceiptRepository> {
         on { getLeaderboard() } doReturn MockLeaderboards.patrick3jeremy2mark1
     }
 

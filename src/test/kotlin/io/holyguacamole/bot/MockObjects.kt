@@ -172,37 +172,37 @@ object MockMessages {
 }
 
 object MockAvocadoReceipts {
-    public val patrickToMark = AvocadoReceipt(
+    val patrickToMark = AvocadoReceipt(
             eventId = "12345678",
             sender = patrick,
             receiver = mark,
             timestamp = 1355517523
     )
-    public val jeremyToPatrick = AvocadoReceipt(
+    val jeremyToPatrick = AvocadoReceipt(
             eventId = "12345678",
             sender = jeremy,
             receiver = patrick,
             timestamp = 1355517523
     )
-    public val jeremyToMark = AvocadoReceipt(
+    val jeremyToMark = AvocadoReceipt(
             eventId = "12345678",
             sender = jeremy,
             receiver = mark,
             timestamp = 1355517523
     )
-    public val markToPatrick = AvocadoReceipt(
+    val markToPatrick = AvocadoReceipt(
             eventId = "12345678",
             sender = mark,
             receiver = patrick,
             timestamp = 1355517523
     )
-    public val markToJeremy = AvocadoReceipt(
+    val markToJeremy = AvocadoReceipt(
             eventId = "12345678",
             sender = mark,
             receiver = jeremy,
             timestamp = 1355517523
     )
-    public val patrickToJeremy = AvocadoReceipt(
+    val patrickToJeremy = AvocadoReceipt(
             eventId = "12345678",
             sender = patrick,
             receiver = jeremy,

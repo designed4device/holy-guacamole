@@ -2,15 +2,13 @@ package io.holyguacamole.bot.message
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mashape.unirest.http.Unirest
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 
 @Service
 class ChatService(@Value("\${slack.host}") val host: String,
                   @Value("\${slack.token.bot}") val botToken: String,
-                  @Autowired private val repository: AvocadoReceiptRepository) {
+                  private val repository: AvocadoReceiptRepository) {
 
 
     fun postLeaderboard(channel: String) {

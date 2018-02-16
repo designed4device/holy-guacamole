@@ -11,18 +11,22 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
-@SpringBootTest
-class RepositoryTest {
+@DataMongoTest
+class AvocadoReceiptRepositoryTest {
 
-    @Autowired lateinit var repository: AvocadoReceiptRepository
+    @Autowired private lateinit var mongoTemplate: MongoTemplate
+    @Autowired private lateinit var mongoRepository: AvocadoReceiptMongoRepository
+
+    private lateinit var repository: AvocadoReceiptRepository
 
     @Before
     fun setUp() {
-
+        repository = AvocadoReceiptRepository(mongoRepository, mongoTemplate)
     }
 
     @After

@@ -1,6 +1,5 @@
 package io.holyguacamole.bot.message
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -10,8 +9,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class AvocadoReceiptRepository(
-        @Autowired private val mongoRepository: AvocadoReceiptMongoRepository,
-        @Autowired private val template: MongoTemplate) {
+        private val mongoRepository: AvocadoReceiptMongoRepository,
+        private val template: MongoTemplate) {
 
     fun findByEventId(eventId: String): List<AvocadoReceipt> = mongoRepository.findByEventId(eventId)
 
