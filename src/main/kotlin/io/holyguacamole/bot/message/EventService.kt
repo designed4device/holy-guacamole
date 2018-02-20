@@ -64,7 +64,7 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
 fun <T> mapUntil(end: Int, fn: () -> T): List<T> = (0 until end).map { fn() }
 
 fun MessageEvent.countGuacamoleIngredients(): Int = this.text.split(AVOCADO_TEXT).size - 1
-fun MessageEvent.findMentionedPeople(): List<String> = Regex("<@(U[0-9A-Z]*?)>")
+fun MessageEvent.findMentionedPeople(): List<String> = Regex("<@([0-9A-Z]*?)>")
         .findAll(this.text)
         .mapNotNull { it.groups[1]?.value }
         .filter { it != this.user }
