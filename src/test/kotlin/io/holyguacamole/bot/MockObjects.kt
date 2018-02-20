@@ -12,6 +12,7 @@ import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.message.AvocadoCount
 import io.holyguacamole.bot.message.AvocadoReceipt
 import io.holyguacamole.bot.slack.SlackUser
+import io.holyguacamole.bot.slack.SlackUserProfile
 import io.holyguacamole.bot.user.User
 
 
@@ -267,6 +268,20 @@ object MockUsers {
     val feeneyfeeneybobeeney = User(userId = patrick, name = "feeneyfeeneybobeeney", isBot = false)
 }
 
+object MockSlackUsers {
+    val jeremySlack = SlackUser(
+            id = jeremy,
+            name = "jeremy_kapler",
+            profile = SlackUserProfile(
+                    realName = "Jeremy Kapler",
+                    displayName = "jeremyskywalker"
+            ),
+            isBot = false,
+            isRestricted = false,
+            isUltraRestricted = false
+    )
+}
+
 object MockUserChangeEvent {
     val markNameUpdate = EventCallback(
             token = token,
@@ -276,8 +291,11 @@ object MockUserChangeEvent {
                     type = "user_change",
                     slackUser = SlackUser(
                             id = mark,
-                            name = "8rib",
-                            realName = "Mark Ardito",
+                            name = "markardito",
+                            profile = SlackUserProfile(
+                                    realName = "Mark Ardito",
+                                    displayName = "8rib"
+                            ),
                             isBot = false,
                             isRestricted = false,
                             isUltraRestricted = false

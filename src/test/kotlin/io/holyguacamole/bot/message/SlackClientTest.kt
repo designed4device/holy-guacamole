@@ -18,6 +18,7 @@ import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
 import io.holyguacamole.bot.MockUsers.jeremyskywalker
 import io.holyguacamole.bot.MockUsers.markardito
 import io.holyguacamole.bot.slack.SlackUser
+import io.holyguacamole.bot.slack.SlackUserProfile
 import io.holyguacamole.bot.slack.SlackUserResponse
 import org.junit.Before
 import org.junit.Rule
@@ -115,7 +116,7 @@ class SlackClientTest {
             user = SlackUser(
                     id = "",
                     name = "",
-                    realName = "",
+                    profile = SlackUserProfile(realName = "", displayName = ""),
                     isBot = false,
                     isRestricted = false,
                     isUltraRestricted = false

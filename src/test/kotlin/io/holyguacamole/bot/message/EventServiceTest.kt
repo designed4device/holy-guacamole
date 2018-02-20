@@ -21,6 +21,7 @@ import io.holyguacamole.bot.controller.EventCallback
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.slack.SlackUser
+import io.holyguacamole.bot.slack.SlackUserProfile
 import io.holyguacamole.bot.user.UserService
 import org.junit.Test
 import org.mockito.Mockito.anyList
@@ -156,7 +157,7 @@ class EventServiceTest {
             slackUser = SlackUser(
                     id = "",
                     name = "",
-                    realName = "",
+                    profile = SlackUserProfile("", ""),
                     isBot = false,
                     isRestricted = false,
                     isUltraRestricted = false

@@ -5,7 +5,7 @@ import io.holyguacamole.bot.controller.EventCallback
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.slack.SlackUser
-import io.holyguacamole.bot.user.User
+import io.holyguacamole.bot.slack.toUser
 import io.holyguacamole.bot.user.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -56,12 +56,7 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
     }
 
     private fun processUserChangeEvent(slackUser: SlackUser): Boolean {
-        userService.replace(User(
-                userId = slackUser.id,
-                name = slackUser.name,
-                isBot = slackUser.isBot
-        ))
-
+        userService.replace(slackUser.toUser())
         return true
     }
 }
