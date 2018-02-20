@@ -6,10 +6,13 @@ import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.controller.UrlVerification
 
-import io.holyguacamole.bot.controller.Event
 import io.holyguacamole.bot.controller.EventCallback
+import io.holyguacamole.bot.controller.MessageEvent
+import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.message.AvocadoCount
 import io.holyguacamole.bot.message.AvocadoReceipt
+import io.holyguacamole.bot.slack.SlackUser
+import io.holyguacamole.bot.user.User
 
 
 private val token = "thisisagoodtoken"
@@ -21,7 +24,6 @@ object MockIds {
     val jeremy = "U00000Z02"
     val patrick = "U00000Z03"
     val app = "U00000APP"
-
 }
 
 object MockUrlVerification {
@@ -44,7 +46,7 @@ object MockMessages {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "message",
                     channel = general,
                     user = patrick,
@@ -60,7 +62,7 @@ object MockMessages {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "message",
                     channel = general,
                     user = patrick,
@@ -76,7 +78,7 @@ object MockMessages {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "message",
                     channel = general,
                     user = jeremy,
@@ -92,7 +94,7 @@ object MockMessages {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "message",
                     channel = general,
                     user = jeremy,
@@ -109,7 +111,7 @@ object MockMessages {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "message",
                     channel = general,
                     user = mark,
@@ -125,7 +127,7 @@ object MockMessages {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "message",
                     channel = general,
                     user = jeremy,
@@ -141,7 +143,7 @@ object MockMessages {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "message",
                     channel = general,
                     user = patrick,
@@ -157,7 +159,7 @@ object MockMessages {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "message",
                     channel = general,
                     user = mark,
@@ -220,7 +222,7 @@ object MockAppMentions {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "app_mention",
                     channel = general,
                     user = jeremy,
@@ -236,7 +238,7 @@ object MockAppMentions {
             token = token,
             teamId = "abc",
             apiAppId = "123",
-            event = Event(
+            event = MessageEvent(
                     type = "app_mention",
                     channel = general,
                     user = jeremy,
@@ -255,5 +257,35 @@ object MockLeaderboards {
             AvocadoCount(patrick, 3),
             AvocadoCount(jeremy, 2),
             AvocadoCount(mark, 1)
+    )
+}
+
+object MockUsers {
+    val markardito = User(userId = mark, name = "markardito", isBot = false)
+    val eightRib = markardito.copy(name = "8rib")
+    val jeremyskywalker = User(userId = jeremy, name = "jeremyskywalker", isBot = false)
+    val feeneyfeeneybobeeney = User(userId = patrick, name = "feeneyfeeneybobeeney", isBot = false)
+}
+
+object MockUserChangeEvent {
+    val markNameUpdate = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = UserChangeEvent(
+                    type = "user_change",
+                    slackUser = SlackUser(
+                            id = mark,
+                            name = "8rib",
+                            realName = "Mark Ardito",
+                            isBot = false,
+                            isRestricted = false,
+                            isUltraRestricted = false
+                    )
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
 }

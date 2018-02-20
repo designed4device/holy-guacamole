@@ -32,51 +32,5 @@ class EventController(@Value("\${slack.token.verification}") val token: String, 
                     else -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build()
                 }
             }
+
 }
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeName("event_callback")
-data class EventCallback(override val token: String,
-                         override val type: String,
-                         @JsonProperty("team_id") val teamId: String,
-                         @JsonProperty("api_app_id") val apiAppId: String,
-                         val event: Event,
-                         @JsonProperty("authed_users") val authedUsers: List<String>,
-                         @JsonProperty("event_id") val eventId: String,
-                         @JsonProperty("event_time") val eventTime: Long) : SlackRequest
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class Event(val type: String,
-                 val channel: String,
-                 val user: String,
-                 val text: String,
-                 val ts: String,
-                 val edited: MessageEventEdited? = null)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class MessageEventEdited(val user: String, val ts: String)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeName("url_verification")
-data class UrlVerification(override val token: String,
-                           override val type: String,
-                           val challenge: String) : SlackRequest
-
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "type",
-        visible = true
-)
-@JsonSubTypes(value = [
-    JsonSubTypes.Type(value = UrlVerification::class, name = "url_verification"),
-    JsonSubTypes.Type(value = EventCallback::class, name = "event_callback")
-])
-interface SlackRequest {
-    val token: String
-    val type: String
-}
-
-data class UrlVerificationResponse(val challenge: String) : SlackResponse
-data class EventCallbackResponse(val succeeded: Boolean): SlackResponse
-interface SlackResponse

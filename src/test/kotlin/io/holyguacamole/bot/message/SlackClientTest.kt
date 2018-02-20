@@ -10,29 +10,28 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
-import io.holyguacamole.bot.MockIds.jeremy
-import io.holyguacamole.bot.MockIds.mark
-import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockLeaderboards
+import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
+import io.holyguacamole.bot.MockUsers.jeremyskywalker
+import io.holyguacamole.bot.MockUsers.markardito
+import io.holyguacamole.bot.user.User
+import io.holyguacamole.bot.user.UserRepository
+import io.holyguacamole.bot.user.UserService
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class ChatServiceTest {
+class SlackClientTest {
 
     @Rule
     @JvmField
     val wireMockRule = WireMockRule(8089)
 
-    private lateinit var chatService: ChatService
-
-    private val repository = mock<AvocadoReceiptRepository> {
-        on { getLeaderboard() } doReturn MockLeaderboards.patrick3jeremy2mark1
-    }
+    private lateinit var slackClient: SlackClient
 
     @Before
     fun setUp() {
-        chatService = ChatService("http://localhost:${wireMockRule.port()}", "iamagoodbot", repository)
+        slackClient = SlackClient("http://localhost:${wireMockRule.port()}", "iamagoodbot")
     }
 
     @Test
@@ -45,12 +44,12 @@ class ChatServiceTest {
                 )
         )
 
-        chatService.postLeaderboard("GENERAL")
+        slackClient.postLeaderboard("GENERAL", mapOf(feeneyfeeneybobeeney to 3, jeremyskywalker to 2, markardito to 1))
 
         verify(
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
                         .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
-                                "\"text\":\"<@$patrick>: 3\\n<@$jeremy>: 2\\n<@$mark>: 1\"" +
+                                "\"text\":\"${feeneyfeeneybobeeney.name}: 3\\n${jeremyskywalker.name}: 2\\n${markardito.name}: 1\"" +
                                 "}"))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))

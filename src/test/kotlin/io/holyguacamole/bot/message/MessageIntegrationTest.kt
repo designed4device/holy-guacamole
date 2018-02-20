@@ -2,12 +2,18 @@ package io.holyguacamole.bot.message
 
 import assertk.assert
 import assertk.assertions.containsAll
+import assertk.assertions.containsExactly
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockMessages
+import io.holyguacamole.bot.MockUserChangeEvent
+import io.holyguacamole.bot.MockUsers
 import io.holyguacamole.bot.controller.EventController
+import io.holyguacamole.bot.user.User
+import io.holyguacamole.bot.user.UserRepository
+import io.holyguacamole.bot.user.UserService
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -23,21 +29,27 @@ class MessageIntegrationTest {
     private val token = "thisisagoodtoken"
 
     @Autowired
-    lateinit var repository: AvocadoReceiptRepository
+    lateinit var receiptRepository: AvocadoReceiptRepository
 
     @Autowired
-    lateinit var chatService: ChatService
+    lateinit var userRepository: UserRepository
+
+    @Autowired
+    lateinit var slackClient: SlackClient
+
+    @Autowired
+    lateinit var userService: UserService
 
     private lateinit var controller: EventController
 
     @Before
     fun setUp() {
-        controller = EventController(token, EventService(repository, chatService))
+        controller = EventController(token, EventService(receiptRepository, slackClient, userService))
     }
 
     @After
     fun tearDown() {
-        repository.deleteAll()
+        receiptRepository.deleteAll()
     }
 
     @Test
@@ -46,7 +58,7 @@ class MessageIntegrationTest {
         val response = controller.message(MockMessages.withoutMentionAndAvocado)
         assert(response.statusCode).isEqualTo(OK)
 
-        val records = repository.findAll()
+        val records = receiptRepository.findAll()
         assert(records).isEmpty()
     }
 
@@ -56,7 +68,7 @@ class MessageIntegrationTest {
         val response = controller.message(MockMessages.withSingleMentionAndSingleAvocado)
         assert(response.statusCode).isEqualTo(OK)
 
-        val records = repository.findAll()
+        val records = receiptRepository.findAll()
 
         assert(records.size).isEqualTo(1)
 
@@ -71,7 +83,7 @@ class MessageIntegrationTest {
         val response = controller.message(MockMessages.withMultipleMentionsAndMultipleAvocados)
         assert(response.statusCode).isEqualTo(OK)
 
-        val records = repository.findAll()
+        val records = receiptRepository.findAll()
 
         assert(records.size).isEqualTo(4)
 
@@ -81,16 +93,24 @@ class MessageIntegrationTest {
     }
 
     @Test
-    fun `it does not store duplicate avocados when the same event is recieved more than once`() {
+    fun `it does not store duplicate avocados when the same event is received more than once`() {
         controller.message(MockMessages.withSingleMentionAndSingleAvocado)
         controller.message(MockMessages.withSingleMentionAndSingleAvocado)
         controller.message(MockMessages.withSingleMentionAndSingleAvocado)
 
-        assert(repository.findByEventId(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first().eventId))
+        assert(receiptRepository.findByEventId(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first().eventId))
                 .hasSize(1)
     }
 
+    @Test
+    fun `it receives a user update event and updates the user in the database`() {
+        userRepository.save(MockUsers.markardito)
 
+        controller.message(MockUserChangeEvent.markNameUpdate)
+
+        assert(userRepository.findAll().nullifyUserIds()).containsExactly(MockUsers.eightRib)
+    }
 }
 
-fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) } //TODO take care of this mike
+fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) }
+fun List<User>.nullifyUserIds(): List<User> = this.map { it.copy(id = null) }

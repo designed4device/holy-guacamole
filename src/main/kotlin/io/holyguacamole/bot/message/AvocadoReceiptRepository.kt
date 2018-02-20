@@ -25,13 +25,13 @@ class AvocadoReceiptRepository(
             template.aggregate(
                     Aggregation.newAggregation(
                             Aggregation.group("receiver")
-                                    .count().`as`("count"),
+                                    .count().`as`("count"), //TODO do we actually need the as?
                             Aggregation.sort(Sort.Direction.DESC, "count"),
                             Aggregation.project("receiver", "count")
                     ),
                     AvocadoReceipt::class.java,
                     AvocadoCount::class.java
-            ).map { it }
+            ).toList()
 }
 
 @Repository

@@ -15,42 +15,48 @@ import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockMessages
-import io.holyguacamole.bot.controller.Event
+import io.holyguacamole.bot.MockUserChangeEvent
+import io.holyguacamole.bot.MockUsers
 import io.holyguacamole.bot.controller.EventCallback
+import io.holyguacamole.bot.controller.MessageEvent
+import io.holyguacamole.bot.controller.UserChangeEvent
+import io.holyguacamole.bot.slack.SlackUser
+import io.holyguacamole.bot.user.UserService
 import org.junit.Test
 import org.mockito.Mockito.anyList
 
 class EventServiceTest {
 
-    private val chatService: ChatService = mock()
+    private val slackClient: SlackClient = mock()
+    private val userService: UserService = mock()
 
     private val repository: AvocadoReceiptRepository = mock {
         whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn emptyList<AvocadoReceipt>()
         whenever(it.findByEventId(any())) doReturn emptyList<AvocadoReceipt>()
     }
-    private val eventService = EventService(repository, chatService)
+    private val eventService = EventService(repository, slackClient, userService)
 
     @Test
     fun `it knows how many avocados someone is trying to send`() {
-        assert(emptyEvent.copy(text = ":avocado:").countGuacamoleIngredients()).isEqualTo(1)
-        assert(emptyEvent.copy(text = ":avocado: :avocado:").countGuacamoleIngredients()).isEqualTo(2)
-        assert(emptyEvent.copy(text = ":avocado::avocado:").countGuacamoleIngredients()).isEqualTo(2)
-        assert(emptyEvent.copy(text = ":avocado:avocado:").countGuacamoleIngredients()).isEqualTo(1)
+        assert(emptyMessageEvent.copy(text = ":avocado:").countGuacamoleIngredients()).isEqualTo(1)
+        assert(emptyMessageEvent.copy(text = ":avocado: :avocado:").countGuacamoleIngredients()).isEqualTo(2)
+        assert(emptyMessageEvent.copy(text = ":avocado::avocado:").countGuacamoleIngredients()).isEqualTo(2)
+        assert(emptyMessageEvent.copy(text = ":avocado:avocado:").countGuacamoleIngredients()).isEqualTo(1)
     }
 
     @Test
     fun `it knows who the avocados were given to`() {
-        val event = emptyEvent.copy(text = "<@USER1> <@USER2>")
+        val event = emptyMessageEvent.copy(text = "<@USER1> <@USER2>")
 
         assert(event.findMentionedPeople()).containsAll("USER1", "USER2")
     }
 
     @Test
     fun `it knows if someone is not trying to send an avocado`() {
-        val eventCallback = MockMessages.withoutMentionAndAvocado
+        val event = MockMessages.withoutMentionAndAvocado.event as MessageEvent
 
-        assert(eventCallback.event.countGuacamoleIngredients()).isEqualTo(0)
-        assert(eventCallback.event.findMentionedPeople()).isEmpty()
+        assert(event.countGuacamoleIngredients()).isEqualTo(0)
+        assert(event.findMentionedPeople()).isEmpty()
     }
 
     @Test
@@ -130,20 +136,38 @@ class EventServiceTest {
     @Test
     fun `it calls the chat service to post the leaderboard`() {
         val eventCallback = emptyEventCallback.copy(
-                event = emptyEvent.copy(type = "app_mention", channel = "GENERAL", text = "leaderboard")
+                event = emptyMessageEvent.copy(type = "app_mention", channel = "GENERAL", text = "leaderboard")
         )
         eventService.process(eventCallback)
 
-        verify(chatService).postLeaderboard("GENERAL")
+        verify(slackClient).postLeaderboard("GENERAL", mapOf())
     }
 
-    private val emptyEvent = Event(type = "", channel = "", user = "", text = "", ts = "")
+    @Test
+    fun `it  replaces a user`(){
+        eventService.process(MockUserChangeEvent.markNameUpdate)
+
+        verify(userService).replace(MockUsers.eightRib)
+    }
+
+    private val emptyMessageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")
+    private val emptyUserChangeEvent = UserChangeEvent(
+            type = "",
+            slackUser = SlackUser(
+                    id = "",
+                    name = "",
+                    realName = "",
+                    isBot = false,
+                    isRestricted = false,
+                    isUltraRestricted = false
+            )
+    )
     private val emptyEventCallback = EventCallback(
             token = "",
             type = "",
             teamId = "",
             apiAppId = "",
-            event = emptyEvent,
+            event = emptyMessageEvent,
             authedUsers = emptyList(),
             eventId = "",
             eventTime = 0L

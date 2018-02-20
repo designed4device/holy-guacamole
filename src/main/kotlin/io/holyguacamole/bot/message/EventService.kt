@@ -1,28 +1,33 @@
 package io.holyguacamole.bot.message
 
 import io.holyguacamole.bot.AVOCADO_TEXT
-import io.holyguacamole.bot.controller.Event
 import io.holyguacamole.bot.controller.EventCallback
+import io.holyguacamole.bot.controller.MessageEvent
+import io.holyguacamole.bot.controller.UserChangeEvent
+import io.holyguacamole.bot.slack.SlackUser
+import io.holyguacamole.bot.user.User
+import io.holyguacamole.bot.user.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class EventService(val repository: AvocadoReceiptRepository, val chatService: ChatService) {
+class EventService(val repository: AvocadoReceiptRepository, val slackClient: SlackClient, val userService: UserService) {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     fun process(eventCallback: EventCallback): Boolean =
             when (eventCallback.event.type) {
-                "app_mention" -> processAppMentionEvent(eventCallback.event)
-                "message" -> processMessageEvent(eventCallback)
+                "app_mention" -> processAppMentionEvent(eventCallback.event as MessageEvent)
+                "message" -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
+                "user_change" -> processUserChangeEvent((eventCallback.event as UserChangeEvent).slackUser)
                 else -> false
             }
 
-    private fun processMessageEvent(eventCallback: EventCallback): Boolean {
-        val mentions = eventCallback.event.findMentionedPeople()
-        val count = eventCallback.event.countGuacamoleIngredients()
+    private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
+        val mentions = event.findMentionedPeople()
+        val count = event.countGuacamoleIngredients()
         if (count == 0 || mentions.isEmpty()) return false
-        if (repository.findByEventId(eventCallback.eventId).isNotEmpty()) return false
+        if (repository.findByEventId(eventId).isNotEmpty()) return false
 
         log.info("Avocado sent")
 
@@ -30,10 +35,10 @@ class EventService(val repository: AvocadoReceiptRepository, val chatService: Ch
                 mentions.flatMap { mention ->
                     mapUntil(count) {
                         AvocadoReceipt(
-                                eventId = eventCallback.eventId,
-                                sender = eventCallback.event.user,
+                                eventId = eventId,
+                                sender = event.user,
                                 receiver = mention,
-                                timestamp = eventCallback.event.ts.toDouble().toLong())
+                                timestamp = event.ts.toDouble().toLong())
                     }
                 }
         )
@@ -41,18 +46,30 @@ class EventService(val repository: AvocadoReceiptRepository, val chatService: Ch
         return true
     }
 
-    private fun processAppMentionEvent(event: Event): Boolean {
+    private fun processAppMentionEvent(event: MessageEvent): Boolean {
         if (event.text.toLowerCase().contains("leaderboard")) {
-            chatService.postLeaderboard(event.channel)
+            slackClient.postLeaderboard(event.channel, repository.getLeaderboard().map {
+                Pair(userService.findByUserIdOrGetFromSlack(it.receiver), it.count)
+            }.toMap())
         }
+        return true
+    }
+
+    private fun processUserChangeEvent(slackUser: SlackUser): Boolean {
+        userService.replace(User(
+                userId = slackUser.id,
+                name = slackUser.name,
+                isBot = slackUser.isBot
+        ))
+
         return true
     }
 }
 
 fun <T> mapUntil(end: Int, fn: () -> T): List<T> = (0 until end).map { fn() }
 
-fun Event.countGuacamoleIngredients(): Int = this.text.split(AVOCADO_TEXT).size - 1
-fun Event.findMentionedPeople(): List<String> = Regex("<@(U[0-9A-Z]*?)>")
+fun MessageEvent.countGuacamoleIngredients(): Int = this.text.split(AVOCADO_TEXT).size - 1
+fun MessageEvent.findMentionedPeople(): List<String> = Regex("<@(U[0-9A-Z]*?)>")
         .findAll(this.text)
         .mapNotNull { it.groups[1]?.value }
         .filter { it != this.user }
