@@ -4,7 +4,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mashape.unirest.http.Unirest
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.SlackUserResponse
-import io.holyguacamole.bot.user.User
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service
 class SlackClient(@Value("\${slack.host}") val host: String,
                   @Value("\${slack.token.bot}") val botToken: String) {
 
-    fun getUserInfo(userId: String): SlackUser {
+    fun getUserInfo(userId: String): SlackUser? {
         val response = Unirest.get("$host/api/users.info")
                 .queryString("user", userId)
                 .header("Authorization", "Bearer $botToken")
@@ -21,7 +20,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
         return jacksonObjectMapper().readValue(response, SlackUserResponse::class.java).user
     }
 
-    fun postLeaderboard(channel: String, map: Map<User, Int>) {
+    fun postLeaderboard(channel: String, map: Map<String, Int>) {
         Unirest
                 .post("$host/api/chat.postMessage")
                 .header("Authorization", "Bearer $botToken")
@@ -29,7 +28,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                 .header("Accept", "application/json")
                 .body(jacksonObjectMapper().writeValueAsString(
                         SlackMessage(channel = channel,
-                                text = map.toList().joinToString("\n") { "${it.first.name}: ${it.second}" }
+                                text = map.toList().joinToString("\n") { "${it.first}: ${it.second}" }
                         )
                 ))
                 .asString()

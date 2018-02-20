@@ -49,7 +49,7 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
     private fun processAppMentionEvent(event: MessageEvent): Boolean {
         if (event.text.toLowerCase().contains("leaderboard")) {
             slackClient.postLeaderboard(event.channel, repository.getLeaderboard().map {
-                Pair(userService.findByUserIdOrGetFromSlack(it.receiver), it.count)
+                Pair(userService.findByUserIdOrGetFromSlack(it.receiver)?.name ?: it.receiver, it.count)
             }.toMap())
         }
         return true

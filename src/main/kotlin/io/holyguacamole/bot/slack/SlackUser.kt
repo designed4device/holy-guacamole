@@ -19,4 +19,5 @@ fun SlackUser.toUser(): User = User(
         isBot = this.isBot
 )
 
-data class SlackUserResponse(val ok: Boolean, val user: SlackUser)
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SlackUserResponse(val ok: Boolean, val user: SlackUser? = null, val error: String? = null)

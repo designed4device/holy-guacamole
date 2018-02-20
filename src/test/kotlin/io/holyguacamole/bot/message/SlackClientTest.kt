@@ -1,5 +1,7 @@
 package io.holyguacamole.bot.message
 
+import assertk.assert
+import assertk.assertions.isNull
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
@@ -44,7 +46,7 @@ class SlackClientTest {
                 )
         )
 
-        slackClient.postLeaderboard("GENERAL", mapOf(feeneyfeeneybobeeney to 3, jeremyskywalker to 2, markardito to 1))
+        slackClient.postLeaderboard("GENERAL", mapOf(feeneyfeeneybobeeney.name to 3, jeremyskywalker.name to 2, markardito.name to 1))
 
         verify(
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
@@ -77,6 +79,28 @@ class SlackClientTest {
         )
     }
 
+    @Test
+    fun `it returns null when the user is not found`() {
+        stubFor(get(urlMatching("/api/users\\.info.*"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(jacksonObjectMapper().writeValueAsString(userNotFoundResponse))
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        val response = slackClient.getUserInfo(feeneyfeeneybobeeney.userId)
+
+        verify(
+                getRequestedFor(urlMatching("/api/users\\.info.*"))
+                        .withQueryParam("user", equalTo(feeneyfeeneybobeeney.userId))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+
+        assert(response).isNull()
+    }
+
     private val channel = "GENERAL"
     private val token = "iamagoodbot"
 
@@ -97,4 +121,6 @@ class SlackClientTest {
                     isUltraRestricted = false
             )
     )
+
+    private val userNotFoundResponse = SlackUserResponse(ok = true, error = "user_not_found")
 }
