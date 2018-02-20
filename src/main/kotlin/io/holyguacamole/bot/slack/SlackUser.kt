@@ -18,3 +18,5 @@ fun SlackUser.toUser(): User = User(
         name = this.name,
         isBot = this.isBot
 )
+
+data class SlackUserResponse(val ok: Boolean, val user: SlackUser)

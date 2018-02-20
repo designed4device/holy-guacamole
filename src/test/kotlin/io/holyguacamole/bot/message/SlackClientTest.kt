@@ -1,22 +1,22 @@
 package io.holyguacamole.bot.message
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.junit.WireMockRule
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.mock
-import io.holyguacamole.bot.MockLeaderboards
 import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
 import io.holyguacamole.bot.MockUsers.jeremyskywalker
 import io.holyguacamole.bot.MockUsers.markardito
-import io.holyguacamole.bot.user.User
-import io.holyguacamole.bot.user.UserRepository
-import io.holyguacamole.bot.user.UserService
+import io.holyguacamole.bot.slack.SlackUser
+import io.holyguacamole.bot.slack.SlackUserResponse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -57,6 +57,26 @@ class SlackClientTest {
         )
     }
 
+    @Test
+    fun `it gets user info from the Slack API`() {
+        stubFor(get(urlMatching("/api/users\\.info.*"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(jacksonObjectMapper().writeValueAsString(userInfoResponse))
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        slackClient.getUserInfo(feeneyfeeneybobeeney.userId)
+
+        verify(
+                getRequestedFor(urlMatching("/api/users\\.info.*"))
+                        .withQueryParam("user", equalTo(feeneyfeeneybobeeney.userId))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+    }
+
     private val channel = "GENERAL"
     private val token = "iamagoodbot"
 
@@ -65,4 +85,16 @@ class SlackClientTest {
             "    \"channel\": \"$channel\",\n" +
             "    \"ts\": \"1503435956.000247\"\n" +
             "}"
+
+    private val userInfoResponse = SlackUserResponse(
+            ok = true,
+            user = SlackUser(
+                    id = "",
+                    name = "",
+                    realName = "",
+                    isBot = false,
+                    isRestricted = false,
+                    isUltraRestricted = false
+            )
+    )
 }

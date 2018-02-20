@@ -3,8 +3,8 @@ package io.holyguacamole.bot.message
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mashape.unirest.http.Unirest
 import io.holyguacamole.bot.slack.SlackUser
+import io.holyguacamole.bot.slack.SlackUserResponse
 import io.holyguacamole.bot.user.User
-import io.holyguacamole.bot.user.UserRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -12,7 +12,14 @@ import org.springframework.stereotype.Service
 class SlackClient(@Value("\${slack.host}") val host: String,
                   @Value("\${slack.token.bot}") val botToken: String) {
 
-    fun getUserInfo(userId: String): SlackUser = SlackUser("", "", "", false, false, false)
+    fun getUserInfo(userId: String): SlackUser {
+        val response = Unirest.get("$host/api/users.info")
+                .queryString("user", userId)
+                .header("Authorization", "Bearer $botToken")
+                .header("Accept", "application/json")
+                .asString().body
+        return jacksonObjectMapper().readValue(response, SlackUserResponse::class.java).user
+    }
 
     fun postLeaderboard(channel: String, map: Map<User, Int>) {
         Unirest
