@@ -14,7 +14,12 @@ class UserService(private val repository: UserRepository,
     }
 
     fun findByUserIdOrGetFromSlack(userId: String): User? =
-            findByUserId(userId) ?: slackClient.getUserInfo(userId)?.toUser()
+            findByUserId(userId) ?: getFromSlack(userId)
 
     private fun findByUserId(userId: String): User? = repository.findByUserId(userId)
+
+    private fun getFromSlack(userId: String): User? =
+            slackClient.getUserInfo(userId)
+                    ?.toUser()
+                    ?.also { repository.save(it) }
 }

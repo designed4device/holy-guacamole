@@ -1,6 +1,8 @@
 package io.holyguacamole.bot.user
 
 import assertk.assert
+import assertk.assertions.contains
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
@@ -59,6 +61,8 @@ class UserServiceTest {
         verify(repository).findByUserId(jeremyskywalker.userId)
 
         verify(slackClient).getUserInfo(jeremyskywalker.userId)
+
+        verify(repository).save(jeremyskywalker)
 
         assert(user).isEqualTo(jeremyskywalker)
     }
