@@ -54,7 +54,7 @@ interface Event {
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageEvent(override val type: String,
                         val channel: String,
-                        val user: String,
+                        val user: String = "",
                         val text: String,
                         val ts: String,
                         val edited: MessageEventEdited? = null) : Event
