@@ -1,6 +1,6 @@
 package io.holyguacamole.bot
 
-import io.holyguacamole.bot.MockIds.app
+import io.holyguacamole.bot.MockIds.appbot
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
@@ -24,7 +24,7 @@ object MockIds {
     val mark = "U00000Z01"
     val jeremy = "U00000Z02"
     val patrick = "U00000Z03"
-    val app = "U00000APP"
+    val appbot = "U00000APP"
 }
 
 object MockUrlVerification {
@@ -172,6 +172,22 @@ object MockMessages {
             eventId = "12345678",
             eventTime = 1234567890
     )
+    val withSingleMentionAndSingleAvocadoFromBot = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    channel = general,
+                    user = appbot,
+                    text = "<@$mark> you're the best $AVOCADO_TEXT",
+                    ts = "1355517523.000005"
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
 }
 
 object MockAvocadoReceipts {
@@ -227,11 +243,11 @@ object MockAppMentions {
                     type = "app_mention",
                     channel = general,
                     user = jeremy,
-                    text = "<@$app> leaderboard",
+                    text = "<@$appbot> leaderboard",
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authedUsers = listOf(app),
+            authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -243,11 +259,11 @@ object MockAppMentions {
                     type = "app_mention",
                     channel = general,
                     user = jeremy,
-                    text = "<@$app> show me the LEADERBOARD",
+                    text = "<@$appbot> show me the LEADERBOARD",
                     ts = "1355517523.000005"
             ),
             type = "event_callback",
-            authedUsers = listOf(app),
+            authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -266,6 +282,7 @@ object MockUsers {
     val eightRib = markardito.copy(name = "8rib")
     val jeremyskywalker = User(userId = jeremy, name = "jeremyskywalker", isBot = false)
     val feeneyfeeneybobeeney = User(userId = patrick, name = "feeneyfeeneybobeeney", isBot = false)
+    val holyguacamole = User(userId = appbot, name="HolyGuacamole", isBot = true)
 }
 
 object MockSlackUsers {

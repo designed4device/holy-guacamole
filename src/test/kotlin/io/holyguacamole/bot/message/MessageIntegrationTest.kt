@@ -49,6 +49,7 @@ class MessageIntegrationTest {
 
     @After
     fun tearDown() {
+        userRepository.deleteAll()
         receiptRepository.deleteAll()
     }
 
@@ -65,6 +66,8 @@ class MessageIntegrationTest {
     @Test
     fun `it receives a message event and writes an AvocadoReceipt to the database`() {
 
+        userRepository.saveAll(listOf(MockUsers.markardito, MockUsers.feeneyfeeneybobeeney))
+
         val response = controller.message(MockMessages.withSingleMentionAndSingleAvocado)
         assert(response.statusCode).isEqualTo(OK)
 
@@ -80,6 +83,8 @@ class MessageIntegrationTest {
     @Test
     fun `it receives a message event with multiple mentions and multiple avocados and writes multiple AvocadoReceipts to the database`() {
 
+        userRepository.saveAll(listOf(MockUsers.markardito, MockUsers.feeneyfeeneybobeeney, MockUsers.jeremyskywalker))
+
         val response = controller.message(MockMessages.withMultipleMentionsAndMultipleAvocados)
         assert(response.statusCode).isEqualTo(OK)
 
@@ -94,6 +99,9 @@ class MessageIntegrationTest {
 
     @Test
     fun `it does not store duplicate avocados when the same event is received more than once`() {
+
+        userRepository.saveAll(listOf(MockUsers.markardito, MockUsers.feeneyfeeneybobeeney))
+
         controller.message(MockMessages.withSingleMentionAndSingleAvocado)
         controller.message(MockMessages.withSingleMentionAndSingleAvocado)
         controller.message(MockMessages.withSingleMentionAndSingleAvocado)
@@ -109,6 +117,15 @@ class MessageIntegrationTest {
         controller.message(MockUserChangeEvent.markNameUpdate)
 
         assert(userRepository.findAll().nullifyUserIds()).containsExactly(MockUsers.eightRib)
+    }
+
+    @Test
+    fun `it does not store avocado receipts if the sender is a bot`() {
+        userRepository.saveAll(listOf(MockUsers.holyguacamole, MockUsers.markardito))
+
+        controller.message(MockMessages.withSingleMentionAndSingleAvocadoFromBot)
+
+        assert(receiptRepository.findAll()).isEmpty()
     }
 }
 

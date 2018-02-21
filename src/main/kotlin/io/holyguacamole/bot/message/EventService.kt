@@ -26,7 +26,12 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
         val mentions = event.findMentionedPeople()
         val count = event.countGuacamoleIngredients()
+
         if (count == 0 || mentions.isEmpty()) return false
+
+        val user = userService.findByUserIdOrGetFromSlack(event.user)
+        if (user == null || user.isBot) return false
+
         if (repository.findByEventId(eventId).isNotEmpty()) return false
 
         log.info("Avocado sent")

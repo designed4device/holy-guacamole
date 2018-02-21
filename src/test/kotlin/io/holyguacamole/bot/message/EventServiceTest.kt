@@ -29,7 +29,9 @@ import org.mockito.Mockito.anyList
 class EventServiceTest {
 
     private val slackClient: SlackClient = mock()
-    private val userService: UserService = mock()
+    private val userService: UserService = mock {
+        whenever(it.findByUserIdOrGetFromSlack(any())) doReturn MockUsers.markardito
+    }
 
     private val repository: AvocadoReceiptRepository = mock {
         whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn emptyList<AvocadoReceipt>()
@@ -100,6 +102,15 @@ class EventServiceTest {
     @Test
     fun `it does not add any AvocadoReceipts if the user sends themself an avocado`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocadoFromThemself)
+
+        verifyZeroInteractions(repository)
+    }
+
+    @Test
+    fun `it does not add any AvocadoReceipts if the avocado is from a bot`() {
+        whenever(userService.findByUserIdOrGetFromSlack(any())).thenReturn(MockUsers.holyguacamole)
+
+        eventService.process(MockMessages.withSingleMentionAndSingleAvocadoFromBot)
 
         verifyZeroInteractions(repository)
     }
