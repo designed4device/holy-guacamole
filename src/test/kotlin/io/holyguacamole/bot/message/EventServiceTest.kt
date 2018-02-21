@@ -122,6 +122,7 @@ class EventServiceTest {
         eventService.process(MockMessages.withBotMentionAndSingleAvocado)
 
         verify(repository).findByEventId(MockMessages.withBotMentionAndSingleAvocado.eventId)
+        verify(repository).findBySenderToday((MockMessages.withBotMentionAndSingleAvocado.event as MessageEvent).user)
         verifyNoMoreInteractions(repository)
     }
 
@@ -170,6 +171,21 @@ class EventServiceTest {
         eventService.process(MockUserChangeEvent.markNameUpdate)
 
         verify(userService).replace(MockUsers.eightRib)
+    }
+
+    @Test
+    fun `it does not add AvocadoReceipts if the sender has already sent 5 today`() {
+        whenever(repository.findBySenderToday(any())).thenReturn(listOf(
+                MockAvocadoReceipts.markToPatrick,
+                MockAvocadoReceipts.markToPatrick,
+                MockAvocadoReceipts.markToPatrick,
+                MockAvocadoReceipts.markToPatrick,
+                MockAvocadoReceipts.markToPatrick
+        ))
+        eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
+
+        verify(repository).findBySenderToday(any())
+        verifyZeroInteractions(repository)
     }
 
     private val emptyMessageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")

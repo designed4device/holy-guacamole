@@ -6,6 +6,10 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneOffset
 
 @Repository
 class AvocadoReceiptRepository(
@@ -32,11 +36,14 @@ class AvocadoReceiptRepository(
                     AvocadoReceipt::class.java,
                     AvocadoCount::class.java
             ).toList()
+
+    fun findBySenderToday(sender: String): List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestampGreaterThan(sender, LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT).toEpochSecond(ZoneOffset.UTC))
 }
 
 @Repository
 interface AvocadoReceiptMongoRepository : MongoRepository<AvocadoReceipt, String> {
     fun findByEventId(eventId: String): List<AvocadoReceipt>
+    fun findBySenderAndTimestampGreaterThan(sender: String, timestamp: Long): List<AvocadoReceipt>
 }
 
 data class AvocadoReceipt(
@@ -52,12 +59,3 @@ data class AvocadoCount(
         val receiver: String,
         val count: Int
 )
-
-//
-///**
-// * Use this method to "safely" save a list of avocado receipts to the repository.
-// * Prevents the repository from making modifications to the entity objects
-// * @return the saved (possibly modified) list
-// */
-//fun <ID> MongoRepository<AvocadoReceipt, ID>.saveAll(entities: Iterable<AvocadoReceipt>): List<AvocadoReceipt> =
-//        saveAll(entities.map { it.copy() })

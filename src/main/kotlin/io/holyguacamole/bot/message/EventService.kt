@@ -32,6 +32,7 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
         val user = userService.findByUserIdOrGetFromSlack(event.user)
         if (user == null || user.isBot) return false
 
+        if (repository.findBySenderToday(user.userId).size >= 5) return false
         if (repository.findByEventId(eventId).isNotEmpty()) return false
 
         mentions.filter {

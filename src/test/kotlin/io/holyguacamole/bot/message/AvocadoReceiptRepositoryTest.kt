@@ -2,7 +2,9 @@ package io.holyguacamole.bot.message
 
 import assertk.assert
 import assertk.assertions.containsExactly
+import assertk.assertions.hasSize
 import io.holyguacamole.bot.MockAvocadoReceipts
+import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.junit4.SpringRunner
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @RunWith(SpringRunner::class)
 @DataMongoTest
@@ -59,5 +63,19 @@ class AvocadoReceiptRepositoryTest {
                 AvocadoCount(patrick, 2),
                 AvocadoCount(mark, 1)
         )
+    }
+
+    @Test
+    fun `it retrieves all avocados a user sent today`() {
+        repository.saveAll(listOf(
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC)),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
+        ))
+
+        assert(repository.findBySenderToday(MockIds.patrick)).hasSize(5)
     }
 }

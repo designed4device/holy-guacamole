@@ -11,6 +11,7 @@ import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.MockUserChangeEvent
 import io.holyguacamole.bot.MockUsers
 import io.holyguacamole.bot.controller.EventController
+import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.user.User
 import io.holyguacamole.bot.user.UserRepository
 import io.holyguacamole.bot.user.UserService
@@ -22,6 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus.OK
 import org.springframework.test.context.junit4.SpringRunner
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
@@ -135,6 +141,24 @@ class MessageIntegrationTest {
         controller.message(MockMessages.withBotMentionAndSingleAvocado)
 
         assert(receiptRepository.findAll()).isEmpty()
+    }
+
+    @Test
+    fun `a user is only allowed to give 5 avocados per day`() {
+        userRepository.saveAll(listOf(MockUsers.feeneyfeeneybobeeney, MockUsers.markardito))
+
+        val mockAvocado = MockMessages.withSingleMentionAndSingleAvocado
+        val mockEvent = MockMessages.withSingleMentionAndSingleAvocado.event as MessageEvent
+
+        controller.message(mockAvocado.copy(eventId = "1", event = mockEvent.copy(ts = "${LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC)}")))
+        controller.message(mockAvocado.copy(eventId = "2", event = mockEvent.copy(ts = "${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}")))
+        controller.message(mockAvocado.copy(eventId = "3", event = mockEvent.copy(ts = "${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}")))
+        controller.message(mockAvocado.copy(eventId = "4", event = mockEvent.copy(ts = "${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}")))
+        controller.message(mockAvocado.copy(eventId = "5", event = mockEvent.copy(ts = "${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}")))
+        controller.message(mockAvocado.copy(eventId = "6", event = mockEvent.copy(ts = "${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}")))
+        controller.message(mockAvocado.copy(eventId = "7", event = mockEvent.copy(ts = "${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}")))
+
+        assert(receiptRepository.findAll()).hasSize(6)
     }
 }
 
