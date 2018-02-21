@@ -188,6 +188,22 @@ object MockMessages {
             eventId = "12345678",
             eventTime = 1234567890
     )
+    val withBotMentionAndSingleAvocado = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    channel = general,
+                    user = mark,
+                    text = "<@$appbot> derp $AVOCADO_TEXT",
+                    ts = "1355517523.000005"
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
 }
 
 object MockAvocadoReceipts {

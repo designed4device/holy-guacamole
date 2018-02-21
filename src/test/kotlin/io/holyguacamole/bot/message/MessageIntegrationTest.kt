@@ -127,6 +127,15 @@ class MessageIntegrationTest {
 
         assert(receiptRepository.findAll()).isEmpty()
     }
+
+    @Test
+    fun `it does not store avocado receipts for bots`() {
+        userRepository.saveAll(listOf(MockUsers.holyguacamole, MockUsers.markardito))
+
+        controller.message(MockMessages.withBotMentionAndSingleAvocado)
+
+        assert(receiptRepository.findAll()).isEmpty()
+    }
 }
 
 fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) }

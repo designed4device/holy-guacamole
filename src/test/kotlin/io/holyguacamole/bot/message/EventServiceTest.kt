@@ -10,6 +10,7 @@ import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.MockAppMentions
@@ -30,7 +31,10 @@ class EventServiceTest {
 
     private val slackClient: SlackClient = mock()
     private val userService: UserService = mock {
-        whenever(it.findByUserIdOrGetFromSlack(any())) doReturn MockUsers.markardito
+        whenever(it.findByUserIdOrGetFromSlack(MockUsers.markardito.userId)) doReturn MockUsers.markardito
+        whenever(it.findByUserIdOrGetFromSlack(MockUsers.holyguacamole.userId)) doReturn MockUsers.holyguacamole
+        whenever(it.findByUserIdOrGetFromSlack(MockUsers.feeneyfeeneybobeeney.userId)) doReturn MockUsers.feeneyfeeneybobeeney
+        whenever(it.findByUserIdOrGetFromSlack(MockUsers.jeremyskywalker.userId)) doReturn MockUsers.jeremyskywalker
     }
 
     private val repository: AvocadoReceiptRepository = mock {
@@ -108,11 +112,17 @@ class EventServiceTest {
 
     @Test
     fun `it does not add any AvocadoReceipts if the avocado is from a bot`() {
-        whenever(userService.findByUserIdOrGetFromSlack(any())).thenReturn(MockUsers.holyguacamole)
-
         eventService.process(MockMessages.withSingleMentionAndSingleAvocadoFromBot)
 
         verifyZeroInteractions(repository)
+    }
+
+    @Test
+    fun `it does not add AvocadoReceipts for bots`() {
+        eventService.process(MockMessages.withBotMentionAndSingleAvocado)
+
+        verify(repository).findByEventId(MockMessages.withBotMentionAndSingleAvocado.eventId)
+        verifyNoMoreInteractions(repository)
     }
 
     @Test

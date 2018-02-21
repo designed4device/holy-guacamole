@@ -34,21 +34,27 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
 
         if (repository.findByEventId(eventId).isNotEmpty()) return false
 
+        mentions.filter {
+            userService.findByUserIdOrGetFromSlack(it)?.isBot == false
+        }.flatMap { mention ->
+            mapUntil(count) {
+                AvocadoReceipt(
+                        eventId = eventId,
+                        sender = event.user,
+                        receiver = mention,
+                        timestamp = event.ts.toDouble().toLong())
+            }
+        }.save()
+
         log.info("Avocado sent")
 
-        repository.saveAll(
-                mentions.flatMap { mention ->
-                    mapUntil(count) {
-                        AvocadoReceipt(
-                                eventId = eventId,
-                                sender = event.user,
-                                receiver = mention,
-                                timestamp = event.ts.toDouble().toLong())
-                    }
-                }
-        )
-
         return true
+    }
+
+    private fun List<AvocadoReceipt>.save() {
+        if (this.isNotEmpty()) {
+            repository.saveAll(this)
+        }
     }
 
     private fun processAppMentionEvent(event: MessageEvent): Boolean {
