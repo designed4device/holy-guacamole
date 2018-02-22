@@ -322,7 +322,7 @@ object MockUserChangeEvent {
             apiAppId = "123",
             event = UserChangeEvent(
                     type = "user_change",
-                    slackUser = SlackUser(
+                    user = SlackUser(
                             id = mark,
                             name = "markardito",
                             profile = SlackUserProfile(

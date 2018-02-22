@@ -64,4 +64,4 @@ data class MessageEventEdited(val user: String, val ts: String)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UserChangeEvent(override val type: String,
-                           val slackUser: SlackUser) : Event
+                           val user: SlackUser) : Event

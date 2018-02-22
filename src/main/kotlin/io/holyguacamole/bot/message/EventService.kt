@@ -19,7 +19,7 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
             when (eventCallback.event.type) {
                 "app_mention" -> processAppMentionEvent(eventCallback.event as MessageEvent)
                 "message" -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
-                "user_change" -> processUserChangeEvent((eventCallback.event as UserChangeEvent).slackUser)
+                "user_change" -> processUserChangeEvent((eventCallback.event as UserChangeEvent).user)
                 else -> false
             }
 
