@@ -191,7 +191,7 @@ class EventServiceTest {
     private val emptyMessageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")
     private val emptyUserChangeEvent = UserChangeEvent(
             type = "",
-            slackUser = SlackUser(
+            user = SlackUser(
                     id = "",
                     name = "",
                     profile = SlackUserProfile("", ""),
