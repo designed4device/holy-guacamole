@@ -23,12 +23,13 @@ import io.holyguacamole.bot.slack.SlackUserResponse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 
 class SlackClientTest {
 
     @Rule
     @JvmField
-    val wireMockRule = WireMockRule(8089)
+    var wireMockRule = WireMockRule(wireMockConfig().dynamicPort().dynamicPort())
 
     private lateinit var slackClient: SlackClient
 
@@ -102,6 +103,30 @@ class SlackClientTest {
         assert(response).isNull()
     }
 
+    @Test
+    fun `it posts an ephemeral message to avocado sender`() {
+        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(postEphemeralMessageResponse)
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        slackClient.postSentAvocadoMessage("GENERAL", "user")
+
+        verify(
+                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
+                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
+                                "\"text\":\"You sent an avocado.\"," +
+                                "\"user\":\"user\"" +
+                                "}"))
+                        .withHeader("Content-Type", equalTo("application/json"))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+    }
+
     private val channel = "GENERAL"
     private val token = "iamagoodbot"
 
@@ -109,6 +134,11 @@ class SlackClientTest {
             "    \"ok\": true,\n" +
             "    \"channel\": \"$channel\",\n" +
             "    \"ts\": \"1503435956.000247\"\n" +
+            "}"
+
+    private val postEphemeralMessageResponse = "{\n" +
+            "    \"ok\": true,\n" +
+            "    \"message_ts\": \"1502210682.580145\"\n" +
             "}"
 
     private val userInfoResponse = SlackUserResponse(

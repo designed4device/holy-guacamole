@@ -15,6 +15,8 @@ import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
+import io.holyguacamole.bot.MockChannels
+import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.MockUserChangeEvent
 import io.holyguacamole.bot.MockUsers
@@ -127,6 +129,20 @@ class EventServiceTest {
     }
 
     @Test
+    fun `it posts a message to the user after they send an avocado`() {
+        eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
+
+        verify(slackClient).postSentAvocadoMessage(MockChannels.general, MockIds.patrick)
+    }
+
+    @Test
+    fun `it doesn't post a message to the user if no avocados were sent`() {
+        eventService.process(MockMessages.withBotMentionAndSingleAvocado)
+
+        verifyZeroInteractions(slackClient)
+    }
+
+    @Test
     fun `it does not reprocess the same message`() {
         whenever(repository.findByEventId(any()))
                 .thenReturn(emptyList())
@@ -187,6 +203,8 @@ class EventServiceTest {
         verify(repository).findBySenderToday(any())
         verifyZeroInteractions(repository)
     }
+
+
 
     private val emptyMessageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")
     private val emptyUserChangeEvent = UserChangeEvent(

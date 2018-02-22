@@ -1,5 +1,6 @@
 package io.holyguacamole.bot
 
+import io.holyguacamole.bot.MockChannels.general
 import io.holyguacamole.bot.MockIds.appbot
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
@@ -18,13 +19,16 @@ import io.holyguacamole.bot.user.User
 
 private val token = "thisisagoodtoken"
 
-private val general = "C0000000005"
 
 object MockIds {
     val mark = "U00000Z01"
     val jeremy = "U00000Z02"
     val patrick = "U00000Z03"
     val appbot = "U00000APP"
+}
+
+object MockChannels {
+    val general = "C0000000005"
 }
 
 object MockUrlVerification {
@@ -107,7 +111,6 @@ object MockMessages {
             eventId = "12345678",
             eventTime = 1234567890
     )
-
     val withSingleMentionWithoutAvocado = EventCallback(
             token = token,
             teamId = "abc",
@@ -298,7 +301,7 @@ object MockUsers {
     val eightRib = markardito.copy(name = "8rib")
     val jeremyskywalker = User(userId = jeremy, name = "jeremyskywalker", isBot = false)
     val feeneyfeeneybobeeney = User(userId = patrick, name = "feeneyfeeneybobeeney", isBot = false)
-    val holyguacamole = User(userId = appbot, name="HolyGuacamole", isBot = true)
+    val holyguacamole = User(userId = appbot, name = "HolyGuacamole", isBot = true)
 }
 
 object MockSlackUsers {

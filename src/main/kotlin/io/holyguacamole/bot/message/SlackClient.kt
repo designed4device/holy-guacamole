@@ -33,6 +33,24 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                 ))
                 .asString()
     }
+
+    fun postSentAvocadoMessage(channel: String, user: String) {
+        val message = "You sent an avocado."
+
+        Unirest
+                .post("$host/api/chat.postEphemeral")
+                .header("Authorization", "Bearer $botToken")
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .body(jacksonObjectMapper().writeValueAsString(
+                        SlackEphemeralMessage(channel = channel,
+                                text = message,
+                                user = user
+                        )
+                ))
+                .asString()
+    }
 }
 
 data class SlackMessage(val channel: String, val text: String)
+data class SlackEphemeralMessage(val channel: String, val text: String, val user: String)

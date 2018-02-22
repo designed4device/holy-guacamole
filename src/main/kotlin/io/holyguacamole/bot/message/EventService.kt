@@ -45,16 +45,16 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
                         receiver = mention,
                         timestamp = event.ts.toDouble().toLong())
             }
-        }.save()
-
-        log.info("Avocado sent")
+        }.saveAndSendAvocadoMessage(event.channel)
 
         return true
     }
 
-    private fun List<AvocadoReceipt>.save() {
+    private fun List<AvocadoReceipt>.saveAndSendAvocadoMessage(channel: String) {
         if (this.isNotEmpty()) {
             repository.saveAll(this)
+            slackClient.postSentAvocadoMessage(channel = channel, user = this.first().sender)
+            log.info("Avocado sent")
         }
     }
 
