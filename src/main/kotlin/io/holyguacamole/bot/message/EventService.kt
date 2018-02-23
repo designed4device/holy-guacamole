@@ -29,10 +29,12 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
 
         if (count == 0 || mentions.isEmpty()) return false
 
-        val user = userService.findByUserIdOrGetFromSlack(event.user)
-        if (user == null || user.isBot) return false
+        val sender = userService.findByUserIdOrGetFromSlack(event.user)
+        if (sender == null || sender.isBot) return false
 
-        if (repository.findBySenderToday(user.userId).size >= 5) return false
+        val avocadosSentToday = repository.findBySenderToday(sender.userId).size
+        if ((avocadosSentToday + count) > 5) return false
+
         if (repository.findByEventId(eventId).isNotEmpty()) return false
 
         mentions.filter {
@@ -45,17 +47,36 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
                         receiver = mention,
                         timestamp = event.ts.toDouble().toLong())
             }
-        }.saveAndSendAvocadoMessage(event.channel)
-
+        }.executeIfNotEmpty {
+            it.save()
+            sendReceiptMessage(event.channel, event.user, avocadosSentToday, it)
+        }
         return true
     }
 
-    private fun List<AvocadoReceipt>.saveAndSendAvocadoMessage(channel: String) {
+    private fun <T> List<T>.executeIfNotEmpty(fn: (List<T>) -> Unit): List<T> {
+        if (this.isNotEmpty()) fn(this)
+        return this
+    }
+
+    private fun List<AvocadoReceipt>.save() {
         if (this.isNotEmpty()) {
             repository.saveAll(this)
-            slackClient.postSentAvocadoMessage(channel = channel, user = this.first().sender)
             log.info("Avocado sent")
         }
+    }
+
+    private fun sendReceiptMessage(channel: String, sender: String, avocadosSentToday: Int, avocadoReceipts: List<AvocadoReceipt>) {
+
+        val uniqueReceivers = avocadoReceipts.map { it.receiver }.distinct()
+
+        slackClient.postSentAvocadoMessage(
+                channel = channel,
+                sender = sender,
+                avocadosEach = avocadoReceipts.size / uniqueReceivers.size,
+                receivers = uniqueReceivers,
+                remainingAvocados = 5 - avocadosSentToday - uniqueReceivers.size
+        )
     }
 
     private fun processAppMentionEvent(event: MessageEvent): Boolean {

@@ -34,9 +34,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                 .asString()
     }
 
-    fun postSentAvocadoMessage(channel: String, user: String) {
-        val message = "You sent an avocado."
-
+    fun postSentAvocadoMessage(channel: String, sender: String, avocadosEach: Int, receivers: List<String>, remainingAvocados: Int) {
         Unirest
                 .post("$host/api/chat.postEphemeral")
                 .header("Authorization", "Bearer $botToken")
@@ -44,12 +42,33 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                 .header("Accept", "application/json")
                 .body(jacksonObjectMapper().writeValueAsString(
                         SlackEphemeralMessage(channel = channel,
-                                text = message,
-                                user = user
+                                text = craftAvocadoReceiptMessage(receivers, avocadosEach, remainingAvocados),
+                                user = sender
                         )
                 ))
                 .asString()
     }
+
+    fun craftAvocadoReceiptMessage(receivers: List<String>, avocadosEach: Int, remainingAvocados: Int): String {
+
+        val receiversString = when(receivers.size) {
+            1 -> receivers.first().asMention()
+            2 -> receivers.joinToString(separator = " and ") { it.asMention() }
+            else -> receivers.joinToString(
+                    separator = ", ",
+                    limit = receivers.size - 1,
+                    truncated = "and ${receivers.last().asMention()}"
+            ) { it.asMention() }
+        }
+
+        return "$receiversString ${if (receivers.size > 1) "each " else ""}" +
+                "received $avocadosEach ${"avocado".pluralize(avocadosEach)} from you. " +
+                "You have ${if (remainingAvocados == 0) "no" else "$remainingAvocados" } ${"avocado".pluralize(remainingAvocados)} " +
+                "left to give out today."
+    }
+
+    private fun String.asMention(): String = "<@$this>"
+    private fun String.pluralize(n: Int): String = if (n != 1) "${this}s" else this
 }
 
 data class SlackMessage(val channel: String, val text: String)

@@ -1,6 +1,7 @@
 package io.holyguacamole.bot.message
 
 import assertk.assert
+import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -24,6 +25,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
+import io.holyguacamole.bot.MockIds
+import io.holyguacamole.bot.MockIds.jeremy
+import io.holyguacamole.bot.MockIds.mark
+import io.holyguacamole.bot.MockIds.patrick
 
 class SlackClientTest {
 
@@ -113,18 +118,44 @@ class SlackClientTest {
                 )
         )
 
-        slackClient.postSentAvocadoMessage("GENERAL", "user")
+        slackClient.postSentAvocadoMessage(
+                channel = "GENERAL",
+                sender = markardito.userId,
+                avocadosEach = 1,
+                receivers = listOf(feeneyfeeneybobeeney.userId),
+                remainingAvocados = 4
+        )
+
+        val expectedMessage = "<@$patrick> received 1 avocado from you. You have 4 avocados left to give out today."
 
         verify(
                 postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
                         .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
-                                "\"text\":\"You sent an avocado.\"," +
-                                "\"user\":\"user\"" +
+                                "\"text\":\"$expectedMessage\"," +
+                                "\"user\":\"${markardito.userId}\"" +
                                 "}"))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))
                         .withHeader("Accept", equalTo("application/json"))
         )
+    }
+
+    @Test
+    fun `it creates a message listing all avocado receivers`() {
+        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick), 1, 4))
+                .isEqualTo("<@$patrick> received 1 avocado from you. You have 4 avocados left to give out today.")
+
+        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick, jeremy), 1, 3))
+                .isEqualTo("<@$patrick> and <@$jeremy> each received 1 avocado from you. You have 3 avocados left to give out today.")
+
+        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick, jeremy, mark), 1, 2))
+                .isEqualTo("<@$patrick>, <@$jeremy>, and <@$mark> each received 1 avocado from you. You have 2 avocados left to give out today.")
+
+        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick, jeremy), 2, 1))
+                .isEqualTo("<@$patrick> and <@$jeremy> each received 2 avocados from you. You have 1 avocado left to give out today.")
+
+        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick), 5, 0))
+                .isEqualTo("<@$patrick> received 5 avocados from you. You have no avocados left to give out today.")
     }
 
     private val channel = "GENERAL"

@@ -16,7 +16,8 @@ import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels
-import io.holyguacamole.bot.MockIds
+import io.holyguacamole.bot.MockIds.mark
+import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.MockUserChangeEvent
 import io.holyguacamole.bot.MockUsers
@@ -132,7 +133,13 @@ class EventServiceTest {
     fun `it posts a message to the user after they send an avocado`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
 
-        verify(slackClient).postSentAvocadoMessage(MockChannels.general, MockIds.patrick)
+        verify(slackClient).postSentAvocadoMessage(
+                channel = MockChannels.general,
+                sender = patrick,
+                avocadosEach = 1,
+                receivers = listOf(mark),
+                remainingAvocados = 4
+        )
     }
 
     @Test
@@ -195,16 +202,13 @@ class EventServiceTest {
                 MockAvocadoReceipts.markToPatrick,
                 MockAvocadoReceipts.markToPatrick,
                 MockAvocadoReceipts.markToPatrick,
-                MockAvocadoReceipts.markToPatrick,
                 MockAvocadoReceipts.markToPatrick
         ))
-        eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
+        eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
 
         verify(repository).findBySenderToday(any())
         verifyZeroInteractions(repository)
     }
-
-
 
     private val emptyMessageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")
     private val emptyUserChangeEvent = UserChangeEvent(
