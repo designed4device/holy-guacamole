@@ -211,7 +211,7 @@ class EventServiceTest {
     }
 
     @Test
-    fun `it does not add AvocadoReceipts if the sender has already sent 5 today`() {
+    fun `it does not add AvocadoReceipts with single mention multiple avocados if the sender has already sent 5 today`() {
         whenever(repository.findBySenderToday(any())).thenReturn(listOf(
                 MockAvocadoReceipts.markToPatrick,
                 MockAvocadoReceipts.markToPatrick,
@@ -219,6 +219,20 @@ class EventServiceTest {
                 MockAvocadoReceipts.markToPatrick
         ))
         eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
+
+        verify(repository).findBySenderToday(any())
+        verifyZeroInteractions(repository)
+    }
+
+    @Test
+    fun `it does not add AvocadoReceipts with multiple mentions single avocado if the sender has already sent 5 today`() {
+        whenever(repository.findBySenderToday(any())).thenReturn(listOf(
+                MockAvocadoReceipts.markToPatrick,
+                MockAvocadoReceipts.markToPatrick,
+                MockAvocadoReceipts.markToPatrick,
+                MockAvocadoReceipts.markToPatrick
+        ))
+        eventService.process(MockMessages.withMultipleMentionsAndSingleAvocado)
 
         verify(repository).findBySenderToday(any())
         verifyZeroInteractions(repository)

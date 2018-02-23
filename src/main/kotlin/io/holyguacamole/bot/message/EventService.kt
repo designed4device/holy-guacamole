@@ -33,7 +33,7 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
         if (sender == null || sender.isBot) return false
 
         val avocadosSentToday = repository.findBySenderToday(sender.userId).size
-        if ((avocadosSentToday + count) > 5) {
+        if ((avocadosSentToday + (count * mentions.size)) > 5) {
             slackClient.postNotEnoughAvocadosMessage(event.channel, event.user, 5 - avocadosSentToday)
             return false
         }
