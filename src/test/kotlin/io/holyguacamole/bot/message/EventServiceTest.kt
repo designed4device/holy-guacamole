@@ -16,6 +16,7 @@ import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels
+import io.holyguacamole.bot.MockChannels.general
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockMessages
@@ -143,10 +144,23 @@ class EventServiceTest {
     }
 
     @Test
-    fun `it doesn't post a message to the user if no avocados were sent`() {
+    fun `it doesn't post a message to the user if user only sent avocados to a bot`() {
         eventService.process(MockMessages.withBotMentionAndSingleAvocado)
 
         verifyZeroInteractions(slackClient)
+    }
+
+    @Test
+    fun `it sends a message to the user if they don't have enough avocados to give`() {
+        whenever(repository.findBySenderToday(any())).thenReturn(listOf(
+                MockAvocadoReceipts.patrickToMark,
+                MockAvocadoReceipts.patrickToMark,
+                MockAvocadoReceipts.patrickToMark,
+                MockAvocadoReceipts.patrickToMark
+        ))
+        eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
+
+        verify(slackClient).postNotEnoughAvocadosMessage(general, patrick, 1)
     }
 
     @Test
@@ -190,7 +204,7 @@ class EventServiceTest {
     }
 
     @Test
-    fun `it  replaces a user`(){
+    fun `it replaces a user`(){
         eventService.process(MockUserChangeEvent.markNameUpdate)
 
         verify(userService).replace(MockUsers.eightRib)

@@ -69,6 +69,27 @@ class SlackClient(@Value("\${slack.host}") val host: String,
 
     private fun String.asMention(): String = "<@$this>"
     private fun String.pluralize(n: Int): String = if (n != 1) "${this}s" else this
+
+    fun postNotEnoughAvocadosMessage(channel: String, sender: String, remainingAvocados: Int) {
+
+        val message = when (remainingAvocados) {
+            0 -> "You have no more avocados left to give out today!"
+            else -> "You only have $remainingAvocados ${"avocado".pluralize(remainingAvocados)} left to give out today!"
+        }
+
+        Unirest
+                .post("$host/api/chat.postEphemeral")
+                .header("Authorization", "Bearer $botToken")
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .body(jacksonObjectMapper().writeValueAsString(
+                        SlackEphemeralMessage(channel = channel,
+                                text = message,
+                                user = sender
+                        )
+                ))
+                .asString()
+    }
 }
 
 data class SlackMessage(val channel: String, val text: String)

@@ -141,6 +141,58 @@ class SlackClientTest {
     }
 
     @Test
+    fun `it posts an ephemeral message to avocado sender when they do not have enough avocados left to give`() {
+        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(postEphemeralMessageResponse)
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        slackClient.postNotEnoughAvocadosMessage(channel = "GENERAL", sender = markardito.userId, remainingAvocados = 4)
+
+        val expectedMessage = "You only have 4 avocados left to give out today!"
+
+        verify(
+                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
+                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
+                                "\"text\":\"$expectedMessage\"," +
+                                "\"user\":\"${markardito.userId}\"" +
+                                "}"))
+                        .withHeader("Content-Type", equalTo("application/json"))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+    }
+
+    @Test // TODO these tests take a long time. is this one necessary?
+    fun `it posts an ephemeral message to avocado sender when they have zero left to give`() {
+        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(postEphemeralMessageResponse)
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        slackClient.postNotEnoughAvocadosMessage(channel = "GENERAL", sender = markardito.userId, remainingAvocados = 0)
+
+        val expectedMessage = "You have no more avocados left to give out today!"
+
+        verify(
+                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
+                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
+                                "\"text\":\"$expectedMessage\"," +
+                                "\"user\":\"${markardito.userId}\"" +
+                                "}"))
+                        .withHeader("Content-Type", equalTo("application/json"))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+    }
+
+    @Test
     fun `it creates a message listing all avocado receivers`() {
         assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick), 1, 4))
                 .isEqualTo("<@$patrick> received 1 avocado from you. You have 4 avocados left to give out today.")
