@@ -78,7 +78,7 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
                 sender = sender,
                 avocadosEach = avocadoReceipts.size / uniqueReceivers.size,
                 receivers = uniqueReceivers,
-                remainingAvocados = 5 - avocadosSentToday - uniqueReceivers.size
+                remainingAvocados = 5 - avocadosSentToday - avocadoReceipts.size
         )
     }
 

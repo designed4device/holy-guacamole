@@ -238,6 +238,24 @@ class EventServiceTest {
         verifyZeroInteractions(repository)
     }
 
+    @Test
+    fun `it sends a receipt message to the user that sent avocados`() {
+        whenever(repository.findBySenderToday(any())).thenReturn(listOf(
+                MockAvocadoReceipts.patrickToJeremy,
+                MockAvocadoReceipts.patrickToMark
+        ))
+
+        eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
+
+        verify(slackClient).postSentAvocadoMessage(
+                channel = MockChannels.general,
+                sender = patrick,
+                avocadosEach = 2,
+                receivers = listOf(mark),
+                remainingAvocados = 1
+        )
+    }
+
     private val emptyMessageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")
     private val emptyUserChangeEvent = UserChangeEvent(
             type = "",

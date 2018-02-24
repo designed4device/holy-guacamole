@@ -1,11 +1,7 @@
 package io.holyguacamole.bot.message
 
 import assertk.assert
-import assertk.assertions.containsAll
-import assertk.assertions.containsExactly
-import assertk.assertions.hasSize
-import assertk.assertions.isEmpty
-import assertk.assertions.isEqualTo
+import assertk.assertions.*
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.MockUserChangeEvent
