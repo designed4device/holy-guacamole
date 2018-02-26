@@ -58,7 +58,7 @@ class SlackClientTest {
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
                         .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
                                 "\"text\":\"${feeneyfeeneybobeeney.name}: 3\\n${jeremyskywalker.name}: 2\\n${markardito.name}: 1\"," +
-                                "\"attachments\":null" +
+                                "\"attachments\":[]" +
                                 "}"))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))
@@ -243,7 +243,7 @@ class SlackClientTest {
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
                         .withRequestBody(equalTo("{\"channel\":\"$channelId\"," +
                                 "\"text\":\"You received 1 avocado from <@$patrick>!\"," +
-                                "\"attachments\":null" +
+                                "\"attachments\":[]" +
                                 "}"))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))
@@ -316,11 +316,11 @@ class SlackClientTest {
     private val expectedWelcomeMessage = jacksonObjectMapper().writeValueAsString(SlackMessage(
             channel = channelId,
             text = "",
-            attachments = MessageAttachment(
+            attachments = listOf(MessageAttachment(
                     title = "How it Works",
                     pretext = "Hola! My name is HolyGuacamole. You can use me to give someone an :avocado: when you'd like to show praise, appreciation, or to add a little happiness to their day.",
                     text = "- Everyone has 5 avocados to give out per day.\n- To give someone an avocado, add an avocado emoji after their username like this: `@username You're a guac star! :avocado:`\n- Avocados are best served with a nice message!\n- You can give avocados to anyone on your team. I am always watching, so you don't need to invite me to your channel unless you want to talk to me.\n- If you want to interact with me directly, you can invite me like this: \n`/invite @holyguacamole`\n- You can see the leaderboard by typing: `@holyguacamole leaderboard`",
                     markdownIn = listOf("text")
-            )
+            ))
     ))
 }

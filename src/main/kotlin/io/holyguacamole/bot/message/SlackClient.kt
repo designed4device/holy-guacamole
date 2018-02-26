@@ -56,7 +56,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
         postMessage(channel, "", attachments)
     }
 
-    fun craftWelcomeMessage(): MessageAttachment {
+    fun craftWelcomeMessage(): List<MessageAttachment> {
         val pretext = "Hola! My name is HolyGuacamole. You can use me to give someone an :avocado: when you'd like to show praise, appreciation, or to add a little happiness to their day."
         val title = "How it Works"
         val text = "- Everyone has 5 avocados to give out per day.\n" +
@@ -67,7 +67,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                 "`/invite @holyguacamole`\n" +
                 "- You can see the leaderboard by typing: `@holyguacamole leaderboard`"
 
-        return MessageAttachment(title, pretext, text, listOf("text"))
+        return listOf(MessageAttachment(title, pretext, text, listOf("text")))
     }
 
     private fun String.asMention(): String = "<@$this>"
@@ -110,7 +110,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
         return jacksonObjectMapper().readValue(response, SlackOpenConversationResponse::class.java).channel?.id!!
     }
 
-    private fun postMessage(channel: String, message: String, attachments: MessageAttachment? = null) {
+    private fun postMessage(channel: String, message: String, attachments: List<MessageAttachment> = emptyList()) {
         Unirest
                 .post("$host/api/chat.postMessage")
                 .header("Authorization", "Bearer $botToken")
@@ -137,7 +137,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
 }
 
 data class SlackOpenConversationRequest(val users: String)
-data class SlackMessage(val channel: String, val text: String, val attachments: MessageAttachment? = null)
+data class SlackMessage(val channel: String, val text: String, val attachments: List<MessageAttachment> = emptyList())
 data class SlackEphemeralMessage(val channel: String, val text: String, val user: String)
 
 data class MessageAttachment(
