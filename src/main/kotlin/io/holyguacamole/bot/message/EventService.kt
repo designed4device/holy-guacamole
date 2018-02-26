@@ -72,14 +72,23 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
     private fun sendReceiptMessage(channel: String, sender: String, avocadosSentToday: Int, avocadoReceipts: List<AvocadoReceipt>) {
 
         val uniqueReceivers = avocadoReceipts.map { it.receiver }.distinct()
+        val avocadosEach = avocadoReceipts.size / uniqueReceivers.size
 
         slackClient.postSentAvocadoMessage(
                 channel = channel,
                 sender = sender,
-                avocadosEach = avocadoReceipts.size / uniqueReceivers.size,
+                avocadosEach = avocadosEach,
                 receivers = uniqueReceivers,
-                remainingAvocados = 5 - avocadosSentToday - avocadoReceipts.size
+                remainingAvocados = 5 - avocadosSentToday - uniqueReceivers.size * avocadosEach
         )
+
+        uniqueReceivers.map {
+            slackClient.sendAvocadoReceivedDirectMessage(
+                    user = it,
+                    avocadosReceived = avocadosEach,
+                    sender = sender
+            )
+        }
     }
 
     private fun processAppMentionEvent(event: MessageEvent): Boolean {

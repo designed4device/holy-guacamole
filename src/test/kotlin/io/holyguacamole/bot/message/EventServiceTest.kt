@@ -17,6 +17,7 @@ import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels
 import io.holyguacamole.bot.MockChannels.general
+import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockMessages
@@ -161,6 +162,16 @@ class EventServiceTest {
         eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
 
         verify(slackClient).postNotEnoughAvocadosMessage(general, patrick, 1)
+    }
+
+    @Test
+    fun `it sends a direct message to the avocado receivers`() {
+        eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
+        verify(slackClient).sendAvocadoReceivedDirectMessage(user = mark, avocadosReceived = 1, sender = patrick)
+
+        eventService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
+        verify(slackClient).sendAvocadoReceivedDirectMessage(user = mark, avocadosReceived = 2, sender = jeremy)
+        verify(slackClient).sendAvocadoReceivedDirectMessage(user = patrick, avocadosReceived = 2, sender = jeremy)
     }
 
     @Test

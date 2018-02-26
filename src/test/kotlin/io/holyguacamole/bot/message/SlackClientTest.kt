@@ -25,7 +25,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
-import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
@@ -210,7 +209,55 @@ class SlackClientTest {
                 .isEqualTo("<@$patrick> received 5 avocados from you. You have no avocados left to give out today.")
     }
 
+    @Test
+    fun `it opens a direct IM channel and sends a direct message to a user`() {
+        stubFor(post(urlEqualTo("/api/conversations.open"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(openConversationChannelResponse)
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+        stubFor(post(urlEqualTo("/api/chat.postMessage"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(postMessageResponse)
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        slackClient.sendAvocadoReceivedDirectMessage(user = mark, avocadosReceived = 1, sender = patrick)
+
+        verify(
+                postRequestedFor(urlEqualTo("/api/conversations.open"))
+                        .withRequestBody(equalTo("{" +
+                                "\"users\":\"$mark\"" +
+                                "}"))
+                        .withHeader("Content-Type", equalTo("application/json"))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+
+        verify(
+                postRequestedFor(urlEqualTo("/api/chat.postMessage"))
+                        .withRequestBody(equalTo("{\"channel\":\"$channelId\"," +
+                                "\"text\":\"You received 1 avocado from <@$patrick>!\"" +
+                                "}"))
+                        .withHeader("Content-Type", equalTo("application/json"))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+    }
+
+    @Test
+    fun `it creates a message`() {
+        assert(slackClient.craftAvocadoReceivedMessage(1, patrick)).isEqualTo("You received 1 avocado from <@$patrick>!")
+
+        assert(slackClient.craftAvocadoReceivedMessage(2, patrick)).isEqualTo("You received 2 avocados from <@$patrick>!")
+    }
+
     private val channel = "GENERAL"
+    private val channelId = "D069C7QFK"
     private val token = "iamagoodbot"
 
     private val postMessageResponse = "{\n" +
@@ -222,6 +269,11 @@ class SlackClientTest {
     private val postEphemeralMessageResponse = "{\n" +
             "    \"ok\": true,\n" +
             "    \"message_ts\": \"1502210682.580145\"\n" +
+            "}"
+
+    private val openConversationChannelResponse = "{\n" +
+            "    \"ok\": true,\n" +
+            "    \"channel\":{\"id\":\"$channelId\"}\n" +
             "}"
 
     private val userInfoResponse = SlackUserResponse(

@@ -1,8 +1,20 @@
 package io.holyguacamole.bot.message
 
 import assertk.assert
-import assertk.assertions.*
+import assertk.assertions.containsAll
+import assertk.assertions.containsExactly
+import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.times
+import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import io.holyguacamole.bot.MockAvocadoReceipts
+import io.holyguacamole.bot.MockChannels.general
+import io.holyguacamole.bot.MockIds.jeremy
+import io.holyguacamole.bot.MockIds.mark
+import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.MockUserChangeEvent
 import io.holyguacamole.bot.MockUsers
@@ -33,8 +45,7 @@ class MessageIntegrationTest {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    @Autowired
-    lateinit var slackClient: SlackClient
+    val slackClient: SlackClient = mock()
 
     @Autowired
     lateinit var userService: UserService
@@ -77,6 +88,10 @@ class MessageIntegrationTest {
         records.nullifyIds().apply {
             assert(this).containsAll(*MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.toTypedArray())
         }
+
+        verify(slackClient).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 4)
+        verify(slackClient).sendAvocadoReceivedDirectMessage(mark, 1, patrick)
+        verifyNoMoreInteractions(slackClient)
     }
 
     @Test
@@ -94,6 +109,11 @@ class MessageIntegrationTest {
         records.nullifyIds().apply {
             assert(this).containsAll(*MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts.toTypedArray())
         }
+
+        verify(slackClient).postSentAvocadoMessage(general, jeremy, 2, listOf(mark, patrick), 1)
+        verify(slackClient).sendAvocadoReceivedDirectMessage(mark, 2, jeremy)
+        verify(slackClient).sendAvocadoReceivedDirectMessage(patrick, 2, jeremy)
+        verifyNoMoreInteractions(slackClient)
     }
 
     @Test
@@ -107,6 +127,10 @@ class MessageIntegrationTest {
 
         assert(receiptRepository.findByEventId(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first().eventId))
                 .hasSize(1)
+
+        verify(slackClient).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 4)
+        verify(slackClient).sendAvocadoReceivedDirectMessage(mark, 1, patrick)
+        verifyNoMoreInteractions(slackClient)
     }
 
     @Test
@@ -152,6 +176,16 @@ class MessageIntegrationTest {
         controller.message(mockAvocado.copy(eventId = "7", event = mockEvent.copy(ts = "${LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)}")))
 
         assert(receiptRepository.findAll()).hasSize(6)
+
+        verify(slackClient, times(2)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 4)
+        verify(slackClient, times(1)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 3)
+        verify(slackClient, times(1)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 2)
+        verify(slackClient, times(1)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 1)
+        verify(slackClient, times(1)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 0)
+
+        verify(slackClient, times(6)).sendAvocadoReceivedDirectMessage(mark, 1, patrick)
+        verify(slackClient).postNotEnoughAvocadosMessage(general, patrick, 0)
+        verifyNoMoreInteractions(slackClient)
     }
 }
 
