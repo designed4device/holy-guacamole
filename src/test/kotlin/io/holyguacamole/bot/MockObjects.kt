@@ -8,7 +8,14 @@ import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.controller.UrlVerification
 
 import io.holyguacamole.bot.controller.EventCallback
+import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
+import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
+import io.holyguacamole.bot.controller.EventCallbackType.MESSAGE
+import io.holyguacamole.bot.controller.EventCallbackType.USER_CHANGE
+import io.holyguacamole.bot.controller.JoinedChannelEvent
 import io.holyguacamole.bot.controller.MessageEvent
+import io.holyguacamole.bot.controller.RequestType.EVENT_CALLBACK
+import io.holyguacamole.bot.controller.RequestType.URL_VERIFICATION
 import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.message.AvocadoCount
 import io.holyguacamole.bot.message.AvocadoReceipt
@@ -18,7 +25,6 @@ import io.holyguacamole.bot.user.User
 
 
 private val token = "thisisagoodtoken"
-
 
 object MockIds {
     val mark = "U00000Z01"
@@ -36,12 +42,12 @@ object MockUrlVerification {
     val withCorrectToken = UrlVerification(
             token = token,
             challenge = "somechallenge",
-            type = "url_verification"
+            type = URL_VERIFICATION
     )
     val withIncorrectToken = UrlVerification(
             token = "verybadtoken",
             challenge = "somechallenge",
-            type = "url_verification"
+            type = URL_VERIFICATION
     )
 }
 
@@ -52,13 +58,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = patrick,
                     text = "<@$mark> you're the best $AVOCADO_TEXT",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -68,13 +74,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = patrick,
                     text = "<@$mark> you're the best $AVOCADO_TEXT $AVOCADO_TEXT",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -84,13 +90,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = jeremy,
                     text = "<@$mark> <@$patrick> you're the best $AVOCADO_TEXT",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -100,13 +106,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = jeremy,
                     text = "<@$mark> <@$patrick> you're the best $AVOCADO_TEXT $AVOCADO_TEXT",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -116,13 +122,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = mark,
                     text = "<@$patrick> you're the best",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -132,13 +138,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = jeremy,
                     text = "$AVOCADO_TEXT is the best",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -148,13 +154,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = patrick,
                     text = "I'm the best!",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -164,13 +170,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = mark,
                     text = "<@$mark> you're the best $AVOCADO_TEXT",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -180,13 +186,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = appbot,
                     text = "<@$mark> you're the best $AVOCADO_TEXT",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -196,13 +202,13 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = mark,
                     text = "<@$appbot> derp $AVOCADO_TEXT",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
@@ -259,13 +265,13 @@ object MockAppMentions {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "app_mention",
+                    type = APP_MENTION,
                     channel = general,
                     user = jeremy,
                     text = "<@$appbot> leaderboard",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
@@ -275,13 +281,44 @@ object MockAppMentions {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "app_mention",
+                    type = APP_MENTION,
                     channel = general,
                     user = jeremy,
                     text = "<@$appbot> show me the LEADERBOARD",
                     ts = "1355517523.000005"
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
+            authedUsers = listOf(appbot),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
+}
+
+object MockJoinedChannelEvents {
+    val botJoined = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = JoinedChannelEvent(
+                    type = MEMBER_JOINED_CHANNEL,
+                    channel = general,
+                    user = appbot
+            ),
+            type = EVENT_CALLBACK,
+            authedUsers = listOf(appbot),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
+    val markJoined = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = JoinedChannelEvent(
+                    type = MEMBER_JOINED_CHANNEL,
+                    channel = general,
+                    user = mark
+            ),
+            type = EVENT_CALLBACK,
             authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
@@ -324,7 +361,7 @@ object MockUserChangeEvent {
             teamId = "abc",
             apiAppId = "123",
             event = UserChangeEvent(
-                    type = "user_change",
+                    type = USER_CHANGE,
                     user = SlackUser(
                             id = mark,
                             name = "markardito",
@@ -337,7 +374,7 @@ object MockUserChangeEvent {
                             isUltraRestricted = false
                     )
             ),
-            type = "event_callback",
+            type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890

@@ -12,6 +12,7 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels.general
+import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
@@ -54,7 +55,7 @@ class MessageIntegrationTest {
 
     @Before
     fun setUp() {
-        controller = EventController(token, EventService(receiptRepository, slackClient, userService))
+        controller = EventController(token, EventService(receiptRepository, slackClient, userService, MockIds.appbot))
     }
 
     @After

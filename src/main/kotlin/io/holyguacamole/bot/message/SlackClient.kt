@@ -1,6 +1,5 @@
 package io.holyguacamole.bot.message
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -52,6 +51,25 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                 "left to give out today."
     }
 
+    fun postWelcomeMessage(channel: String) {
+        val attachments = craftWelcomeMessage()
+        postMessage(channel, "", attachments)
+    }
+
+    fun craftWelcomeMessage(): MessageAttachment {
+        val pretext = "Hola! My name is HolyGuacamole. You can use me to give someone an :avocado: when you'd like to show praise, appreciation, or to add a little happiness to their day."
+        val title = "How it Works"
+        val text = "- Everyone has 5 avocados to give out per day.\n" +
+                "- To give someone an avocado, add an avocado emoji after their username like this: `@username You're a guac star! :avocado:`\n" +
+                "- Avocados are best served with a nice message!\n" +
+                "- You can give avocados to anyone on your team. I am always watching, so you don't need to invite me to your channel unless you want to talk to me.\n" +
+                "- If you want to interact with me directly, you can invite me like this: \n" +
+                "`/invite @holyguacamole`\n" +
+                "- You can see the leaderboard by typing: `@holyguacamole leaderboard`"
+
+        return MessageAttachment(title, pretext, text, listOf("text"))
+    }
+
     private fun String.asMention(): String = "<@$this>"
     private fun String.pluralize(n: Int): String = if (n != 1) "${this}s" else this
 
@@ -92,7 +110,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
         return jacksonObjectMapper().readValue(response, SlackOpenConversationResponse::class.java).channel?.id!!
     }
 
-    private fun postMessage(channel: String, message: String) {
+    private fun postMessage(channel: String, message: String, attachments: MessageAttachment? = null) {
         Unirest
                 .post("$host/api/chat.postMessage")
                 .header("Authorization", "Bearer $botToken")
@@ -100,7 +118,8 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                 .header("Accept", "application/json")
                 .body(jacksonObjectMapper().writeValueAsString(
                         SlackMessage(channel = channel,
-                                text = message
+                                text = message,
+                                attachments = attachments
                         )
                 ))
                 .asString()
@@ -118,8 +137,15 @@ class SlackClient(@Value("\${slack.host}") val host: String,
 }
 
 data class SlackOpenConversationRequest(val users: String)
-data class SlackMessage(val channel: String, val text: String)
+data class SlackMessage(val channel: String, val text: String, val attachments: MessageAttachment? = null)
 data class SlackEphemeralMessage(val channel: String, val text: String, val user: String)
+
+data class MessageAttachment(
+        val title: String,
+        val pretext: String,
+        val text: String,
+        @JsonProperty("mrkdwn_in") val markdownIn: List<String>
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SlackOpenConversationResponse(val ok: String, val channel: Channel?, val error: String?)

@@ -17,13 +17,16 @@ import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels
 import io.holyguacamole.bot.MockChannels.general
+import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
+import io.holyguacamole.bot.MockJoinedChannelEvents
 import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.MockUserChangeEvent
 import io.holyguacamole.bot.MockUsers
 import io.holyguacamole.bot.controller.EventCallback
+import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.slack.SlackUser
@@ -46,7 +49,7 @@ class EventServiceTest {
         whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn emptyList<AvocadoReceipt>()
         whenever(it.findByEventId(any())) doReturn emptyList<AvocadoReceipt>()
     }
-    private val eventService = EventService(repository, slackClient, userService)
+    private val eventService = EventService(repository, slackClient, userService, MockIds.appbot)
 
     @Test
     fun `it knows how many avocados someone is trying to send`() {
@@ -207,7 +210,7 @@ class EventServiceTest {
     @Test
     fun `it calls the chat service to post the leaderboard`() {
         val eventCallback = emptyEventCallback.copy(
-                event = emptyMessageEvent.copy(type = "app_mention", channel = "GENERAL", text = "leaderboard")
+                event = emptyMessageEvent.copy(type = APP_MENTION, channel = "GENERAL", text = "leaderboard")
         )
         eventService.process(eventCallback)
 
@@ -265,6 +268,20 @@ class EventServiceTest {
                 receivers = listOf(mark),
                 remainingAvocados = 1
         )
+    }
+
+    @Test
+    fun `it calls the slack client to post a message when the bot was invited to a channel`() {
+        eventService.process(MockJoinedChannelEvents.botJoined)
+
+        verify(slackClient).postWelcomeMessage(channel = MockChannels.general)
+    }
+
+    @Test
+    fun `it doesn't call the slack client if a regular user was invited to a channel`() {
+        eventService.process(MockJoinedChannelEvents.markJoined)
+
+        verifyZeroInteractions(slackClient)
     }
 
     private val emptyMessageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")

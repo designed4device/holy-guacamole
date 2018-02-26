@@ -2,24 +2,36 @@ package io.holyguacamole.bot.message
 
 import io.holyguacamole.bot.AVOCADO_TEXT
 import io.holyguacamole.bot.controller.EventCallback
+import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
+import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
+import io.holyguacamole.bot.controller.EventCallbackType.MESSAGE
+import io.holyguacamole.bot.controller.EventCallbackType.USER_CHANGE
+import io.holyguacamole.bot.controller.JoinedChannelEvent
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.toUser
 import io.holyguacamole.bot.user.UserService
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
-class EventService(val repository: AvocadoReceiptRepository, val slackClient: SlackClient, val userService: UserService) {
+class EventService(
+        val repository: AvocadoReceiptRepository,
+        val slackClient: SlackClient,
+        val userService: UserService,
+        @Value("\${bot.userId}") val bot: String
+) {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     fun process(eventCallback: EventCallback): Boolean =
             when (eventCallback.event.type) {
-                "app_mention" -> processAppMentionEvent(eventCallback.event as MessageEvent)
-                "message" -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
-                "user_change" -> processUserChangeEvent((eventCallback.event as UserChangeEvent).user)
+                APP_MENTION -> processAppMentionEvent(eventCallback.event as MessageEvent)
+                MESSAGE -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
+                USER_CHANGE -> processUserChangeEvent((eventCallback.event as UserChangeEvent).user)
+                MEMBER_JOINED_CHANNEL -> processMemberJoinedChannelEvent(eventCallback.event as JoinedChannelEvent)
                 else -> false
             }
 
@@ -102,6 +114,13 @@ class EventService(val repository: AvocadoReceiptRepository, val slackClient: Sl
 
     private fun processUserChangeEvent(slackUser: SlackUser): Boolean {
         userService.replace(slackUser.toUser())
+        return true
+    }
+
+    private fun processMemberJoinedChannelEvent(event: JoinedChannelEvent): Boolean {
+        if (event.user == bot) {
+            slackClient.postWelcomeMessage(event.channel)
+        }
         return true
     }
 }

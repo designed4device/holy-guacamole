@@ -4,6 +4,9 @@ slack:
     verification: thisisagoodtoken
     bot: iamthebestbot
 
+bot:
+  userId: bestbot
+
 logging:
   level:
     io.holyguacamole.bot.controller: INFO
