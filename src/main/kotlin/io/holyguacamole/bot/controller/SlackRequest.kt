@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
+import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
 import io.holyguacamole.bot.controller.EventCallbackType.MESSAGE
 import io.holyguacamole.bot.controller.EventCallbackType.USER_CHANGE
 import io.holyguacamole.bot.controller.RequestType.EVENT_CALLBACK
@@ -62,7 +63,8 @@ data class UrlVerification(override val token: String,
 @JsonSubTypes(value = [
     JsonSubTypes.Type(value = MessageEvent::class, name = MESSAGE),
     JsonSubTypes.Type(value = MessageEvent::class, name = APP_MENTION),
-    JsonSubTypes.Type(value = UserChangeEvent::class, name = USER_CHANGE)
+    JsonSubTypes.Type(value = UserChangeEvent::class, name = USER_CHANGE),
+    JsonSubTypes.Type(value = JoinedChannelEvent::class, name = MEMBER_JOINED_CHANNEL)
 ])
 interface Event {
     val type: String

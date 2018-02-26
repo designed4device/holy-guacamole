@@ -2,8 +2,11 @@ package io.holyguacamole.bot.controller
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nhaarman.mockito_kotlin.mock
+import io.holyguacamole.bot.MockAppMentions
+import io.holyguacamole.bot.MockJoinedChannelEvents
 import io.holyguacamole.bot.MockMessages
 import io.holyguacamole.bot.MockUrlVerification
+import io.holyguacamole.bot.MockUserChangeEvent
 import org.junit.Test
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -62,5 +65,29 @@ class EventControllerTest {
                 .content("{\"token\": \"thisisagoodtoken\", \"type\": \"BAD\"}")
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `it receives app_mention events and returns a 200`() {
+        mvc.perform(post("/events")
+                .content(jacksonObjectMapper().writeValueAsString(MockAppMentions.leaderboard))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk)
+    }
+
+    @Test
+    fun `it receives user_change events and returns a 200`() {
+        mvc.perform(post("/events")
+                .content(jacksonObjectMapper().writeValueAsString(MockUserChangeEvent.markNameUpdate))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk)
+    }
+
+    @Test
+    fun `it receives member_joined_channel events and returns a 200`() {
+        mvc.perform(post("/events")
+                .content(jacksonObjectMapper().writeValueAsString(MockJoinedChannelEvents.botJoined))
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk)
     }
 }
