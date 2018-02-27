@@ -10,3 +10,4 @@ bot:
 logging:
   level:
     io.holyguacamole.bot.controller: INFO
+    org.springframework.web.filter.CommonsRequestLoggingFilter: debug
