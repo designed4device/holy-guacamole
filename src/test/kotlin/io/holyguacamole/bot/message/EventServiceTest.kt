@@ -271,6 +271,34 @@ class EventServiceTest {
     }
 
     @Test
+    fun `it reminds users to use avocados if they send mention(s) and taco(s) but no avocado(s)`() {
+        whenever(repository.findBySenderToday(any())).thenReturn(emptyList())
+
+        eventService.process(MockMessages.withSingleMentionAndSingleTaco)
+        verify(slackClient).postAvocadoReminder(general, patrick)
+        verifyNoMoreInteractions(slackClient)
+
+        eventService.process(MockMessages.withSingleMentionSingleAvocadoAndSingleTaco)
+        verify(slackClient).postSentAvocadoMessage(
+                channel = MockChannels.general,
+                sender = patrick,
+                avocadosEach = 1,
+                receivers = listOf(mark),
+                remainingAvocados = 4
+        )
+        verify(slackClient).sendAvocadoReceivedDirectMessage(
+                user = mark,
+                avocadosReceived = 1,
+                sender = patrick
+        )
+        verifyNoMoreInteractions(slackClient)
+
+        eventService.process(MockMessages.withNoMentionAndSingleTaco)
+        verifyNoMoreInteractions(slackClient)
+
+    }
+
+    @Test
     fun `it calls the slack client to post a message when the bot was invited to a channel`() {
         eventService.process(MockJoinedChannelEvents.botJoined)
 

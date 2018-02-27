@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mashape.unirest.http.Unirest
+import io.holyguacamole.bot.AVOCADO_TEXT
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.SlackUserResponse
 import org.springframework.beans.factory.annotation.Value
@@ -133,6 +134,15 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                 .header("Accept", "application/json")
                 .body(jacksonObjectMapper().writeValueAsString(slackEphemeralMessage))
                 .asString()
+    }
+
+    fun postAvocadoReminder(channel: String, user: String) {
+        postEphemeralMessage(
+                SlackEphemeralMessage(
+                        channel,
+                        "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?",
+                        user
+                ))
     }
 }
 

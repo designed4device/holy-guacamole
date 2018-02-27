@@ -213,6 +213,55 @@ object MockMessages {
             eventId = "12345678",
             eventTime = 1234567890
     )
+    val withSingleMentionAndSingleTaco = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    channel = general,
+                    user = patrick,
+                    text = "<@$mark> you're the best $TACO_TEXT",
+                    ts = "1355517523.000005"
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
+    val withSingleMentionSingleAvocadoAndSingleTaco = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    channel = general,
+                    user = patrick,
+                    text = "<@$mark> you're the best $AVOCADO_TEXT $TACO_TEXT",
+                    ts = "1355517523.000005"
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
+    val withNoMentionAndSingleTaco = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    channel = general,
+                    user = patrick,
+                    text = "you're the best $TACO_TEXT",
+                    ts = "1355517523.000005"
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
+
 }
 
 object MockAvocadoReceipts {

@@ -39,6 +39,10 @@ class EventService(
         val mentions = event.findMentionedPeople()
         val count = event.countGuacamoleIngredients()
 
+        if (mentions.isNotEmpty() && count == 0 && event.tacoCheck()) {
+            slackClient.postAvocadoReminder(event.channel, event.user)
+            return false
+        }
         if (count == 0 || mentions.isEmpty()) return false
 
         val sender = userService.findByUserIdOrGetFromSlack(event.user)
@@ -133,3 +137,4 @@ fun MessageEvent.findMentionedPeople(): List<String> = Regex("<@([0-9A-Z]*?)>")
         .mapNotNull { it.groups[1]?.value }
         .filter { it != this.user }
         .toList()
+fun MessageEvent.tacoCheck(): Boolean = this.text.contains(":taco:")

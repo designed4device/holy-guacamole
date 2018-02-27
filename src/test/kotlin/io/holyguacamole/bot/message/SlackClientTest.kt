@@ -14,7 +14,12 @@ import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.client.WireMock.verify
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.junit.WireMockRule
+import io.holyguacamole.bot.AVOCADO_TEXT
+import io.holyguacamole.bot.MockIds.jeremy
+import io.holyguacamole.bot.MockIds.mark
+import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
 import io.holyguacamole.bot.MockUsers.jeremyskywalker
 import io.holyguacamole.bot.MockUsers.markardito
@@ -24,10 +29,6 @@ import io.holyguacamole.bot.slack.SlackUserResponse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
-import io.holyguacamole.bot.MockIds.jeremy
-import io.holyguacamole.bot.MockIds.mark
-import io.holyguacamole.bot.MockIds.patrick
 
 class SlackClientTest {
 
@@ -273,6 +274,32 @@ class SlackClientTest {
         verify(
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
                         .withRequestBody(equalTo(expectedWelcomeMessage))
+                        .withHeader("Content-Type", equalTo("application/json"))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+    }
+
+    @Test
+    fun `it posts an ephemeral message to remind the user to send avocados instead of tacos`() {
+        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(postEphemeralMessageResponse)
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        slackClient.postAvocadoReminder(channel, mark)
+
+        val expectedMessage = "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?"
+
+        verify(
+                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
+                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
+                                "\"text\":\"$expectedMessage\"," +
+                                "\"user\":\"${markardito.userId}\"" +
+                                "}"))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))
                         .withHeader("Accept", equalTo("application/json"))
