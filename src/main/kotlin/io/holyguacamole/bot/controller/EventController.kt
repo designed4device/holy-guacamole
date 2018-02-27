@@ -1,10 +1,5 @@
 package io.holyguacamole.bot.controller
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeName
 import io.holyguacamole.bot.message.EventService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -28,7 +23,10 @@ class EventController(@Value("\${slack.token.verification}") val token: String, 
                 log.info(request.toString())
                 when (request) {
                     is UrlVerification -> ResponseEntity.ok(UrlVerificationResponse(challenge = request.challenge) as SlackResponse)
-                    is EventCallback -> ResponseEntity.status(200).body(EventCallbackResponse(service.process(request)) as SlackResponse)
+                    is EventCallback ->  {
+                        service.process(request)
+                        ResponseEntity.status(200).build()
+                    }
                     else -> ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build()
                 }
             }

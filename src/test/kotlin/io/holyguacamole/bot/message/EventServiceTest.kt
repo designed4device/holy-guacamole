@@ -202,12 +202,6 @@ class EventServiceTest {
     }
 
     @Test
-    fun `it returns true when it receives an app_mention event requesting the leaderboard`() {
-        assert(eventService.process(MockAppMentions.leaderboard)).isTrue()
-        assert(eventService.process(MockAppMentions.showMeTheLeaderboard)).isTrue()
-    }
-
-    @Test
     fun `it calls the chat service to post the leaderboard`() {
         val eventCallback = emptyEventCallback.copy(
                 event = emptyMessageEvent.copy(type = APP_MENTION, channel = "GENERAL", text = "leaderboard")

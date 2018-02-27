@@ -14,6 +14,7 @@ import io.holyguacamole.bot.slack.toUser
 import io.holyguacamole.bot.user.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
@@ -26,14 +27,15 @@ class EventService(
 
     private val log = LoggerFactory.getLogger(this.javaClass)
 
-    fun process(eventCallback: EventCallback): Boolean =
-            when (eventCallback.event.type) {
-                APP_MENTION -> processAppMentionEvent(eventCallback.event as MessageEvent)
-                MESSAGE -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
-                USER_CHANGE -> processUserChangeEvent((eventCallback.event as UserChangeEvent).user)
-                MEMBER_JOINED_CHANNEL -> processMemberJoinedChannelEvent(eventCallback.event as JoinedChannelEvent)
-                else -> false
-            }
+    @Async
+    fun process(eventCallback: EventCallback) {
+        when (eventCallback.event.type) {
+            APP_MENTION -> processAppMentionEvent(eventCallback.event as MessageEvent)
+            MESSAGE -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
+            USER_CHANGE -> processUserChangeEvent((eventCallback.event as UserChangeEvent).user)
+            MEMBER_JOINED_CHANNEL -> processMemberJoinedChannelEvent(eventCallback.event as JoinedChannelEvent)
+        }
+    }
 
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
         val mentions = event.findMentionedPeople()
