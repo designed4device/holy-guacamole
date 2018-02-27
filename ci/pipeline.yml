@@ -35,6 +35,6 @@ resources:
 - name: heroku
   type: git
   source:
-    uri: ssh://git@heroku.com/holy-guacamole.git
+    uri: ssh://git@heroku.com/holy-guacamole-test.git
     branch: master
     private_key: ((heroku-private-key))
