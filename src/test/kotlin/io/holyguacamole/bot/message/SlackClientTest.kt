@@ -1,7 +1,6 @@
 package io.holyguacamole.bot.message
 
 import assertk.assert
-import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -16,13 +15,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.junit.WireMockRule
-import io.holyguacamole.bot.AVOCADO_TEXT
-import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
-import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
-import io.holyguacamole.bot.MockUsers.jeremyskywalker
-import io.holyguacamole.bot.MockUsers.markardito
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.SlackUserProfile
 import io.holyguacamole.bot.slack.SlackUserResponse
@@ -44,7 +38,7 @@ class SlackClientTest {
     }
 
     @Test
-    fun `it posts the leaderboard to the Slack API`() {
+    fun `it posts a message to the Slack API`() {
         stubFor(post(urlEqualTo("/api/chat.postMessage"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -53,14 +47,54 @@ class SlackClientTest {
                 )
         )
 
-        slackClient.postLeaderboard("GENERAL", mapOf(feeneyfeeneybobeeney.name to 3, jeremyskywalker.name to 2, markardito.name to 1))
+        slackClient.postMessage(
+                channel = channel,
+                text = "message text",
+                attachments = listOf(MessageAttachment(
+                        title = "attachment title",
+                        pretext = "attachment pretext",
+                        text = "attachment text",
+                        markdownIn = listOf("pretext", "text")
+                ))
+        )
 
+        val expectedRequest = "{\"channel\":\"$channel\"," +
+                "\"text\":\"message text\"," +
+                "\"attachments\":[{" +
+                "\"title\":\"attachment title\"," +
+                "\"pretext\":\"attachment pretext\"," +
+                "\"text\":\"attachment text\"," +
+                "\"mrkdwn_in\":[\"pretext\",\"text\"]}" +
+                "]}"
         verify(
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
-                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
-                                "\"text\":\"${feeneyfeeneybobeeney.name}: 3\\n${jeremyskywalker.name}: 2\\n${markardito.name}: 1\"," +
-                                "\"attachments\":[]" +
-                                "}"))
+                        .withRequestBody(equalTo(expectedRequest))
+                        .withHeader("Content-Type", equalTo("application/json"))
+                        .withHeader("Authorization", equalTo("Bearer $token"))
+                        .withHeader("Accept", equalTo("application/json"))
+        )
+    }
+
+    @Test
+    fun `it posts an ephemeral message to the Slack API`() {
+        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(postEphemeralMessageResponse)
+                        .withHeader("Content-Type", "application/json")
+                )
+        )
+
+        slackClient.postEphemeralMessage(channel = channel, user = "user", text = "message text")
+
+        val expectedRequest = "{\"channel\":\"$channel\"," +
+                "\"text\":\"message text\"," +
+                "\"user\":\"user\"" +
+                "}"
+
+        verify(
+                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
+                        .withRequestBody(equalTo(expectedRequest))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))
                         .withHeader("Accept", equalTo("application/json"))
@@ -110,109 +144,7 @@ class SlackClientTest {
     }
 
     @Test
-    fun `it posts an ephemeral message to avocado sender`() {
-        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(postEphemeralMessageResponse)
-                        .withHeader("Content-Type", "application/json")
-                )
-        )
-
-        slackClient.postSentAvocadoMessage(
-                channel = "GENERAL",
-                sender = markardito.userId,
-                avocadosEach = 1,
-                receivers = listOf(feeneyfeeneybobeeney.userId),
-                remainingAvocados = 4
-        )
-
-        val expectedMessage = "<@$patrick> received 1 avocado from you. You have 4 avocados left to give out today."
-
-        verify(
-                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
-                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
-                                "\"text\":\"$expectedMessage\"," +
-                                "\"user\":\"${markardito.userId}\"" +
-                                "}"))
-                        .withHeader("Content-Type", equalTo("application/json"))
-                        .withHeader("Authorization", equalTo("Bearer $token"))
-                        .withHeader("Accept", equalTo("application/json"))
-        )
-    }
-
-    @Test
-    fun `it posts an ephemeral message to avocado sender when they do not have enough avocados left to give`() {
-        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(postEphemeralMessageResponse)
-                        .withHeader("Content-Type", "application/json")
-                )
-        )
-
-        slackClient.postNotEnoughAvocadosMessage(channel = "GENERAL", sender = markardito.userId, remainingAvocados = 4)
-
-        val expectedMessage = "You only have 4 avocados left to give out today!"
-
-        verify(
-                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
-                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
-                                "\"text\":\"$expectedMessage\"," +
-                                "\"user\":\"${markardito.userId}\"" +
-                                "}"))
-                        .withHeader("Content-Type", equalTo("application/json"))
-                        .withHeader("Authorization", equalTo("Bearer $token"))
-                        .withHeader("Accept", equalTo("application/json"))
-        )
-    }
-
-    @Test // TODO these tests take a long time. is this one necessary?
-    fun `it posts an ephemeral message to avocado sender when they have zero left to give`() {
-        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(postEphemeralMessageResponse)
-                        .withHeader("Content-Type", "application/json")
-                )
-        )
-
-        slackClient.postNotEnoughAvocadosMessage(channel = "GENERAL", sender = markardito.userId, remainingAvocados = 0)
-
-        val expectedMessage = "You have no more avocados left to give out today!"
-
-        verify(
-                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
-                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
-                                "\"text\":\"$expectedMessage\"," +
-                                "\"user\":\"${markardito.userId}\"" +
-                                "}"))
-                        .withHeader("Content-Type", equalTo("application/json"))
-                        .withHeader("Authorization", equalTo("Bearer $token"))
-                        .withHeader("Accept", equalTo("application/json"))
-        )
-    }
-
-    @Test
-    fun `it creates a message listing all avocado receivers`() {
-        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick), 1, 4))
-                .isEqualTo("<@$patrick> received 1 avocado from you. You have 4 avocados left to give out today.")
-
-        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick, jeremy), 1, 3))
-                .isEqualTo("<@$patrick> and <@$jeremy> each received 1 avocado from you. You have 3 avocados left to give out today.")
-
-        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick, jeremy, mark), 1, 2))
-                .isEqualTo("<@$patrick>, <@$jeremy>, and <@$mark> each received 1 avocado from you. You have 2 avocados left to give out today.")
-
-        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick, jeremy), 2, 1))
-                .isEqualTo("<@$patrick> and <@$jeremy> each received 2 avocados from you. You have 1 avocado left to give out today.")
-
-        assert(slackClient.craftAvocadoReceiptMessage(listOf(patrick), 5, 0))
-                .isEqualTo("<@$patrick> received 5 avocados from you. You have no avocados left to give out today.")
-    }
-
-    @Test
-    fun `it opens a direct IM channel and sends a direct message to a user`() {
+    fun `it sends a direct message to a user`() {
         stubFor(post(urlEqualTo("/api/conversations.open"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -228,78 +160,24 @@ class SlackClientTest {
                 )
         )
 
-        slackClient.sendAvocadoReceivedDirectMessage(user = mark, avocadosReceived = 1, sender = patrick)
+        slackClient.sendDirectMessage(user = mark, text = "message text")
 
         verify(
                 postRequestedFor(urlEqualTo("/api/conversations.open"))
-                        .withRequestBody(equalTo("{" +
-                                "\"users\":\"$mark\"" +
-                                "}"))
+                        .withRequestBody(equalTo("{\"users\":\"$mark\"}"))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))
                         .withHeader("Accept", equalTo("application/json"))
         )
+
+        val expectedPostMessageResponse = "{\"channel\":\"$channelId\"," +
+                "\"text\":\"message text\"," +
+                "\"attachments\":[]" +
+                "}"
 
         verify(
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
-                        .withRequestBody(equalTo("{\"channel\":\"$channelId\"," +
-                                "\"text\":\"You received 1 avocado from <@$patrick>!\"," +
-                                "\"attachments\":[]" +
-                                "}"))
-                        .withHeader("Content-Type", equalTo("application/json"))
-                        .withHeader("Authorization", equalTo("Bearer $token"))
-                        .withHeader("Accept", equalTo("application/json"))
-        )
-    }
-
-    @Test
-    fun `it creates a message`() {
-        assert(slackClient.craftAvocadoReceivedMessage(1, patrick)).isEqualTo("You received 1 avocado from <@$patrick>!")
-
-        assert(slackClient.craftAvocadoReceivedMessage(2, patrick)).isEqualTo("You received 2 avocados from <@$patrick>!")
-    }
-
-    @Test
-    fun `it posts a welcome message`() {
-        stubFor(post(urlEqualTo("/api/chat.postMessage"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(postMessageResponse)
-                        .withHeader("Content-Type", "application/json")
-                )
-        )
-
-        slackClient.postWelcomeMessage(channelId)
-
-        verify(
-                postRequestedFor(urlEqualTo("/api/chat.postMessage"))
-                        .withRequestBody(equalTo(expectedWelcomeMessage))
-                        .withHeader("Content-Type", equalTo("application/json"))
-                        .withHeader("Authorization", equalTo("Bearer $token"))
-                        .withHeader("Accept", equalTo("application/json"))
-        )
-    }
-
-    @Test
-    fun `it posts an ephemeral message to remind the user to send avocados instead of tacos`() {
-        stubFor(post(urlEqualTo("/api/chat.postEphemeral"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(postEphemeralMessageResponse)
-                        .withHeader("Content-Type", "application/json")
-                )
-        )
-
-        slackClient.postAvocadoReminder(channel, mark)
-
-        val expectedMessage = "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?"
-
-        verify(
-                postRequestedFor(urlEqualTo("/api/chat.postEphemeral"))
-                        .withRequestBody(equalTo("{\"channel\":\"$channel\"," +
-                                "\"text\":\"$expectedMessage\"," +
-                                "\"user\":\"${markardito.userId}\"" +
-                                "}"))
+                        .withRequestBody(equalTo(expectedPostMessageResponse))
                         .withHeader("Content-Type", equalTo("application/json"))
                         .withHeader("Authorization", equalTo("Bearer $token"))
                         .withHeader("Accept", equalTo("application/json"))
@@ -339,15 +217,4 @@ class SlackClientTest {
     )
 
     private val userNotFoundResponse = SlackUserResponse(ok = true, error = "user_not_found")
-
-    private val expectedWelcomeMessage = jacksonObjectMapper().writeValueAsString(SlackMessage(
-            channel = channelId,
-            text = "",
-            attachments = listOf(MessageAttachment(
-                    title = "How it Works",
-                    pretext = "Hola! My name is HolyGuacamole. You can use me to give someone an :avocado: when you'd like to show praise, appreciation, or to add a little happiness to their day.",
-                    text = "- Everyone has 5 avocados to give out per day.\n- To give someone an avocado, add an avocado emoji after their username like this: `@username You're a guac star! :avocado:`\n- Avocados are best served with a nice message!\n- You can give avocados to anyone on your team. I am always watching, so you don't need to invite me to your channel unless you want to talk to me.\n- If you want to interact with me directly, you can invite me like this: \n`/invite @holyguacamole`\n- You can see the leaderboard by typing: `@holyguacamole leaderboard`",
-                    markdownIn = listOf("text")
-            ))
-    ))
 }

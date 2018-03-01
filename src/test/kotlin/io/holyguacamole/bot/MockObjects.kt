@@ -17,8 +17,9 @@ import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.RequestType.EVENT_CALLBACK
 import io.holyguacamole.bot.controller.RequestType.URL_VERIFICATION
 import io.holyguacamole.bot.controller.UserChangeEvent
-import io.holyguacamole.bot.message.AvocadoCount
 import io.holyguacamole.bot.message.AvocadoReceipt
+import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_TEXT
+import io.holyguacamole.bot.message.ContentCrafter.TACO_TEXT
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.SlackUserProfile
 import io.holyguacamole.bot.user.User
@@ -374,14 +375,6 @@ object MockJoinedChannelEvents {
     )
 }
 
-object MockLeaderboards {
-    val patrick3jeremy2mark1 = listOf(
-            AvocadoCount(patrick, 3),
-            AvocadoCount(jeremy, 2),
-            AvocadoCount(mark, 1)
-    )
-}
-
 object MockUsers {
     val markardito = User(userId = mark, name = "markardito", isBot = false)
     val eightRib = markardito.copy(name = "8rib")
@@ -427,5 +420,19 @@ object MockUserChangeEvent {
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
+    )
+}
+
+object Empty {
+    val messageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")
+    val eventCallback = EventCallback(
+            token = "",
+            type = "",
+            teamId = "",
+            apiAppId = "",
+            event = messageEvent,
+            authedUsers = emptyList(),
+            eventId = "",
+            eventTime = 0L
     )
 }

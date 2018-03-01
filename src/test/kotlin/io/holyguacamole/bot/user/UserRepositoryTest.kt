@@ -7,6 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockUsers
+import io.holyguacamole.nullifyIds
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -71,5 +72,3 @@ class UserRepositoryTest {
         assert(response?.name).isEqualTo(MockUsers.feeneyfeeneybobeeney.name)
     }
 }
-
-fun List<User>.nullifyIds(): List<User> = this.map { it.copy(id = null) }

@@ -8,6 +8,7 @@ import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
+import io.holyguacamole.nullifyIds
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

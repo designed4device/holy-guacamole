@@ -15,9 +15,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @EnableAsync
 class BotApplication
 
-const val AVOCADO_TEXT = ":avocado:"
-const val TACO_TEXT = ":taco:"
-
 fun main(args: Array<String>) {
     runApplication<BotApplication>(*args)
 }

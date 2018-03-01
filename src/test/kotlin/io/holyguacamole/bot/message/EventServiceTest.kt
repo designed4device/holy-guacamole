@@ -4,33 +4,33 @@ import assertk.assert
 import assertk.assertions.containsAll
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isTrue
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
+import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import com.nhaarman.mockito_kotlin.whenever
-import io.holyguacamole.bot.MockAppMentions
+import io.holyguacamole.bot.Empty
 import io.holyguacamole.bot.MockAvocadoReceipts
-import io.holyguacamole.bot.MockChannels
 import io.holyguacamole.bot.MockChannels.general
-import io.holyguacamole.bot.MockIds
+import io.holyguacamole.bot.MockIds.appbot
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockJoinedChannelEvents
 import io.holyguacamole.bot.MockMessages
-import io.holyguacamole.bot.MockUserChangeEvent
-import io.holyguacamole.bot.MockUsers
-import io.holyguacamole.bot.controller.EventCallback
+import io.holyguacamole.bot.MockUserChangeEvent.markNameUpdate
+import io.holyguacamole.bot.MockUsers.eightRib
+import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
+import io.holyguacamole.bot.MockUsers.holyguacamole
+import io.holyguacamole.bot.MockUsers.jeremyskywalker
+import io.holyguacamole.bot.MockUsers.markardito
 import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
 import io.holyguacamole.bot.controller.MessageEvent
-import io.holyguacamole.bot.controller.UserChangeEvent
-import io.holyguacamole.bot.slack.SlackUser
-import io.holyguacamole.bot.slack.SlackUserProfile
+import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
 import io.holyguacamole.bot.user.UserService
 import org.junit.Test
 import org.mockito.Mockito.anyList
@@ -39,29 +39,29 @@ class EventServiceTest {
 
     private val slackClient: SlackClient = mock()
     private val userService: UserService = mock {
-        whenever(it.findByUserIdOrGetFromSlack(MockUsers.markardito.userId)) doReturn MockUsers.markardito
-        whenever(it.findByUserIdOrGetFromSlack(MockUsers.holyguacamole.userId)) doReturn MockUsers.holyguacamole
-        whenever(it.findByUserIdOrGetFromSlack(MockUsers.feeneyfeeneybobeeney.userId)) doReturn MockUsers.feeneyfeeneybobeeney
-        whenever(it.findByUserIdOrGetFromSlack(MockUsers.jeremyskywalker.userId)) doReturn MockUsers.jeremyskywalker
+        whenever(it.findByUserIdOrGetFromSlack(markardito.userId)) doReturn markardito
+        whenever(it.findByUserIdOrGetFromSlack(holyguacamole.userId)) doReturn holyguacamole
+        whenever(it.findByUserIdOrGetFromSlack(feeneyfeeneybobeeney.userId)) doReturn feeneyfeeneybobeeney
+        whenever(it.findByUserIdOrGetFromSlack(jeremyskywalker.userId)) doReturn jeremyskywalker
     }
 
     private val repository: AvocadoReceiptRepository = mock {
         whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn emptyList<AvocadoReceipt>()
         whenever(it.findByEventId(any())) doReturn emptyList<AvocadoReceipt>()
     }
-    private val eventService = EventService(repository, slackClient, userService, MockIds.appbot)
+    private val eventService = EventService(repository, slackClient, userService, appbot)
 
     @Test
     fun `it knows how many avocados someone is trying to send`() {
-        assert(emptyMessageEvent.copy(text = ":avocado:").countGuacamoleIngredients()).isEqualTo(1)
-        assert(emptyMessageEvent.copy(text = ":avocado: :avocado:").countGuacamoleIngredients()).isEqualTo(2)
-        assert(emptyMessageEvent.copy(text = ":avocado::avocado:").countGuacamoleIngredients()).isEqualTo(2)
-        assert(emptyMessageEvent.copy(text = ":avocado:avocado:").countGuacamoleIngredients()).isEqualTo(1)
+        assert(Empty.messageEvent.copy(text = ":avocado:").countGuacamoleIngredients()).isEqualTo(1)
+        assert(Empty.messageEvent.copy(text = ":avocado: :avocado:").countGuacamoleIngredients()).isEqualTo(2)
+        assert(Empty.messageEvent.copy(text = ":avocado::avocado:").countGuacamoleIngredients()).isEqualTo(2)
+        assert(Empty.messageEvent.copy(text = ":avocado:avocado:").countGuacamoleIngredients()).isEqualTo(1)
     }
 
     @Test
     fun `it knows who the avocados were given to`() {
-        val event = emptyMessageEvent.copy(text = "<@USER1> <@USER2>")
+        val event = Empty.messageEvent.copy(text = "<@USER1> <@USER2>")
 
         assert(event.findMentionedPeople()).containsAll("USER1", "USER2")
     }
@@ -138,12 +138,10 @@ class EventServiceTest {
     fun `it posts a message to the user after they send an avocado`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
 
-        verify(slackClient).postSentAvocadoMessage(
-                channel = MockChannels.general,
-                sender = patrick,
-                avocadosEach = 1,
-                receivers = listOf(mark),
-                remainingAvocados = 4
+        verify(slackClient).postEphemeralMessage(
+                channel = eq(general),
+                user = eq(patrick),
+                text = any()
         )
     }
 
@@ -157,6 +155,14 @@ class EventServiceTest {
     @Test
     fun `it sends a message to the user if they don't have enough avocados to give`() {
         whenever(repository.findBySenderToday(any())).thenReturn(listOf(
+                MockAvocadoReceipts.jeremyToMark,
+                MockAvocadoReceipts.jeremyToMark
+        ))
+        eventService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
+
+        verify(slackClient).postEphemeralMessage(eq(general), eq(jeremy), any())
+
+        whenever(repository.findBySenderToday(any())).thenReturn(listOf(
                 MockAvocadoReceipts.patrickToMark,
                 MockAvocadoReceipts.patrickToMark,
                 MockAvocadoReceipts.patrickToMark,
@@ -164,17 +170,15 @@ class EventServiceTest {
         ))
         eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
 
-        verify(slackClient).postNotEnoughAvocadosMessage(general, patrick, 1)
+        verify(slackClient).postEphemeralMessage(eq(general), eq(patrick), any())
     }
 
     @Test
     fun `it sends a direct message to the avocado receivers`() {
-        eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
-        verify(slackClient).sendAvocadoReceivedDirectMessage(user = mark, avocadosReceived = 1, sender = patrick)
-
         eventService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
-        verify(slackClient).sendAvocadoReceivedDirectMessage(user = mark, avocadosReceived = 2, sender = jeremy)
-        verify(slackClient).sendAvocadoReceivedDirectMessage(user = patrick, avocadosReceived = 2, sender = jeremy)
+
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any())
+        verify(slackClient).sendDirectMessage(user = eq(patrick), text = any())
     }
 
     @Test
@@ -203,19 +207,27 @@ class EventServiceTest {
 
     @Test
     fun `it calls the chat service to post the leaderboard`() {
-        val eventCallback = emptyEventCallback.copy(
-                event = emptyMessageEvent.copy(type = APP_MENTION, channel = "GENERAL", text = "leaderboard")
+        whenever(repository.getLeaderboard()).thenReturn(listOf(
+                AvocadoCount(jeremy, 3),
+                AvocadoCount(patrick, 2),
+                AvocadoCount(mark, 1)
+        ))
+
+        val eventCallback = Empty.eventCallback.copy(
+                event = Empty.messageEvent.copy(type = APP_MENTION, channel = general, text = "leaderboard")
         )
         eventService.process(eventCallback)
 
-        verify(slackClient).postLeaderboard("GENERAL", mapOf())
+        val leaderboard = "${jeremyskywalker.name}: 3\n${feeneyfeeneybobeeney.name}: 2\n${markardito.name}: 1"
+
+        verify(slackClient).postMessage(general, leaderboard)
     }
 
     @Test
-    fun `it replaces a user`(){
-        eventService.process(MockUserChangeEvent.markNameUpdate)
+    fun `it replaces a user`() {
+        eventService.process(markNameUpdate)
 
-        verify(userService).replace(MockUsers.eightRib)
+        verify(userService).replace(eightRib)
     }
 
     @Test
@@ -247,56 +259,27 @@ class EventServiceTest {
     }
 
     @Test
-    fun `it sends a receipt message to the user that sent avocados`() {
-        whenever(repository.findBySenderToday(any())).thenReturn(listOf(
-                MockAvocadoReceipts.patrickToJeremy,
-                MockAvocadoReceipts.patrickToMark
-        ))
-
-        eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
-
-        verify(slackClient).postSentAvocadoMessage(
-                channel = MockChannels.general,
-                sender = patrick,
-                avocadosEach = 2,
-                receivers = listOf(mark),
-                remainingAvocados = 1
-        )
-    }
-
-    @Test
-    fun `it reminds users to use avocados if they send mention(s) and taco(s) but no avocado(s)`() {
+    fun `it reminds users to use avocados if they send a mention and a taco`() {
         whenever(repository.findBySenderToday(any())).thenReturn(emptyList())
 
         eventService.process(MockMessages.withSingleMentionAndSingleTaco)
-        verify(slackClient).postAvocadoReminder(general, patrick)
-        verifyNoMoreInteractions(slackClient)
+        eventService.process(MockMessages.withNoMentionAndSingleTaco)
+        verify(slackClient).postEphemeralMessage(eq(general), eq(patrick), any())
+    }
+
+    @Test
+    fun `it does not remind users to use avocados if they send a mention, a taco, and an avocado`() {
+        whenever(repository.findBySenderToday(any())).thenReturn(emptyList())
 
         eventService.process(MockMessages.withSingleMentionSingleAvocadoAndSingleTaco)
-        verify(slackClient).postSentAvocadoMessage(
-                channel = MockChannels.general,
-                sender = patrick,
-                avocadosEach = 1,
-                receivers = listOf(mark),
-                remainingAvocados = 4
-        )
-        verify(slackClient).sendAvocadoReceivedDirectMessage(
-                user = mark,
-                avocadosReceived = 1,
-                sender = patrick
-        )
-        verifyNoMoreInteractions(slackClient)
-
-        eventService.process(MockMessages.withNoMentionAndSingleTaco)
-        verifyNoMoreInteractions(slackClient)
-
+        verify(slackClient).postEphemeralMessage(eq(general), eq(patrick), any())
     }
 
     @Test
     fun `it calls the slack client to post a message when the bot was invited to a channel`() {
         eventService.process(MockJoinedChannelEvents.botJoined)
 
-        verify(slackClient).postWelcomeMessage(channel = MockChannels.general)
+        verify(slackClient).postMessage(channel = general, attachments = listOf(welcomeMessage))
     }
 
     @Test
@@ -305,27 +288,4 @@ class EventServiceTest {
 
         verifyZeroInteractions(slackClient)
     }
-
-    private val emptyMessageEvent = MessageEvent(type = "", channel = "", user = "", text = "", ts = "")
-    private val emptyUserChangeEvent = UserChangeEvent(
-            type = "",
-            user = SlackUser(
-                    id = "",
-                    name = "",
-                    profile = SlackUserProfile("", ""),
-                    isBot = false,
-                    isRestricted = false,
-                    isUltraRestricted = false
-            )
-    )
-    private val emptyEventCallback = EventCallback(
-            token = "",
-            type = "",
-            teamId = "",
-            apiAppId = "",
-            event = emptyMessageEvent,
-            authedUsers = emptyList(),
-            eventId = "",
-            eventTime = 0L
-    )
 }

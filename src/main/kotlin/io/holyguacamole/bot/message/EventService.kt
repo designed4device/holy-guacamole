@@ -1,6 +1,5 @@
 package io.holyguacamole.bot.message
 
-import io.holyguacamole.bot.AVOCADO_TEXT
 import io.holyguacamole.bot.controller.EventCallback
 import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
 import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
@@ -9,6 +8,13 @@ import io.holyguacamole.bot.controller.EventCallbackType.USER_CHANGE
 import io.holyguacamole.bot.controller.JoinedChannelEvent
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.UserChangeEvent
+import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_REMINDER
+import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_TEXT
+import io.holyguacamole.bot.message.ContentCrafter.TACO_TEXT
+import io.holyguacamole.bot.message.ContentCrafter.notEnoughAvocados
+import io.holyguacamole.bot.message.ContentCrafter.receivedAvocadoMessage
+import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
+import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.toUser
 import io.holyguacamole.bot.user.UserService
@@ -39,20 +45,25 @@ class EventService(
 
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
         val mentions = event.findMentionedPeople()
-        val count = event.countGuacamoleIngredients()
+        val avocadosInMessage = event.countGuacamoleIngredients()
 
-        if (mentions.isNotEmpty() && count == 0 && event.tacoCheck()) {
-            slackClient.postAvocadoReminder(event.channel, event.user)
+        if (mentions.isNotEmpty() && avocadosInMessage == 0 && event.tacoCheck()) {
+            slackClient.postEphemeralMessage(
+                    channel = event.channel,
+                    user = event.user,
+                    text = AVOCADO_REMINDER
+            )
             return false
         }
-        if (count == 0 || mentions.isEmpty()) return false
+        if (avocadosInMessage == 0 || mentions.isEmpty()) return false
 
         val sender = userService.findByUserIdOrGetFromSlack(event.user)
         if (sender == null || sender.isBot) return false
 
         val avocadosSentToday = repository.findBySenderToday(sender.userId).size
-        if ((avocadosSentToday + (count * mentions.size)) > 5) {
-            slackClient.postNotEnoughAvocadosMessage(event.channel, event.user, 5 - avocadosSentToday)
+        if ((avocadosSentToday + (avocadosInMessage * mentions.size)) > 5) {
+            val remainingAvocados = 5 - avocadosSentToday
+            slackClient.postEphemeralMessage(event.channel, event.user, notEnoughAvocados(remainingAvocados))
             return false
         }
 
@@ -61,7 +72,7 @@ class EventService(
         mentions.filter {
             userService.findByUserIdOrGetFromSlack(it)?.isBot == false
         }.flatMap { mention ->
-            mapUntil(count) {
+            mapUntil(avocadosInMessage) {
                 AvocadoReceipt(
                         eventId = eventId,
                         sender = event.user,
@@ -91,32 +102,34 @@ class EventService(
 
         val uniqueReceivers = avocadoReceipts.map { it.receiver }.distinct()
         val avocadosEach = avocadoReceipts.size / uniqueReceivers.size
+        val remainingAvocados = 5 - avocadosSentToday - uniqueReceivers.size * avocadosEach
 
-        slackClient.postSentAvocadoMessage(
+        slackClient.postEphemeralMessage(
                 channel = channel,
-                sender = sender,
-                avocadosEach = avocadosEach,
-                receivers = uniqueReceivers,
-                remainingAvocados = 5 - avocadosSentToday - uniqueReceivers.size * avocadosEach
+                user = sender,
+                text = sentAvocadoMessage(uniqueReceivers, avocadosEach, remainingAvocados)
         )
 
         uniqueReceivers.map {
-            slackClient.sendAvocadoReceivedDirectMessage(
-                    user = it,
-                    avocadosReceived = avocadosEach,
-                    sender = sender
-            )
+            slackClient.sendDirectMessage(it, receivedAvocadoMessage(avocadosEach, sender))
         }
     }
 
     private fun processAppMentionEvent(event: MessageEvent): Boolean {
         if (event.text.toLowerCase().contains("leaderboard")) {
-            slackClient.postLeaderboard(event.channel, repository.getLeaderboard().map {
-                Pair(userService.findByUserIdOrGetFromSlack(it.receiver)?.name ?: it.receiver, it.count)
-            }.toMap())
+            slackClient.postMessage(
+                    channel = event.channel,
+                    text = craftLeaderboardMessage(repository.getLeaderboard())
+            )
         }
         return true
     }
+
+    private fun craftLeaderboardMessage(avocadoCounts: List<AvocadoCount>): String =
+            avocadoCounts.joinToString(separator = "\n") {
+                val user = userService.findByUserIdOrGetFromSlack(it.receiver)?.name ?: it.receiver
+                "$user: ${it.count}"
+            }
 
     private fun processUserChangeEvent(slackUser: SlackUser): Boolean {
         userService.replace(slackUser.toUser())
@@ -125,7 +138,10 @@ class EventService(
 
     private fun processMemberJoinedChannelEvent(event: JoinedChannelEvent): Boolean {
         if (event.user == bot) {
-            slackClient.postWelcomeMessage(event.channel)
+            slackClient.postMessage(
+                    channel = event.channel,
+                    attachments = listOf(welcomeMessage)
+            )
         }
         return true
     }
@@ -139,4 +155,5 @@ fun MessageEvent.findMentionedPeople(): List<String> = Regex("<@([0-9A-Z]*?)>")
         .mapNotNull { it.groups[1]?.value }
         .filter { it != this.user }
         .toList()
-fun MessageEvent.tacoCheck(): Boolean = this.text.contains(":taco:")
+
+fun MessageEvent.tacoCheck(): Boolean = this.text.contains(TACO_TEXT)

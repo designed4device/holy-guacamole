@@ -6,6 +6,8 @@ import assertk.assertions.containsExactly
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
@@ -21,9 +23,10 @@ import io.holyguacamole.bot.MockUserChangeEvent
 import io.holyguacamole.bot.MockUsers
 import io.holyguacamole.bot.controller.EventController
 import io.holyguacamole.bot.controller.MessageEvent
-import io.holyguacamole.bot.user.User
 import io.holyguacamole.bot.user.UserRepository
 import io.holyguacamole.bot.user.UserService
+import io.holyguacamole.nullifyIds
+import io.holyguacamole.nullifyUserIds
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -90,8 +93,9 @@ class MessageIntegrationTest {
             assert(this).containsAll(*MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.toTypedArray())
         }
 
-        verify(slackClient).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 4)
-        verify(slackClient).sendAvocadoReceivedDirectMessage(mark, 1, patrick)
+        verify(slackClient).postEphemeralMessage(channel = eq(general), user = eq(patrick), text = any())
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any())
+
         verifyNoMoreInteractions(slackClient)
     }
 
@@ -111,9 +115,10 @@ class MessageIntegrationTest {
             assert(this).containsAll(*MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts.toTypedArray())
         }
 
-        verify(slackClient).postSentAvocadoMessage(general, jeremy, 2, listOf(mark, patrick), 1)
-        verify(slackClient).sendAvocadoReceivedDirectMessage(mark, 2, jeremy)
-        verify(slackClient).sendAvocadoReceivedDirectMessage(patrick, 2, jeremy)
+        verify(slackClient).postEphemeralMessage(channel = eq(general), user = eq(jeremy), text = any())
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any())
+        verify(slackClient).sendDirectMessage(user = eq(patrick), text = any())
+
         verifyNoMoreInteractions(slackClient)
     }
 
@@ -129,8 +134,9 @@ class MessageIntegrationTest {
         assert(receiptRepository.findByEventId(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts.first().eventId))
                 .hasSize(1)
 
-        verify(slackClient).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 4)
-        verify(slackClient).sendAvocadoReceivedDirectMessage(mark, 1, patrick)
+        verify(slackClient).postEphemeralMessage(channel = eq(general), user = eq(patrick), text = any())
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any())
+
         verifyNoMoreInteractions(slackClient)
     }
 
@@ -178,17 +184,9 @@ class MessageIntegrationTest {
 
         assert(receiptRepository.findAll()).hasSize(6)
 
-        verify(slackClient, times(2)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 4)
-        verify(slackClient, times(1)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 3)
-        verify(slackClient, times(1)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 2)
-        verify(slackClient, times(1)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 1)
-        verify(slackClient, times(1)).postSentAvocadoMessage(general, patrick, 1, listOf(mark), 0)
-
-        verify(slackClient, times(6)).sendAvocadoReceivedDirectMessage(mark, 1, patrick)
-        verify(slackClient).postNotEnoughAvocadosMessage(general, patrick, 0)
+        // 6 times for notifying user they sent an avocado, one more time to notify them that they're out
+        verify(slackClient, times(7)).postEphemeralMessage(channel = eq(general), user = eq(patrick), text = any())
+        verify(slackClient, times(6)).sendDirectMessage(user = eq(mark), text = any())
         verifyNoMoreInteractions(slackClient)
     }
 }
-
-fun List<AvocadoReceipt>.nullifyIds(): List<AvocadoReceipt> = this.map { it.copy(id = null) }
-fun List<User>.nullifyUserIds(): List<User> = this.map { it.copy(id = null) }
