@@ -74,7 +74,7 @@ interface Event {
 data class MessageEvent(override val type: String,
                         val channel: String,
                         val user: String = "",
-                        val text: String,
+                        val text: String? = null,
                         val ts: String,
                         val edited: MessageEventEdited? = null) : Event
 

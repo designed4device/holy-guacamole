@@ -116,7 +116,7 @@ class EventService(
     }
 
     private fun processAppMentionEvent(event: MessageEvent): Boolean {
-        if (event.text.toLowerCase().contains("leaderboard")) {
+        if (event.text?.toLowerCase()?.contains("leaderboard") == true) {
             slackClient.postMessage(
                     channel = event.channel,
                     text = craftLeaderboardMessage(repository.getLeaderboard())
@@ -149,11 +149,11 @@ class EventService(
 
 fun <T> mapUntil(end: Int, fn: () -> T): List<T> = (0 until end).map { fn() }
 
-fun MessageEvent.countGuacamoleIngredients(): Int = this.text.split(AVOCADO_TEXT).size - 1
+fun MessageEvent.countGuacamoleIngredients(): Int = (this.text?.split(AVOCADO_TEXT)?.size?: 1)  - 1
 fun MessageEvent.findMentionedPeople(): List<String> = Regex("<@([0-9A-Z]*?)>")
-        .findAll(this.text)
+        .findAll(this.text?: "")
         .mapNotNull { it.groups[1]?.value }
         .filter { it != this.user }
         .toList()
 
-fun MessageEvent.tacoCheck(): Boolean = this.text.contains(TACO_TEXT)
+fun MessageEvent.tacoCheck(): Boolean = this.text?.contains(TACO_TEXT)?: false
