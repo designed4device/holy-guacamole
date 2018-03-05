@@ -39,8 +39,12 @@ class EventService(
 
     private val log = LoggerFactory.getLogger(this.javaClass)
 
+    private val processedEvents = mutableListOf<String>()
+
     @Async
     fun process(eventCallback: EventCallback) {
+        if (eventAlreadyProcessed(eventCallback.eventId)) return
+
         when (eventCallback.event.type) {
             APP_MENTION -> processAppMentionEvent(eventCallback.event as MessageEvent)
             MESSAGE -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
@@ -48,6 +52,15 @@ class EventService(
             MEMBER_JOINED_CHANNEL -> processMemberJoinedChannelEvent(eventCallback.event as JoinedChannelEvent)
         }
     }
+
+    private fun eventAlreadyProcessed(eventId: String): Boolean =
+            if (processedEvents.contains(eventId)) {
+                true
+            } else {
+                processedEvents.add(eventId)
+                if (processedEvents.size > 100) processedEvents.removeAt(0)
+                false
+            }
 
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
 

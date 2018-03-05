@@ -12,6 +12,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
+import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels.general
 import io.holyguacamole.bot.MockIds
@@ -208,5 +209,14 @@ class MessageIntegrationTest {
         controller.message(MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday)
 
         assert(receiptRepository.findAll()).hasSize(4)
+    }
+
+    @Test
+    fun `it does not process the same event repeatedly`() {
+        controller.message(MockAppMentions.help)
+        controller.message(MockAppMentions.help)
+        controller.message(MockAppMentions.help)
+
+        verify(slackClient).postMessage(eq(general), eq(""), any())
     }
 }

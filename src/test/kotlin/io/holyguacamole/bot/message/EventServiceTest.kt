@@ -154,7 +154,7 @@ class EventServiceTest {
     }
 
     @Test
-    fun `it sends a message to the user if they don't have enough avocados to give`() {
+    fun `it sends a message to the user if they don't have enough avocados to give for multiple mentions`() {
         whenever(repository.findBySenderToday(any())).thenReturn(listOf(
                 MockAvocadoReceipts.jeremyToMark,
                 MockAvocadoReceipts.jeremyToMark
@@ -162,7 +162,10 @@ class EventServiceTest {
         eventService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
 
         verify(slackClient).postEphemeralMessage(eq(general), eq(jeremy), any())
+    }
 
+    @Test
+    fun `it sends a message to the user if they don't have enough avocados to give for single mention`() {
         whenever(repository.findBySenderToday(any())).thenReturn(listOf(
                 MockAvocadoReceipts.patrickToMark,
                 MockAvocadoReceipts.patrickToMark,
