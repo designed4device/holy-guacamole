@@ -30,6 +30,7 @@ import io.holyguacamole.bot.slack.SlackUserProfile
 import io.holyguacamole.bot.user.User
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.temporal.ChronoField
 
 
 private val token = "thisisagoodtoken"
@@ -277,7 +278,6 @@ object MockMessages {
                     type = "message",
                     subType = "message_deleted",
                     channel = general,
-                    user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
                     ts = todayPlusOneHour,
                     previousMessage = Message(
                             type = withMultipleMentionsAndMultipleAvocados.event.type,
@@ -299,7 +299,6 @@ object MockMessages {
                     type = "message",
                     subType = "message_deleted",
                     channel = general,
-                    user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
                     ts = todayPlusOneHour,
                     previousMessage = Message(
                             type = withMultipleMentionsAndMultipleAvocados.event.type,
@@ -357,10 +356,10 @@ object MockAvocadoReceipts {
     val multipleMentionsAndSingleAvocadoReceipts = listOf(jeremyToMark, jeremyToPatrick)
     val multipleMentionsAndMultipleAvocadosReceipts = listOf(jeremyToMark, jeremyToMark, jeremyToPatrick, jeremyToPatrick)
     val multipleMentionsAndMultipleAvocadosReceiptsYesterday = listOf(jeremyToMark.copy(
-            timestamp = yesterday.toLong()),
-            jeremyToMark.copy(timestamp = yesterday.toLong()),
-            jeremyToPatrick.copy(timestamp = yesterday.toLong()),
-            jeremyToPatrick.copy(timestamp = yesterday.toLong())
+            timestamp = yesterday.toTimestamp()),
+            jeremyToMark.copy(timestamp = yesterday.toTimestamp()),
+            jeremyToPatrick.copy(timestamp = yesterday.toTimestamp()),
+            jeremyToPatrick.copy(timestamp = yesterday.toTimestamp())
     )
 }
 
@@ -493,7 +492,9 @@ object Empty {
 }
 
 object Timestamp {
-    val today = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC).toString()
-    val todayPlusOneHour = LocalDateTime.now().plusHours(1).toEpochSecond(ZoneOffset.UTC).toString()
-    val yesterday = LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC).toString()
+    val today = LocalDateTime.now().toTimestampString()
+    val todayPlusOneHour = LocalDateTime.now().plusHours(1).toTimestampString()
+    val yesterday = LocalDateTime.now().minusDays(1).toTimestampString()
 }
+
+fun LocalDateTime.toTimestampString(): String = "${this.toEpochSecond(java.time.ZoneOffset.UTC)}.${this.getLong(ChronoField.MICRO_OF_SECOND)}"

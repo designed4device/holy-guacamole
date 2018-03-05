@@ -49,17 +49,17 @@ class EventService(
     }
 
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
-        if (event.user == null) return false
 
         if (event.previousMessage != null && event.previousMessage.ts.toTimestamp().isToday()) {
             when (event.subType) {
                 MESSAGE_DELETED -> repository.deleteBySenderAndTimestamp(
-                        sender = event.user,
+                        sender = event.previousMessage.user,
                         timestamp = event.previousMessage.ts.toTimestamp()
                 )
             }
             return true
         }
+        if (event.user == null) return false
 
         val mentions = event.findMentionedPeople()
         val avocadosInMessage = event.countGuacamoleIngredients()
