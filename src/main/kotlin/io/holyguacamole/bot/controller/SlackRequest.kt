@@ -24,7 +24,7 @@ object EventCallbackType {
     const val MEMBER_JOINED_CHANNEL = "member_joined_channel"
 }
 
-object EventCallbackSubType {
+object EventCallbackSubtype {
     const val MESSAGE_DELETED = "message_deleted"
 }
 
@@ -76,7 +76,7 @@ interface Event {
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageEvent(override val type: String,
-                        val subType: String? = null,
+                        val subtype: String? = null,
                         val channel: String,
                         val user: String? = null,
                         val text: String? = null,

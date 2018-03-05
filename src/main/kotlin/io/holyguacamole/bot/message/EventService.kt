@@ -1,7 +1,7 @@
 package io.holyguacamole.bot.message
 
 import io.holyguacamole.bot.controller.EventCallback
-import io.holyguacamole.bot.controller.EventCallbackSubType.MESSAGE_DELETED
+import io.holyguacamole.bot.controller.EventCallbackSubtype.MESSAGE_DELETED
 import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
 import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
 import io.holyguacamole.bot.controller.EventCallbackType.MESSAGE
@@ -51,8 +51,8 @@ class EventService(
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
 
         if (event.previousMessage != null && event.previousMessage.ts.toTimestamp().isToday()) {
-            log.info("previousMessage is from today with subtype=${event.subType}")
-            when (event.subType) {
+            log.info("previousMessage is from today with subtype=${event.subtype}")
+            when (event.subtype) {
                 MESSAGE_DELETED -> {
                     log.info("subtype is $MESSAGE_DELETED")
                     repository.deleteBySenderAndTimestamp(

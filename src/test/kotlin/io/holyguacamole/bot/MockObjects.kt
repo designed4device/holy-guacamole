@@ -29,7 +29,6 @@ import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.SlackUserProfile
 import io.holyguacamole.bot.user.User
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.temporal.ChronoField
 
 
@@ -276,7 +275,7 @@ object MockMessages {
             apiAppId = "123",
             event = MessageEvent(
                     type = "message",
-                    subType = "message_deleted",
+                    subtype = "message_deleted",
                     channel = general,
                     ts = todayPlusOneHour,
                     previousMessage = Message(
@@ -297,7 +296,7 @@ object MockMessages {
             apiAppId = "123",
             event = MessageEvent(
                     type = "message",
-                    subType = "message_deleted",
+                    subtype = "message_deleted",
                     channel = general,
                     ts = todayPlusOneHour,
                     previousMessage = Message(
