@@ -79,4 +79,18 @@ class AvocadoReceiptRepositoryTest {
 
         assert(repository.findBySenderToday(MockIds.patrick)).hasSize(5)
     }
+
+    @Test
+    fun `it deletes all avocado receipts for a user and timestamp`() {
+        val tstamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+        repository.saveAll(listOf(
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC)),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = tstamp),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = tstamp),
+                MockAvocadoReceipts.jeremyToMark.copy(timestamp = tstamp)
+        ))
+        repository.deleteBySenderAndTimestamp(sender = patrick, timestamp = tstamp)
+
+        assert(repository.findAll()).hasSize(2)
+    }
 }

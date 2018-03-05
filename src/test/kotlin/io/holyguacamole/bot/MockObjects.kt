@@ -13,6 +13,7 @@ import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
 import io.holyguacamole.bot.controller.EventCallbackType.MESSAGE
 import io.holyguacamole.bot.controller.EventCallbackType.USER_CHANGE
 import io.holyguacamole.bot.controller.JoinedChannelEvent
+import io.holyguacamole.bot.controller.Message
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.RequestType.EVENT_CALLBACK
 import io.holyguacamole.bot.controller.RequestType.URL_VERIFICATION
@@ -262,7 +263,28 @@ object MockMessages {
             eventId = "12345678",
             eventTime = 1234567890
     )
-
+    val withDeleteSubTypeForMultipleMentionsAndMultipleAvocados = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    subType = "message_deleted",
+                    channel = general,
+                    user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
+                    ts = "1355517523.000005",
+                    previousMessage = Message(
+                            type = withMultipleMentionsAndMultipleAvocados.event.type,
+                            user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
+                            text = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!,
+                            ts = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).ts
+                    )
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
 }
 
 object MockAvocadoReceipts {
@@ -306,7 +328,6 @@ object MockAvocadoReceipts {
     val singleMentionAndMultipleAvocadosReceipts = listOf(patrickToMark, patrickToMark)
     val multipleMentionsAndSingleAvocadoReceipts = listOf(jeremyToMark, jeremyToPatrick)
     val multipleMentionsAndMultipleAvocadosReceipts = listOf(jeremyToMark, jeremyToMark, jeremyToPatrick, jeremyToPatrick)
-
 }
 
 object MockAppMentions {

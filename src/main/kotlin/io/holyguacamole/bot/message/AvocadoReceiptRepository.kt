@@ -38,12 +38,17 @@ class AvocadoReceiptRepository(
             ).toList()
 
     fun findBySenderToday(sender: String): List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestampGreaterThan(sender, LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT).toEpochSecond(ZoneOffset.UTC))
+
+    fun deleteBySenderAndTimestamp(sender: String, timestamp: Long) {
+        mongoRepository.deleteBySenderAndTimestamp(sender, timestamp)
+    }
 }
 
 @Repository
 interface AvocadoReceiptMongoRepository : MongoRepository<AvocadoReceipt, String> {
     fun findByEventId(eventId: String): List<AvocadoReceipt>
     fun findBySenderAndTimestampGreaterThan(sender: String, timestamp: Long): List<AvocadoReceipt>
+    fun deleteBySenderAndTimestamp(sender: String, timestamp: Long)
 }
 
 data class AvocadoReceipt(

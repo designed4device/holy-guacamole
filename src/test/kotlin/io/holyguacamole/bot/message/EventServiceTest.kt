@@ -288,4 +288,15 @@ class EventServiceTest {
 
         verifyZeroInteractions(slackClient)
     }
+
+    @Test
+    fun `it deletes the correct avocado receipts when a delete event is received`() {
+        val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocados
+        eventService.process(deleteMessage)
+
+        verify(repository).deleteBySenderAndTimestamp(jeremy, (deleteMessage.event as MessageEvent).previousMessage?.ts?.toDouble()?.toLong()?: 0)
+        verifyNoMoreInteractions(repository)
+        verifyNoMoreInteractions(slackClient)
+        verifyNoMoreInteractions(userService)
+    }
 }

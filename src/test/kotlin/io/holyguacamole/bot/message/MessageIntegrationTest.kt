@@ -189,4 +189,14 @@ class MessageIntegrationTest {
         verify(slackClient, times(6)).sendDirectMessage(user = eq(mark), text = any())
         verifyNoMoreInteractions(slackClient)
     }
+
+    @Test
+    fun `it deletes avocados when it receives a message event with delete sub type` () {
+        userRepository.saveAll(listOf(MockUsers.feeneyfeeneybobeeney, MockUsers.markardito, MockUsers.jeremyskywalker))
+        receiptRepository.saveAll(MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts)
+
+        controller.message(MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocados)
+
+        assert(receiptRepository.findAll()).hasSize(0)
+    }
 }

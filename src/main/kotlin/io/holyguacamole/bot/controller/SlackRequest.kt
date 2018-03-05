@@ -24,6 +24,10 @@ object EventCallbackType {
     const val MEMBER_JOINED_CHANNEL = "member_joined_channel"
 }
 
+object EventCallbackSubType {
+    const val MESSAGE_DELETED = "message_deleted"
+}
+
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
@@ -72,11 +76,21 @@ interface Event {
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageEvent(override val type: String,
+                        val subType: String? = null,
                         val channel: String,
                         val user: String = "",
                         val text: String? = null,
                         val ts: String,
-                        val edited: MessageEventEdited? = null) : Event
+                        val edited: MessageEventEdited? = null,
+                        @JsonProperty("previous_message") val previousMessage: Message? = null) : Event
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class Message(
+        val type: String,
+        val user: String,
+        val text: String,
+        val ts: String
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageEventEdited(val user: String, val ts: String)
