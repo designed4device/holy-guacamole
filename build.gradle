@@ -1,7 +1,7 @@
 buildscript {
 	ext {
 		springBootVersion = '2.0.0.M7'
-		kotlinVersion = '1.2.10'
+		kotlinVersion = '1.2.30'
 	}
 
 	repositories {
@@ -45,7 +45,7 @@ dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	compile 'org.springframework.boot:spring-boot-starter-actuator'
 	compile 'org.springframework.cloud:spring-cloud-starter-zipkin'
-	compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 	compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 	compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlinVersion"
