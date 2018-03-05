@@ -130,7 +130,7 @@ class EventServiceTest {
         eventService.process(MockMessages.withBotMentionAndSingleAvocado)
 
         verify(repository).findByEventId(MockMessages.withBotMentionAndSingleAvocado.eventId)
-        verify(repository).findBySenderToday((MockMessages.withBotMentionAndSingleAvocado.event as MessageEvent).user)
+        verify(repository).findBySenderToday((MockMessages.withBotMentionAndSingleAvocado.event as MessageEvent).user!!)
         verifyNoMoreInteractions(repository)
     }
 

@@ -59,6 +59,7 @@ class EventService(
         val mentions = event.findMentionedPeople()
         val avocadosInMessage = event.countGuacamoleIngredients()
 
+        if (event.user == null) return false
         if (mentions.isNotEmpty() && avocadosInMessage == 0 && event.tacoCheck()) {
             slackClient.postEphemeralMessage(
                     channel = event.channel,

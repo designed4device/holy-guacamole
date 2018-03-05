@@ -275,7 +275,7 @@ object MockMessages {
                     ts = "1355517523.000005",
                     previousMessage = Message(
                             type = withMultipleMentionsAndMultipleAvocados.event.type,
-                            user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
+                            user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user!!,
                             text = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!,
                             ts = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).ts
                     )
