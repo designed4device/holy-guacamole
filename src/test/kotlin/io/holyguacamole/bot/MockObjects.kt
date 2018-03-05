@@ -5,6 +5,8 @@ import io.holyguacamole.bot.MockIds.appbot
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
+import io.holyguacamole.bot.Timestamp.today
+import io.holyguacamole.bot.Timestamp.yesterday
 import io.holyguacamole.bot.controller.UrlVerification
 
 import io.holyguacamole.bot.controller.EventCallback
@@ -21,9 +23,12 @@ import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.message.AvocadoReceipt
 import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_TEXT
 import io.holyguacamole.bot.message.ContentCrafter.TACO_TEXT
+import io.holyguacamole.bot.message.toTimestamp
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.SlackUserProfile
 import io.holyguacamole.bot.user.User
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 
 private val token = "thisisagoodtoken"
@@ -64,7 +69,7 @@ object MockMessages {
                     channel = general,
                     user = patrick,
                     text = "<@$mark> you're the best $AVOCADO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -80,7 +85,7 @@ object MockMessages {
                     channel = general,
                     user = patrick,
                     text = "<@$mark> you're the best $AVOCADO_TEXT $AVOCADO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -96,7 +101,7 @@ object MockMessages {
                     channel = general,
                     user = jeremy,
                     text = "<@$mark> <@$patrick> you're the best $AVOCADO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -112,7 +117,7 @@ object MockMessages {
                     channel = general,
                     user = jeremy,
                     text = "<@$mark> <@$patrick> you're the best $AVOCADO_TEXT $AVOCADO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -128,7 +133,7 @@ object MockMessages {
                     channel = general,
                     user = mark,
                     text = "<@$patrick> you're the best",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -144,7 +149,7 @@ object MockMessages {
                     channel = general,
                     user = jeremy,
                     text = "$AVOCADO_TEXT is the best",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -160,7 +165,7 @@ object MockMessages {
                     channel = general,
                     user = patrick,
                     text = "I'm the best!",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -176,7 +181,7 @@ object MockMessages {
                     channel = general,
                     user = mark,
                     text = "<@$mark> you're the best $AVOCADO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -192,7 +197,7 @@ object MockMessages {
                     channel = general,
                     user = appbot,
                     text = "<@$mark> you're the best $AVOCADO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -208,7 +213,7 @@ object MockMessages {
                     channel = general,
                     user = mark,
                     text = "<@$appbot> derp $AVOCADO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf("U123556"),
@@ -224,7 +229,7 @@ object MockMessages {
                     channel = general,
                     user = patrick,
                     text = "<@$mark> you're the best $TACO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = "event_callback",
             authedUsers = listOf("U123556"),
@@ -240,7 +245,7 @@ object MockMessages {
                     channel = general,
                     user = patrick,
                     text = "<@$mark> you're the best $AVOCADO_TEXT $TACO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = "event_callback",
             authedUsers = listOf("U123556"),
@@ -256,14 +261,14 @@ object MockMessages {
                     channel = general,
                     user = patrick,
                     text = "you're the best $TACO_TEXT",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = "event_callback",
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
-    val withDeleteSubTypeForMultipleMentionsAndMultipleAvocados = EventCallback(
+    val withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosYesterday = EventCallback(
             token = token,
             teamId = "abc",
             apiAppId = "123",
@@ -272,12 +277,34 @@ object MockMessages {
                     subType = "message_deleted",
                     channel = general,
                     user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
-                    ts = "1355517523.000005",
+                    ts = yesterday,
                     previousMessage = Message(
                             type = withMultipleMentionsAndMultipleAvocados.event.type,
                             user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user!!,
                             text = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!,
-                            ts = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).ts
+                            ts = yesterday
+                    )
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
+    val withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    subType = "message_deleted",
+                    channel = general,
+                    user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
+                    ts = today,
+                    previousMessage = Message(
+                            type = withMultipleMentionsAndMultipleAvocados.event.type,
+                            user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user!!,
+                            text = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!,
+                            ts = today
                     )
             ),
             type = "event_callback",
@@ -292,42 +319,48 @@ object MockAvocadoReceipts {
             eventId = "12345678",
             sender = patrick,
             receiver = mark,
-            timestamp = 1355517523
+            timestamp = today.toTimestamp()
     )
     val jeremyToPatrick = AvocadoReceipt(
             eventId = "12345678",
             sender = jeremy,
             receiver = patrick,
-            timestamp = 1355517523
+            timestamp = today.toTimestamp()
     )
     val jeremyToMark = AvocadoReceipt(
             eventId = "12345678",
             sender = jeremy,
             receiver = mark,
-            timestamp = 1355517523
+            timestamp = today.toTimestamp()
     )
     val markToPatrick = AvocadoReceipt(
             eventId = "12345678",
             sender = mark,
             receiver = patrick,
-            timestamp = 1355517523
+            timestamp = today.toTimestamp()
     )
     val markToJeremy = AvocadoReceipt(
             eventId = "12345678",
             sender = mark,
             receiver = jeremy,
-            timestamp = 1355517523
+            timestamp = today.toTimestamp()
     )
     val patrickToJeremy = AvocadoReceipt(
             eventId = "12345678",
             sender = patrick,
             receiver = jeremy,
-            timestamp = 1355517523
+            timestamp = today.toTimestamp()
     )
     val singleMentionAndSingleAvocadoReceipts = listOf(patrickToMark)
     val singleMentionAndMultipleAvocadosReceipts = listOf(patrickToMark, patrickToMark)
     val multipleMentionsAndSingleAvocadoReceipts = listOf(jeremyToMark, jeremyToPatrick)
     val multipleMentionsAndMultipleAvocadosReceipts = listOf(jeremyToMark, jeremyToMark, jeremyToPatrick, jeremyToPatrick)
+    val multipleMentionsAndMultipleAvocadosReceiptsYesterday = listOf(jeremyToMark.copy(
+            timestamp = yesterday.toLong()),
+            jeremyToMark.copy(timestamp = yesterday.toLong()),
+            jeremyToPatrick.copy(timestamp = yesterday.toLong()),
+            jeremyToPatrick.copy(timestamp = yesterday.toLong())
+    )
 }
 
 object MockAppMentions {
@@ -340,7 +373,7 @@ object MockAppMentions {
                     channel = general,
                     user = jeremy,
                     text = "<@$appbot> leaderboard",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf(appbot),
@@ -356,7 +389,7 @@ object MockAppMentions {
                     channel = general,
                     user = jeremy,
                     text = "<@$appbot> show me the LEADERBOARD",
-                    ts = "1355517523.000005"
+                    ts = today
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf(appbot),
@@ -456,4 +489,9 @@ object Empty {
             eventId = "",
             eventTime = 0L
     )
+}
+
+object Timestamp {
+    val today = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC).toString()
+    val yesterday = LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC).toString()
 }

@@ -291,12 +291,22 @@ class EventServiceTest {
 
     @Test
     fun `it deletes the correct avocado receipts when a delete event is received`() {
-        val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocados
+        val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday
         eventService.process(deleteMessage)
 
-        verify(repository).deleteBySenderAndTimestamp(jeremy, (deleteMessage.event as MessageEvent).previousMessage?.ts?.toDouble()?.toLong()?: 0)
+        verify(repository).deleteBySenderAndTimestamp(jeremy, (deleteMessage.event as MessageEvent).previousMessage?.ts?.toTimestamp()!!)
         verifyNoMoreInteractions(repository)
         verifyNoMoreInteractions(slackClient)
         verifyNoMoreInteractions(userService)
+    }
+
+    @Test
+    fun `it only deletes avocados if the message deleted was posted the same day`() {
+        val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosYesterday
+        eventService.process(deleteMessage)
+
+        verifyZeroInteractions(repository)
+        verifyZeroInteractions(slackClient)
+        verifyZeroInteractions(userService)
     }
 }

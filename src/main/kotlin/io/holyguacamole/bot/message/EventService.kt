@@ -23,6 +23,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneOffset
 
 @Service
 class EventService(
@@ -36,21 +40,22 @@ class EventService(
 
     @Async
     fun process(eventCallback: EventCallback) {
-            when (eventCallback.event.type) {
-                APP_MENTION -> processAppMentionEvent(eventCallback.event as MessageEvent)
-                MESSAGE -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
-                USER_CHANGE -> processUserChangeEvent((eventCallback.event as UserChangeEvent).user)
-                MEMBER_JOINED_CHANNEL -> processMemberJoinedChannelEvent(eventCallback.event as JoinedChannelEvent)
-            }
+        when (eventCallback.event.type) {
+            APP_MENTION -> processAppMentionEvent(eventCallback.event as MessageEvent)
+            MESSAGE -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
+            USER_CHANGE -> processUserChangeEvent((eventCallback.event as UserChangeEvent).user)
+            MEMBER_JOINED_CHANNEL -> processMemberJoinedChannelEvent(eventCallback.event as JoinedChannelEvent)
+        }
     }
 
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
+        if (event.user == null) return false
 
-        event.previousMessage?.let {
+        if (event.previousMessage != null && event.previousMessage.ts.toTimestamp().isToday()) {
             when (event.subType) {
                 MESSAGE_DELETED -> repository.deleteBySenderAndTimestamp(
-                        sender = it.user,
-                        timestamp = it.ts.toDouble().toLong()
+                        sender = event.user,
+                        timestamp = event.ts.toTimestamp()
                 )
             }
             return true
@@ -59,7 +64,6 @@ class EventService(
         val mentions = event.findMentionedPeople()
         val avocadosInMessage = event.countGuacamoleIngredients()
 
-        if (event.user == null) return false
         if (mentions.isNotEmpty() && avocadosInMessage == 0 && event.tacoCheck()) {
             slackClient.postEphemeralMessage(
                     channel = event.channel,
@@ -90,7 +94,8 @@ class EventService(
                         eventId = eventId,
                         sender = event.user,
                         receiver = mention,
-                        timestamp = event.ts.toDouble().toLong())
+                        timestamp = event.ts.toTimestamp()
+                )
             }
         }.executeIfNotEmpty {
             it.save()
@@ -170,3 +175,6 @@ fun MessageEvent.findMentionedPeople(): List<String> = Regex("<@([0-9A-Z]*?)>")
         .toList()
 
 fun MessageEvent.tacoCheck(): Boolean = this.text?.contains(TACO_TEXT) ?: false
+
+fun String.toTimestamp(): Long = this.toDouble().toLong()
+fun Long.isToday(): Boolean = LocalDateTime.ofEpochSecond(this, 0, ZoneOffset.UTC).isAfter(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT))

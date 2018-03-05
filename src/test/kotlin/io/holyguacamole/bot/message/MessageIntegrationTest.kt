@@ -195,8 +195,18 @@ class MessageIntegrationTest {
         userRepository.saveAll(listOf(MockUsers.feeneyfeeneybobeeney, MockUsers.markardito, MockUsers.jeremyskywalker))
         receiptRepository.saveAll(MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts)
 
-        controller.message(MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocados)
+        controller.message(MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday)
 
         assert(receiptRepository.findAll()).hasSize(0)
+    }
+
+    @Test
+    fun `it does not delete avocados when it receives a message event with delete sub type with a previous message timestamp of yesterday` () {
+        userRepository.saveAll(listOf(MockUsers.feeneyfeeneybobeeney, MockUsers.markardito, MockUsers.jeremyskywalker))
+        receiptRepository.saveAll(MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceiptsYesterday)
+
+        controller.message(MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday)
+
+        assert(receiptRepository.findAll()).hasSize(4)
     }
 }
