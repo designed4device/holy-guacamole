@@ -1,5 +1,6 @@
 package io.holyguacamole.bot.message
 
+import org.slf4j.LoggerFactory
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
@@ -15,6 +16,8 @@ import java.time.ZoneOffset
 class AvocadoReceiptRepository(
         private val mongoRepository: AvocadoReceiptMongoRepository,
         private val template: MongoTemplate) {
+
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     fun findByEventId(eventId: String): List<AvocadoReceipt> = mongoRepository.findByEventId(eventId)
 
@@ -40,6 +43,7 @@ class AvocadoReceiptRepository(
     fun findBySenderToday(sender: String): List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestampGreaterThan(sender, LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT).toEpochSecond(ZoneOffset.UTC))
 
     fun deleteBySenderAndTimestamp(sender: String, timestamp: Long) {
+        log.info("Deleting AvocadoReceipt sender=$sender, timestamp=$timestamp")
         mongoRepository.deleteBySenderAndTimestamp(sender, timestamp)
     }
 }

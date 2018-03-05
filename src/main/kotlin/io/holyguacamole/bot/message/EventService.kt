@@ -51,6 +51,7 @@ class EventService(
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
 
         if (event.previousMessage != null && event.previousMessage.ts.toTimestamp().isToday()) {
+            log.info("previousMessage is from today")
             when (event.subType) {
                 MESSAGE_DELETED -> repository.deleteBySenderAndTimestamp(
                         sender = event.previousMessage.user,
