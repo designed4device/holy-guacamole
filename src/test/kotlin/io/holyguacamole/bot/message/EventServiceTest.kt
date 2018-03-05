@@ -191,7 +191,7 @@ class EventServiceTest {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
         eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
 
-        verify(repository, times(1)).saveAll(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts)
+        verify(repository).saveAll(MockAvocadoReceipts.singleMentionAndSingleAvocadoReceipts)
     }
 
     @Test
@@ -203,7 +203,7 @@ class EventServiceTest {
         eventService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
         eventService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
 
-        verify(repository, times(1)).saveAll(MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts)
+        verify(repository).saveAll(MockAvocadoReceipts.multipleMentionsAndMultipleAvocadosReceipts)
     }
 
     @Test
