@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.0.M7'
+		springBootVersion = '2.0.0.RELEASE'
 		kotlinVersion = '1.2.30'
 	}
 
@@ -37,7 +37,7 @@ repositories {
 }
 
 ext {
-	springCloudVersion = 'Finchley.M5'
+	springCloudVersion = 'Finchley.M8'
 }
 
 dependencies {
