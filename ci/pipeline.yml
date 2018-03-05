@@ -21,7 +21,7 @@ jobs:
         - -exc
         - |
           ./gradlew test
-  - put: heroku
+  - put: heroku-test
     params:
       repository: github
 
@@ -32,7 +32,7 @@ resources:
     uri: git@github.com:designed4device/holy-guacamole.git
     branch: master
     private_key: ((git-private-key))
-- name: heroku
+- name: heroku-test
   type: git
   source:
     uri: ssh://git@heroku.com/holy-guacamole-test.git
