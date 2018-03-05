@@ -51,12 +51,15 @@ class EventService(
     private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean {
 
         if (event.previousMessage != null && event.previousMessage.ts.toTimestamp().isToday()) {
-            log.info("previousMessage is from today")
+            log.info("previousMessage is from today with subtype=${event.subType}")
             when (event.subType) {
-                MESSAGE_DELETED -> repository.deleteBySenderAndTimestamp(
-                        sender = event.previousMessage.user,
-                        timestamp = event.previousMessage.ts.toTimestamp()
-                )
+                MESSAGE_DELETED -> {
+                    log.info("subtype is $MESSAGE_DELETED")
+                    repository.deleteBySenderAndTimestamp(
+                            sender = event.previousMessage.user,
+                            timestamp = event.previousMessage.ts.toTimestamp()
+                    )
+                }
             }
             return true
         }
