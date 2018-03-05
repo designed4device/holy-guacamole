@@ -14,6 +14,7 @@ import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.Empty
+import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels.general
 import io.holyguacamole.bot.MockIds.appbot
@@ -206,7 +207,7 @@ class EventServiceTest {
     }
 
     @Test
-    fun `it calls the chat service to post the leaderboard`() {
+    fun `it calls the slack client to post the leaderboard`() {
         whenever(repository.getLeaderboard()).thenReturn(listOf(
                 AvocadoCount(jeremy, 3),
                 AvocadoCount(patrick, 2),
@@ -221,6 +222,13 @@ class EventServiceTest {
         val leaderboard = "${jeremyskywalker.name}: 3\n${feeneyfeeneybobeeney.name}: 2\n${markardito.name}: 1"
 
         verify(slackClient).postMessage(general, leaderboard)
+    }
+
+    @Test
+    fun `it calls the slack client to post the help message`() {
+        eventService.process(MockAppMentions.help)
+
+        verify(slackClient).postMessage(eq(general), eq(""), any())
     }
 
     @Test

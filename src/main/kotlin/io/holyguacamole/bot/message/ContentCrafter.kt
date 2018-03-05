@@ -13,13 +13,33 @@ object ContentCrafter {
             "appreciation, or to add a little happiness to their day."
 
     const val WELCOME_TEXT =
-            """- Everyone has 5 avocados to give out per day.
+"""- Everyone has 5 avocados to give out per day.
 - To give someone an avocado, add an avocado emoji after their username like this: `@username You're a guac star! $AVOCADO_TEXT`
 - Avocados are best served with a nice message!
 - You can give avocados to anyone on your team. I am always watching, so you don't need to invite me to your channel unless you want to talk to me.
 - If you want to interact with me directly, you can invite me like this:
 `/invite $BOT_NAME`
 - You can see the leaderboard by typing: `$BOT_NAME leaderboard`"""
+
+    const val HELP_DIRECTIONS_TITLE = "Directions"
+    const val HELP_HOWTO_TITLE = "How To Send Avocados"
+    const val HELP_COMMANDS_TITLE = "Commands"
+
+    const val HELP_DIRECTIONS_TEXT =
+"""Everyone has 5 avocados to give out per day.
+To give someone an avocado, send a message with their username and an avocado.
+Avocados are best served with a nice message!
+You can give avocados to anyone on your team. I am always watching, so you don't need to invite me to your channel unless you want to talk to me."""
+
+    const val HELP_HOWTO_TEXT =
+"""`@username You're a guac star! $AVOCADO_TEXT` Gives 1 avocado to @username
+`@username $AVOCADO_TEXT $AVOCADO_TEXT` Gives 2 avocados to @username
+`@username @anotherusername $AVOCADO_TEXT $AVOCADO_TEXT` Gives 2 avocados each to @username and @anotherusername
+`@username $AVOCADO_TEXT @anotherusername $AVOCADO_TEXT` Gives 2 avocados each to @username and @anotherusername"""
+
+    const val HELP_COMMANDS_TEXT =
+"""/invite @holyguacamole: invites me to channels
+@holygaucamole leaderboard: shows the entire leaderboard"""
 
     const val AVOCADO_REMINDER = "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?"
 
@@ -28,6 +48,27 @@ object ContentCrafter {
             pretext = WELCOME_PRETEXT,
             text = WELCOME_TEXT,
             markdownIn = listOf("text")
+    )
+
+    val helpMessage = listOf(
+            MessageAttachment(
+                    title = HELP_DIRECTIONS_TITLE,
+                    pretext = "",
+                    text = HELP_DIRECTIONS_TEXT,
+                    markdownIn = listOf("text")
+            ),
+            MessageAttachment(
+                    title = HELP_HOWTO_TITLE,
+                    pretext = "",
+                    text = HELP_HOWTO_TEXT,
+                    markdownIn = listOf("text")
+            ),
+            MessageAttachment(
+                    title = HELP_COMMANDS_TITLE,
+                    pretext = "",
+                    text = HELP_COMMANDS_TEXT,
+                    markdownIn = listOf("text")
+            )
     )
 
 
