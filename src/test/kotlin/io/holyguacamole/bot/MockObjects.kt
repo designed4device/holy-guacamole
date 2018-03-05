@@ -6,6 +6,7 @@ import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.Timestamp.today
+import io.holyguacamole.bot.Timestamp.todayPlusOneHour
 import io.holyguacamole.bot.Timestamp.yesterday
 import io.holyguacamole.bot.controller.UrlVerification
 
@@ -277,7 +278,7 @@ object MockMessages {
                     subType = "message_deleted",
                     channel = general,
                     user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
-                    ts = yesterday,
+                    ts = todayPlusOneHour,
                     previousMessage = Message(
                             type = withMultipleMentionsAndMultipleAvocados.event.type,
                             user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user!!,
@@ -299,7 +300,7 @@ object MockMessages {
                     subType = "message_deleted",
                     channel = general,
                     user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user,
-                    ts = today,
+                    ts = todayPlusOneHour,
                     previousMessage = Message(
                             type = withMultipleMentionsAndMultipleAvocados.event.type,
                             user = (withMultipleMentionsAndMultipleAvocados.event as MessageEvent).user!!,
@@ -493,5 +494,6 @@ object Empty {
 
 object Timestamp {
     val today = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC).toString()
+    val todayPlusOneHour = LocalDateTime.now().plusHours(1).toEpochSecond(ZoneOffset.UTC).toString()
     val yesterday = LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC).toString()
 }

@@ -55,7 +55,7 @@ class EventService(
             when (event.subType) {
                 MESSAGE_DELETED -> repository.deleteBySenderAndTimestamp(
                         sender = event.user,
-                        timestamp = event.ts.toTimestamp()
+                        timestamp = event.previousMessage.ts.toTimestamp()
                 )
             }
             return true
