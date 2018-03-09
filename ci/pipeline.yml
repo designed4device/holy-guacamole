@@ -54,7 +54,7 @@ jobs:
     passed: [deploy test]
   - put: heroku-prod
     params:
-      repository: github
+      repository: heroku-test
 
 resources:
 - name: github
