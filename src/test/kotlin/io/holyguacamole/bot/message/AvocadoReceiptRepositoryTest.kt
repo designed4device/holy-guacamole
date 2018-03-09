@@ -4,6 +4,7 @@ import assertk.assert
 import assertk.assertions.containsExactly
 import assertk.assertions.hasSize
 import io.holyguacamole.bot.MockAvocadoReceipts
+import io.holyguacamole.bot.MockAvocadoReceipts.markToPatrick
 import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
@@ -59,7 +60,7 @@ class AvocadoReceiptRepositoryTest {
                 MockAvocadoReceipts.patrickToMark
         ))
 
-        assert(repository.getLeaderboard()).containsExactly(
+        assert(repository.getLeaderboard(10)).containsExactly(
                 AvocadoCount(jeremy, 3),
                 AvocadoCount(patrick, 2),
                 AvocadoCount(mark, 1)
@@ -92,5 +93,37 @@ class AvocadoReceiptRepositoryTest {
         repository.deleteBySenderAndTimestamp(sender = patrick, timestamp = tstamp)
 
         assert(repository.findAll()).hasSize(2)
+    }
+
+    @Test
+    fun `it limits the leaderboard`() {
+        repository.saveAll(listOf(
+                markToPatrick,
+                markToPatrick,
+                markToPatrick,
+                markToPatrick.copy(receiver = "mark2"),
+                markToPatrick.copy(receiver = "mark2"),
+                markToPatrick.copy(receiver = "mark3"),
+                markToPatrick.copy(receiver = "mark3"),
+                markToPatrick.copy(receiver = "mark4"),
+                markToPatrick.copy(receiver = "mark4"),
+                markToPatrick.copy(receiver = "mark5"),
+                markToPatrick.copy(receiver = "mark5"),
+                markToPatrick.copy(receiver = "mark6"),
+                markToPatrick.copy(receiver = "mark6"),
+                markToPatrick.copy(receiver = "mark7"),
+                markToPatrick.copy(receiver = "mark7"),
+                markToPatrick.copy(receiver = "mark8"),
+                markToPatrick.copy(receiver = "mark8"),
+                markToPatrick.copy(receiver = "mark9"),
+                markToPatrick.copy(receiver = "mark9"),
+                markToPatrick.copy(receiver = "mark10"),
+                markToPatrick.copy(receiver = "mark10"),
+                markToPatrick.copy(receiver = "mark11")
+        ))
+
+        assert(repository.getLeaderboard()).hasSize(10)
+        assert(repository.getLeaderboard(5)).hasSize(5)
+        assert(repository.getLeaderboard(15)).hasSize(11)
     }
 }

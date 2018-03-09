@@ -25,13 +25,14 @@ class AvocadoReceiptRepository(
     fun saveAll(entities: Iterable<AvocadoReceipt>): List<AvocadoReceipt> =
             mongoRepository.saveAll(entities.map { it.copy() })
 
-    fun getLeaderboard(): List<AvocadoCount> =
+    fun getLeaderboard(limit: Long = 10): List<AvocadoCount> =
             template.aggregate(
                     Aggregation.newAggregation(
                             Aggregation.group("receiver")
                                     .count().`as`("count"), //TODO do we actually need the as?
                             Aggregation.sort(Sort.Direction.DESC, "count"),
-                            Aggregation.project("receiver", "count")
+                            Aggregation.project("receiver", "count"),
+                            Aggregation.limit(limit)
                     ),
                     AvocadoReceipt::class.java,
                     AvocadoCount::class.java

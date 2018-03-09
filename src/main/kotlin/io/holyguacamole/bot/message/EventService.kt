@@ -152,7 +152,7 @@ class EventService(
         when {
             text.contains("leaderboard") -> slackClient.postMessage(
                     channel = event.channel,
-                    text = craftLeaderboardMessage(repository.getLeaderboard()))
+                    text = craftLeaderboardMessage(repository.getLeaderboard(10)))
             text.contains("help") -> slackClient.postMessage(
                     channel = event.channel,
                     attachments = helpMessage

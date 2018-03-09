@@ -8,7 +8,6 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
@@ -211,7 +210,7 @@ class EventServiceTest {
 
     @Test
     fun `it calls the slack client to post the leaderboard`() {
-        whenever(repository.getLeaderboard()).thenReturn(listOf(
+        whenever(repository.getLeaderboard(10)).thenReturn(listOf(
                 AvocadoCount(jeremy, 3),
                 AvocadoCount(patrick, 2),
                 AvocadoCount(mark, 1)
