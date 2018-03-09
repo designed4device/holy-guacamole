@@ -21,7 +21,38 @@ jobs:
         - -exc
         - |
           ./gradlew test
+
+- name: deploy test
+  plan:
+  - get: github
+    trigger: true
+    passed: [run tests]
+  - task: assemble
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: openjdk
+      inputs:
+      - name: github
+        path: holy-guacamole
+      run:
+        path: sh
+        dir: holy-guacamole
+        args:
+        - -exc
+        - |
+          ./gradlew assemble
   - put: heroku-test
+    params:
+      repository: github
+
+- name: Jeremy's PROD button
+  plan:
+  - get: heroku-test
+    passed: [deploy test]
+  - put: heroku-prod
     params:
       repository: github
 
@@ -36,5 +67,11 @@ resources:
   type: git
   source:
     uri: ssh://git@heroku.com/holy-guacamole-test.git
+    branch: master
+    private_key: ((heroku-private-key))
+- name: heroku-prod
+  type: git
+  source:
+    uri: ssh://git@heroku.com/holy-guacamole.git
     branch: master
     private_key: ((heroku-private-key))
