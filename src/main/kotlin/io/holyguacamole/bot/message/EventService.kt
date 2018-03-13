@@ -73,7 +73,7 @@ class EventService(
             }
             return true
         }
-        if (event.user == null) return false
+        if (event.user == null || event.text == null) return false
 
         val mentions = event.findMentionedPeople()
         val avocadosInMessage = event.countGuacamoleIngredients()
@@ -108,6 +108,7 @@ class EventService(
                         eventId = eventId,
                         sender = event.user,
                         receiver = mention,
+                        message = event.text,
                         timestamp = event.ts.toTimestamp()
                 )
             }

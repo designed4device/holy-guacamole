@@ -57,7 +57,8 @@ data class AvocadoReceipt(
         val eventId: String,
         val sender: String,
         val receiver: String,
-        val timestamp: Long
+        val timestamp: Long,
+        val message: String
 )
 
 data class AvocadoCount(

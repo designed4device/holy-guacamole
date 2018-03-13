@@ -219,4 +219,13 @@ class MessageIntegrationTest {
 
         verify(slackClient).postMessage(eq(general), eq(""), any())
     }
+
+    @Test
+    fun `it saves the message text to each avocado receipt`() {
+        controller.message(MockMessages.withMultipleMentionsAndMultipleAvocados)
+
+        receiptRepository.findAll().forEach {
+            assert(it.message, (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text)
+        }
+    }
 }

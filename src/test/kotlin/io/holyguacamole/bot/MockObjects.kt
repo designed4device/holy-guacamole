@@ -318,47 +318,92 @@ object MockAvocadoReceipts {
             eventId = "12345678",
             sender = patrick,
             receiver = mark,
+            message = "test message",
             timestamp = today.toTimestamp()
     )
     val jeremyToPatrick = AvocadoReceipt(
             eventId = "12345678",
             sender = jeremy,
             receiver = patrick,
+            message = "test message",
             timestamp = today.toTimestamp()
     )
     val jeremyToMark = AvocadoReceipt(
             eventId = "12345678",
             sender = jeremy,
             receiver = mark,
+            message = "test message",
             timestamp = today.toTimestamp()
     )
     val markToPatrick = AvocadoReceipt(
             eventId = "12345678",
             sender = mark,
             receiver = patrick,
+            message = "test message",
             timestamp = today.toTimestamp()
     )
     val markToJeremy = AvocadoReceipt(
             eventId = "12345678",
             sender = mark,
             receiver = jeremy,
+            message = "test message",
             timestamp = today.toTimestamp()
     )
     val patrickToJeremy = AvocadoReceipt(
             eventId = "12345678",
             sender = patrick,
             receiver = jeremy,
+            message = "test message",
             timestamp = today.toTimestamp()
     )
-    val singleMentionAndSingleAvocadoReceipts = listOf(patrickToMark)
-    val singleMentionAndMultipleAvocadosReceipts = listOf(patrickToMark, patrickToMark)
-    val multipleMentionsAndSingleAvocadoReceipts = listOf(jeremyToMark, jeremyToPatrick)
-    val multipleMentionsAndMultipleAvocadosReceipts = listOf(jeremyToMark, jeremyToMark, jeremyToPatrick, jeremyToPatrick)
-    val multipleMentionsAndMultipleAvocadosReceiptsYesterday = listOf(jeremyToMark.copy(
-            timestamp = yesterday.toTimestamp()),
-            jeremyToMark.copy(timestamp = yesterday.toTimestamp()),
-            jeremyToPatrick.copy(timestamp = yesterday.toTimestamp()),
-            jeremyToPatrick.copy(timestamp = yesterday.toTimestamp())
+    val singleMentionAndSingleAvocadoReceipts =
+            listOf(patrickToMark.copy(
+                    message = (MockMessages.withSingleMentionAndSingleAvocado.event as MessageEvent).text!!
+            ))
+    val singleMentionAndMultipleAvocadosReceipts = listOf(
+            patrickToMark.copy(
+                    message = (MockMessages.withSingleMentionAndMultipleAvocados.event as MessageEvent).text!!
+            ),
+            patrickToMark.copy(
+                    message = (MockMessages.withSingleMentionAndMultipleAvocados.event as MessageEvent).text!!
+            ))
+    val multipleMentionsAndSingleAvocadoReceipts = listOf(
+            jeremyToMark.copy(
+                    message = (MockMessages.withMultipleMentionsAndSingleAvocado.event as MessageEvent).text!!
+            ),
+            jeremyToPatrick.copy(
+                    message = (MockMessages.withMultipleMentionsAndSingleAvocado.event as MessageEvent).text!!
+            ))
+    val multipleMentionsAndMultipleAvocadosReceipts = listOf(
+            jeremyToMark.copy(
+                    message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
+            ),
+            jeremyToMark.copy(
+                    message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
+            ),
+            jeremyToPatrick.copy(
+                    message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
+            ),
+            jeremyToPatrick.copy(
+                    message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
+            ))
+    val multipleMentionsAndMultipleAvocadosReceiptsYesterday = listOf(
+            jeremyToMark.copy(
+                    timestamp = yesterday.toTimestamp(),
+                    message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
+            ),
+            jeremyToMark.copy(
+                    timestamp = yesterday.toTimestamp(),
+                    message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
+            ),
+            jeremyToPatrick.copy(
+                    timestamp = yesterday.toTimestamp(),
+                    message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
+            ),
+            jeremyToPatrick.copy(
+                    timestamp = yesterday.toTimestamp(),
+                    message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
+            )
     )
 }
 
