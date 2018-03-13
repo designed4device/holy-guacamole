@@ -405,6 +405,7 @@ object MockAvocadoReceipts {
                     message = (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text!!
             )
     )
+    
 }
 
 object MockAppMentions {
