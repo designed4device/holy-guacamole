@@ -18,14 +18,14 @@ class EventController(@Value("\${slack.token.verification}") val token: String, 
     private val log = LoggerFactory.getLogger(EventController::class.java)
 
     @PostMapping("/events")
-    fun message(@RequestBody request: SlackRequest): ResponseEntity<SlackResponse> =
+    fun message(@RequestBody request: SlackRequest): ResponseEntity<UrlVerificationResponse> =
             if (request.token != token) {
                 log.error("Attempted with token: ${request.token}")
                 ResponseEntity.status(401).build()
             } else {
                 log.info(request.toString())
                 when (request) {
-                    is UrlVerification -> ResponseEntity.ok(UrlVerificationResponse(challenge = request.challenge) as SlackResponse)
+                    is UrlVerification -> ResponseEntity.ok(UrlVerificationResponse(challenge = request.challenge))
                     is EventCallback -> {
                         service.process(request)
                         ResponseEntity.status(200).build()
