@@ -150,9 +150,15 @@ class EventService(
     private fun processAppMentionEvent(event: MessageEvent): Boolean {
         val text = event.text?.toLowerCase() ?: ""
         when {
+            text.contains(Regex("leaderboard \\d*")) -> slackClient.postMessage(
+                    channel = event.channel,
+                    text = craftLeaderboardMessage(repository.getLeaderboard(
+                            Regex("leaderboard (\\d*)").find(text)?.groupValues?.get(1)?.toLong() ?: 10))
+            )
             text.contains("leaderboard") -> slackClient.postMessage(
                     channel = event.channel,
-                    text = craftLeaderboardMessage(repository.getLeaderboard(10)))
+                    text = craftLeaderboardMessage(repository.getLeaderboard())
+            )
             text.contains("help") -> slackClient.postMessage(
                     channel = event.channel,
                     attachments = helpMessage

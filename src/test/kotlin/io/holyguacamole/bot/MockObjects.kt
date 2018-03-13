@@ -376,7 +376,39 @@ object MockAppMentions {
             ),
             type = EVENT_CALLBACK,
             authedUsers = listOf(appbot),
+            eventId = "12345677",
+            eventTime = 1234567890
+    )
+    val leaderboard1 = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = APP_MENTION,
+                    channel = general,
+                    user = jeremy,
+                    text = "<@$appbot> leaderboard 1",
+                    ts = today
+            ),
+            type = EVENT_CALLBACK,
+            authedUsers = listOf(appbot),
             eventId = "12345678",
+            eventTime = 1234567890
+    )
+    val leaderboard12 = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = APP_MENTION,
+                    channel = general,
+                    user = jeremy,
+                    text = "<@$appbot> leaderboard 12",
+                    ts = today
+            ),
+            type = EVENT_CALLBACK,
+            authedUsers = listOf(appbot),
+            eventId = "12345679",
             eventTime = 1234567890
     )
     val showMeTheLeaderboard = EventCallback(

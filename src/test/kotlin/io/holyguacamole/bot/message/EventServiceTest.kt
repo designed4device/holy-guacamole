@@ -216,14 +216,54 @@ class EventServiceTest {
                 AvocadoCount(mark, 1)
         ))
 
-        val eventCallback = Empty.eventCallback.copy(
-                event = Empty.messageEvent.copy(type = APP_MENTION, channel = general, text = "leaderboard")
-        )
-        eventService.process(eventCallback)
+        eventService.process(MockAppMentions.leaderboard)
 
         val leaderboard = "${jeremyskywalker.name}: 3\n${feeneyfeeneybobeeney.name}: 2\n${markardito.name}: 1"
 
         verify(slackClient).postMessage(general, leaderboard)
+    }
+
+    @Test
+    fun `it checks for leaderboard count and post the correct leaderboard to slack`() {
+
+        whenever(repository.getLeaderboard(1)).thenReturn(listOf(
+                AvocadoCount(jeremy, 3)
+        ))
+        whenever(repository.getLeaderboard(12)).thenReturn(listOf(
+                AvocadoCount(jeremy, 12),
+                AvocadoCount(mark, 5),
+                AvocadoCount(mark, 5),
+                AvocadoCount(mark, 5),
+                AvocadoCount(mark, 5),
+                AvocadoCount(mark, 5),
+                AvocadoCount(mark, 5),
+                AvocadoCount(mark, 5),
+                AvocadoCount(patrick, 3),
+                AvocadoCount(patrick, 3),
+                AvocadoCount(patrick, 3),
+                AvocadoCount(patrick, 3)
+        ))
+
+        eventService.process(MockAppMentions.leaderboard1)
+        verify(slackClient).postMessage(general, "${jeremyskywalker.name}: 3")
+
+        eventService.process(MockAppMentions.leaderboard12)
+        verify(slackClient).postMessage(general,
+                """
+                  ${jeremyskywalker.name}: 12
+                  ${markardito.name}: 5
+                  ${markardito.name}: 5
+                  ${markardito.name}: 5
+                  ${markardito.name}: 5
+                  ${markardito.name}: 5
+                  ${markardito.name}: 5
+                  ${markardito.name}: 5
+                  ${feeneyfeeneybobeeney.name}: 3
+                  ${feeneyfeeneybobeeney.name}: 3
+                  ${feeneyfeeneybobeeney.name}: 3
+                  ${feeneyfeeneybobeeney.name}: 3
+                """.trimIndent()
+        )
     }
 
     @Test
