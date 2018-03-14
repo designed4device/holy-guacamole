@@ -54,18 +54,14 @@ class SlackClientTest {
                         title = "attachment title",
                         pretext = "attachment pretext",
                         text = "attachment text",
-                        markdownIn = listOf("pretext", "text")
+                        markdownIn = listOf(MARKDOWN.PRETEXT, MARKDOWN.TEXT)
                 ))
         )
 
         val expectedRequest = "{\"channel\":\"$channel\"," +
                 "\"text\":\"message text\"," +
-                "\"attachments\":[{" +
-                "\"title\":\"attachment title\"," +
-                "\"pretext\":\"attachment pretext\"," +
-                "\"text\":\"attachment text\"," +
-                "\"mrkdwn_in\":[\"pretext\",\"text\"]}" +
-                "]}"
+                 attachmentJson +
+                "}"
         verify(
                 postRequestedFor(urlEqualTo("/api/chat.postMessage"))
                         .withRequestBody(equalTo(expectedRequest))
@@ -160,7 +156,12 @@ class SlackClientTest {
                 )
         )
 
-        slackClient.sendDirectMessage(user = mark, text = "message text", attachment = "")
+        slackClient.sendDirectMessage(user = mark, text = "message text", attachments = listOf(MessageAttachment(
+                title = "attachment title",
+                pretext = "attachment pretext",
+                text = "attachment text",
+                markdownIn = listOf(MARKDOWN.PRETEXT, MARKDOWN.TEXT)
+        )))
 
         verify(
                 postRequestedFor(urlEqualTo("/api/conversations.open"))
@@ -172,7 +173,7 @@ class SlackClientTest {
 
         val expectedPostMessageResponse = "{\"channel\":\"$channelId\"," +
                 "\"text\":\"message text\"," +
-                "\"attachments\":[]" +
+                attachmentJson +
                 "}"
 
         verify(
@@ -215,6 +216,12 @@ class SlackClientTest {
                     isUltraRestricted = false
             )
     )
+
+    private val attachmentJson = "\"attachments\":[{" +
+            "\"title\":\"attachment title\"," +
+            "\"pretext\":\"attachment pretext\"," +
+            "\"text\":\"attachment text\"," +
+            "\"mrkdwn_in\":[\"pretext\",\"text\"]}]"
 
     private val userNotFoundResponse = SlackUserResponse(ok = true, error = "user_not_found")
 }

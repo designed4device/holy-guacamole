@@ -1,7 +1,7 @@
 package io.holyguacamole.bot.message
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mashape.unirest.http.Unirest
 import io.holyguacamole.bot.slack.SlackUser
@@ -49,8 +49,8 @@ class SlackClient(@Value("\${slack.host}") val host: String,
         return jacksonObjectMapper().readValue(response, SlackUserResponse::class.java).user
     }
 
-    fun sendDirectMessage(user: String, text: String, attachment: String) {
-        postMessage(channel = openConversationChannel(user), text = text)
+    fun sendDirectMessage(user: String, text: String, attachments: List<MessageAttachment>) {
+        postMessage(channel = openConversationChannel(user), text = text, attachments = attachments)
     }
 
     private fun openConversationChannel(user: String): String {
@@ -75,8 +75,15 @@ data class MessageAttachment(
         val title: String,
         val pretext: String,
         val text: String,
-        @JsonProperty("mrkdwn_in") val markdownIn: List<String>
-)
+        @JsonIgnore val markdownIn: List<MARKDOWN>
+) {
+    val mrkdwn_in = markdownIn.map { it.value }
+}
+
+enum class MARKDOWN(val value:String) {
+    TEXT("text"),
+    PRETEXT("pretext")
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SlackOpenConversationResponse(val ok: String, val channel: Channel?, val error: String?)

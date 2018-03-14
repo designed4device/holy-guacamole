@@ -47,7 +47,7 @@ You can give avocados to anyone on your team. I am always watching, so you don't
             title = WELCOME_TITLE,
             pretext = WELCOME_PRETEXT,
             text = WELCOME_TEXT,
-            markdownIn = listOf("text")
+            markdownIn = listOf(MARKDOWN.TEXT)
     )
 
     val helpMessage = listOf(
@@ -55,19 +55,19 @@ You can give avocados to anyone on your team. I am always watching, so you don't
                     title = HELP_DIRECTIONS_TITLE,
                     pretext = "",
                     text = HELP_DIRECTIONS_TEXT,
-                    markdownIn = listOf("text")
+                    markdownIn = listOf(MARKDOWN.TEXT)
             ),
             MessageAttachment(
                     title = HELP_HOWTO_TITLE,
                     pretext = "",
                     text = HELP_HOWTO_TEXT,
-                    markdownIn = listOf("text")
+                    markdownIn = listOf(MARKDOWN.TEXT)
             ),
             MessageAttachment(
                     title = HELP_COMMANDS_TITLE,
                     pretext = "",
                     text = HELP_COMMANDS_TEXT,
-                    markdownIn = listOf("text")
+                    markdownIn = listOf(MARKDOWN.TEXT)
             )
     )
 

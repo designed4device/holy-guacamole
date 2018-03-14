@@ -95,7 +95,7 @@ class MessageIntegrationTest {
         }
 
         verify(slackClient).postEphemeralMessage(channel = eq(general), user = eq(patrick), text = any())
-        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachment = eq("<@$mark> you're the best ${ContentCrafter.AVOCADO_TEXT}"))
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachments = any())
 
         verifyNoMoreInteractions(slackClient)
     }
@@ -117,8 +117,8 @@ class MessageIntegrationTest {
         }
 
         verify(slackClient).postEphemeralMessage(channel = eq(general), user = eq(jeremy), text = any())
-        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachment = any())
-        verify(slackClient).sendDirectMessage(user = eq(patrick), text = any(), attachment = any())
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachments = any())
+        verify(slackClient).sendDirectMessage(user = eq(patrick), text = any(), attachments = any())
 
         verifyNoMoreInteractions(slackClient)
     }
@@ -136,7 +136,7 @@ class MessageIntegrationTest {
                 .hasSize(1)
 
         verify(slackClient).postEphemeralMessage(channel = eq(general), user = eq(patrick), text = any())
-        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachment = eq("<@$mark> you're the best ${ContentCrafter.AVOCADO_TEXT}"))
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachments = any())
 
         verifyNoMoreInteractions(slackClient)
     }
@@ -187,7 +187,7 @@ class MessageIntegrationTest {
 
         // 6 times for notifying user they sent an avocado, one more time to notify them that they're out
         verify(slackClient, times(7)).postEphemeralMessage(channel = eq(general), user = eq(patrick), text = any())
-        verify(slackClient, times(6)).sendDirectMessage(user = eq(mark), text = any(), attachment = eq("<@$mark> you're the best ${ContentCrafter.AVOCADO_TEXT}"))
+        verify(slackClient, times(6)).sendDirectMessage(user = eq(mark), text = any(), attachments = any())
         verifyNoMoreInteractions(slackClient)
     }
 

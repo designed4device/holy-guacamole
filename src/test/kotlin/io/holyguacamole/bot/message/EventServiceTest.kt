@@ -179,8 +179,8 @@ class EventServiceTest {
     fun `it sends a direct message to the avocado receivers`() {
         eventService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
 
-        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachment = any())
-        verify(slackClient).sendDirectMessage(user = eq(patrick), text = any(), attachment = any())
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachments = any())
+        verify(slackClient).sendDirectMessage(user = eq(patrick), text = any(), attachments = any())
     }
 
     @Test
@@ -363,6 +363,11 @@ class EventServiceTest {
     fun `it sends the message text in the avocado received message`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
 
-        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachment = eq("<@$mark> you're the best ${ContentCrafter.AVOCADO_TEXT}"))
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachments = eq(listOf(MessageAttachment(
+                title = "",
+                pretext = "",
+                text = (MockMessages.withSingleMentionAndSingleAvocado.event as MessageEvent).text!!,
+                markdownIn = listOf(MARKDOWN.TEXT)
+        ))))
     }
 }

@@ -147,7 +147,12 @@ class EventService(
             slackClient.sendDirectMessage(
                     user = it,
                     text = receivedAvocadoMessage(avocadosEach, sender, channel),
-                    attachment = avocadoReceipts.first().message
+                    attachments = listOf(MessageAttachment(
+                            title = "",
+                            pretext = "",
+                            text = avocadoReceipts.first().message,
+                            markdownIn = listOf(MARKDOWN.TEXT)
+                    ))
             )
         }
     }
