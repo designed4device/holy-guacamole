@@ -38,8 +38,8 @@ You can give avocados to anyone on your team. I am always watching, so you don't
 `@username $AVOCADO_TEXT @anotherusername $AVOCADO_TEXT` Gives 2 avocados each to @username and @anotherusername"""
 
     const val HELP_COMMANDS_TEXT =
-"""`/invite @holyguacamole`: invites me to channels
-`@holygaucamole leaderboard [number]`: show the leaderboard, eg. leaderboard 20, defaults to top 10"""
+"""`/invite @holyguacamole` invites me to channels
+`@holygaucamole leaderboard [number]` show the leaderboard, eg. leaderboard 20, defaults to top 10"""
 
     const val AVOCADO_REMINDER = "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?"
 
