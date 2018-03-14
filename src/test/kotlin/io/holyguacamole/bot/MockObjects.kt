@@ -1,5 +1,6 @@
 package io.holyguacamole.bot
 
+import io.holyguacamole.bot.MockChannels.directMessage
 import io.holyguacamole.bot.MockChannels.general
 import io.holyguacamole.bot.MockIds.appbot
 import io.holyguacamole.bot.MockIds.jeremy
@@ -43,6 +44,7 @@ object MockIds {
 
 object MockChannels {
     val general = "C0000000005"
+    val directMessage = "D0000001"
 }
 
 object MockUrlVerification {
@@ -310,6 +312,41 @@ object MockMessages {
             authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
+    )
+}
+
+object MockDirectMessages {
+    val avocados = EventCallback(
+        token = token,
+        teamId = "abc",
+        apiAppId = "123",
+        event = MessageEvent(
+            type = "message",
+            channel = directMessage,
+            user = patrick,
+            text = "avocados",
+            ts = today
+        ),
+        type = "event_callback",
+        authedUsers = listOf("U123556"),
+        eventId = "12345678",
+        eventTime = 1234567890
+    )
+    val withNoCommand = EventCallback(
+        token = token,
+        teamId = "abc",
+        apiAppId = "123",
+        event = MessageEvent(
+            type = "message",
+            channel = directMessage,
+            user = patrick,
+            text = "how are you?",
+            ts = today
+        ),
+        type = "event_callback",
+        authedUsers = listOf("U123556"),
+        eventId = "12345678",
+        eventTime = 1234567890
     )
 }
 

@@ -98,8 +98,12 @@ You can give avocados to anyone on your team. I am always watching, so you don't
 
         return "$receiversString ${if (receivers.size > 1) "each " else ""}" +
                 "received $avocadosEach ${"avocado".pluralize(avocadosEach)} from you. " +
-                "You have ${if (remainingAvocados == 0) "no" else "$remainingAvocados"} ${"avocado".pluralize(remainingAvocados)} " +
-                "left to give out today."
+                avocadosLeft(remainingAvocados)
+    }
+
+    fun avocadosLeft(remainingAvocados: Int): String {
+        return "You have ${if (remainingAvocados == 0) "no" else "$remainingAvocados"} ${"avocado".pluralize(remainingAvocados)} " +
+            "left to give out today."
     }
 
     private fun String.pluralize(n: Int): String = if (n != 1) "${this}s" else this

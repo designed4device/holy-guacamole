@@ -12,11 +12,13 @@ import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_REMINDER
 import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_TEXT
 import io.holyguacamole.bot.message.ContentCrafter.TACO_TEXT
+import io.holyguacamole.bot.message.ContentCrafter.avocadosLeft
 import io.holyguacamole.bot.message.ContentCrafter.helpMessage
 import io.holyguacamole.bot.message.ContentCrafter.notEnoughAvocados
 import io.holyguacamole.bot.message.ContentCrafter.receivedAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
+import io.holyguacamole.bot.message.EventService.BotCommands.AVOCADO_COMMAND
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.toUser
 import io.holyguacamole.bot.user.UserService
@@ -40,6 +42,10 @@ class EventService(
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     private val processedEvents = mutableListOf<String>()
+
+    object BotCommands {
+        const val AVOCADO_COMMAND = "avocados"
+    }
 
     @Async
     fun process(eventCallback: EventCallback) {
@@ -83,6 +89,16 @@ class EventService(
         }
         if (event.user == null || event.text == null) return false
 
+        if (channelIsDirectMessageToGuacBot(event)) {
+            when (event.text?.toLowerCase()) {
+                AVOCADO_COMMAND -> {
+                    val remainingAvocados = repository.findBySenderToday(event.user).size
+                    slackClient.postMessage(event.channel, avocadosLeft(remainingAvocados))
+                }
+            }
+            return false
+        }
+
         val mentions = event.findMentionedPeople()
         val avocadosInMessage = event.countGuacamoleIngredients()
 
@@ -106,6 +122,7 @@ class EventService(
             return false
         }
 
+        // TODO: Do we still need this now that we have the processedEvents list?
         if (repository.findByEventId(eventId).isNotEmpty()) return false
 
         mentions.filter {
@@ -126,6 +143,8 @@ class EventService(
         }
         return true
     }
+
+    private fun channelIsDirectMessageToGuacBot(event: MessageEvent): Boolean = event.channel.startsWith("D")
 
     private fun <T> List<T>.executeIfNotEmpty(fn: (List<T>) -> Unit): List<T> {
         if (this.isNotEmpty()) fn(this)

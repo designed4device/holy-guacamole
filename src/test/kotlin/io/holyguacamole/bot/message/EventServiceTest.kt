@@ -16,6 +16,7 @@ import io.holyguacamole.bot.Empty
 import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels.general
+import io.holyguacamole.bot.MockDirectMessages
 import io.holyguacamole.bot.MockIds.appbot
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
@@ -382,5 +383,32 @@ class EventServiceTest {
                 text = (MockMessages.withSingleMentionAndSingleAvocado.event as MessageEvent).text!!,
                 markdownIn = listOf(MARKDOWN.TEXT)
         ))))
+    }
+}
+
+class DirectMessageEventTests {
+
+    private val slackClient: SlackClient = mock()
+    private val userService: UserService = mock()
+    private val repository: AvocadoReceiptRepository = mock {
+        whenever(it.findBySenderToday(patrick)) doReturn emptyList<AvocadoReceipt>()
+    }
+    private val eventService = EventService(repository, slackClient, userService, appbot)
+
+    @Test
+    fun `it sends a dm with the number of avocados left to send`() {
+        eventService.process(MockDirectMessages.avocados)
+        val channel = (MockDirectMessages.avocados.event as MessageEvent).channel
+
+        verify(repository).findBySenderToday(patrick)
+        verify(slackClient).postMessage(eq(channel), any(), any())
+    }
+
+    @Test
+    fun `it does not send number of avocados if you don't send the avocados command`() {
+        eventService.process(MockDirectMessages.withNoCommand)
+
+        verifyZeroInteractions(repository)
+        verifyZeroInteractions(slackClient)
     }
 }
