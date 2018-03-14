@@ -69,7 +69,15 @@ class EventService(
                 MESSAGE_DELETED -> repository.deleteBySenderAndTimestamp(
                         sender = event.previousMessage.user,
                         timestamp = event.previousMessage.ts.toTimestamp()
-                )
+                ).also {
+                    if (it > 0)
+                        slackClient.postEphemeralMessage(
+                                channel = event.channel,
+                                user = event.previousMessage.user,
+                                text = event.previousMessage.text
+                        )
+                }
+
             }
             return true
         }

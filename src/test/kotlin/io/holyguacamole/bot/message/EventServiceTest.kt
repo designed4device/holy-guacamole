@@ -360,6 +360,19 @@ class EventServiceTest {
     }
 
     @Test
+    fun `it sends an ephemeral message to user when they delete avocados`() {
+        whenever(repository.deleteBySenderAndTimestamp(any(), any())).thenReturn(1)
+        val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday
+        eventService.process(deleteMessage)
+
+        verify(slackClient).postEphemeralMessage(
+                channel = (MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday.event as MessageEvent).channel,
+                user = (MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday.event as MessageEvent).previousMessage?.user!!,
+                text = (MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday.event as MessageEvent).previousMessage?.text!!
+        )
+    }
+
+    @Test
     fun `it sends the message text in the avocado received message`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
 
