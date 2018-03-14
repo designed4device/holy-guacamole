@@ -28,7 +28,6 @@ import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
 import io.holyguacamole.bot.MockUsers.holyguacamole
 import io.holyguacamole.bot.MockUsers.jeremyskywalker
 import io.holyguacamole.bot.MockUsers.markardito
-import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
 import io.holyguacamole.bot.user.UserService
@@ -180,8 +179,8 @@ class EventServiceTest {
     fun `it sends a direct message to the avocado receivers`() {
         eventService.process(MockMessages.withMultipleMentionsAndMultipleAvocados)
 
-        verify(slackClient).sendDirectMessage(user = eq(mark), text = any())
-        verify(slackClient).sendDirectMessage(user = eq(patrick), text = any())
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachment = any())
+        verify(slackClient).sendDirectMessage(user = eq(patrick), text = any(), attachment = any())
     }
 
     @Test
@@ -358,5 +357,12 @@ class EventServiceTest {
         verifyZeroInteractions(repository)
         verifyZeroInteractions(slackClient)
         verifyZeroInteractions(userService)
+    }
+
+    @Test
+    fun `it sends the message text in the avocado received message`() {
+        eventService.process(MockMessages.withSingleMentionAndSingleAvocado)
+
+        verify(slackClient).sendDirectMessage(user = eq(mark), text = any(), attachment = eq("<@$mark> you're the best ${ContentCrafter.AVOCADO_TEXT}"))
     }
 }

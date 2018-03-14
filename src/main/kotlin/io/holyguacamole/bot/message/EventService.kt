@@ -144,7 +144,11 @@ class EventService(
         )
 
         uniqueReceivers.map {
-            slackClient.sendDirectMessage(it, receivedAvocadoMessage(avocadosEach, sender))
+            slackClient.sendDirectMessage(
+                    user = it,
+                    text = receivedAvocadoMessage(avocadosEach, sender, channel),
+                    attachment = avocadoReceipts.first().message
+            )
         }
     }
 

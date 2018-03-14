@@ -78,10 +78,10 @@ You can give avocados to anyone on your team. I am always watching, so you don't
                 else -> "You only have $remainingAvocados ${"avocado".pluralize(remainingAvocados)} left to give out today!"
             }
 
-    fun receivedAvocadoMessage(avocadosReceived: Int, sender: String): String =
+    fun receivedAvocadoMessage(avocadosReceived: Int, sender: String,channel: String): String =
             when (avocadosReceived) {
-                1 -> "You received 1 avocado from ${sender.asMention()}!"
-                else -> "You received $avocadosReceived avocados from ${sender.asMention()}!"
+                1 -> "You received 1 avocado from ${sender.asMention()} in ${channel.asChannelMention()}!"
+                else -> "You received $avocadosReceived avocados from ${sender.asMention()} in ${channel.asChannelMention()}!"
             }
 
     fun sentAvocadoMessage(receivers: List<String>, avocadosEach: Int, remainingAvocados: Int): String {
@@ -104,5 +104,7 @@ You can give avocados to anyone on your team. I am always watching, so you don't
 
     private fun String.pluralize(n: Int): String = if (n != 1) "${this}s" else this
     private fun String.asMention(): String = "<@$this>"
+    private fun String.asChannelMention(): String = "<#$this>"
 }
+
 

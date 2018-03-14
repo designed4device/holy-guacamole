@@ -39,7 +39,7 @@ class ContentCrafterTest {
 
     @Test
     fun `it crafts the correct received avocados message`() {
-        assert(receivedAvocadoMessage(1, patrick)).isEqualTo("You received 1 avocado from <@$patrick>!")
-        assert(receivedAvocadoMessage(2, patrick)).isEqualTo("You received 2 avocados from <@$patrick>!")
+        assert(receivedAvocadoMessage(1, patrick,"CTEST123")).isEqualTo("You received 1 avocado from <@$patrick> in <#CTEST123>!")
+        assert(receivedAvocadoMessage(2, patrick,"CTEST125")).isEqualTo("You received 2 avocados from <@$patrick> in <#CTEST125>!")
     }
 }

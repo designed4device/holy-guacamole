@@ -160,7 +160,7 @@ class SlackClientTest {
                 )
         )
 
-        slackClient.sendDirectMessage(user = mark, text = "message text")
+        slackClient.sendDirectMessage(user = mark, text = "message text", attachment = "")
 
         verify(
                 postRequestedFor(urlEqualTo("/api/conversations.open"))
