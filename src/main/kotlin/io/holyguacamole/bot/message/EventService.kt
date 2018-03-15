@@ -90,7 +90,7 @@ class EventService(
         if (event.user == null || event.text == null) return false
 
         if (channelIsDirectMessageToGuacBot(event)) {
-            when (event.text?.toLowerCase()) {
+            when (event.text.toLowerCase()) {
                 AVOCADO_COMMAND -> {
                     val remainingAvocados = repository.findBySenderToday(event.user).size
                     slackClient.postMessage(event.channel, avocadosLeft(remainingAvocados))
