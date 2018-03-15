@@ -89,19 +89,10 @@ class EventService(
         }
         if (event.user == null || event.text == null) return false
 
-        if (channelIsDirectMessageToGuacBot(event)) {
-            when (event.text.toLowerCase()) {
-                AVOCADO_COMMAND -> {
-                    val remainingAvocados = repository.findBySenderToday(event.user).size
-                    slackClient.postMessage(event.channel, avocadosLeft(remainingAvocados))
-                }
-            }
-            return false
-        }
-
         val mentions = event.findMentionedPeople()
         val avocadosInMessage = event.countGuacamoleIngredients()
 
+        //check to see if user tryed to send tacos instead of avocados
         if (mentions.isNotEmpty() && avocadosInMessage == 0 && event.tacoCheck()) {
             slackClient.postEphemeralMessage(
                     channel = event.channel,
@@ -110,14 +101,25 @@ class EventService(
             )
             return false
         }
-        if (avocadosInMessage == 0 || mentions.isEmpty()) return false
+
+        val avocadosSentToday = repository.findBySenderToday(event.user).size
+        val remainingAvocados = 5 - avocadosSentToday
 
         val sender = userService.findByUserIdOrGetFromSlack(event.user)
         if (sender == null || sender.isBot) return false
 
-        val avocadosSentToday = repository.findBySenderToday(sender.userId).size
+        //check to see if message came from a dm channel
+        if (channelIsDirectMessageToGuacBot(event)) {
+            when (event.text.toLowerCase()) {
+                AVOCADO_COMMAND -> slackClient.postMessage(event.channel, avocadosLeft(remainingAvocados))
+            }
+            return false
+        }
+
+        if (avocadosInMessage == 0 || mentions.isEmpty()) return false
+
+
         if ((avocadosSentToday + (avocadosInMessage * mentions.size)) > 5) {
-            val remainingAvocados = 5 - avocadosSentToday
             slackClient.postEphemeralMessage(event.channel, event.user, notEnoughAvocados(remainingAvocados))
             return false
         }

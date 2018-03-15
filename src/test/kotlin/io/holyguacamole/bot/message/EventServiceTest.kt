@@ -78,6 +78,7 @@ class EventServiceTest {
     fun `it does not create an AvocadoReceipt if it's just a normal message`() {
         eventService.process(MockMessages.withoutMentionAndAvocado)
 
+        verify(repository).findBySenderToday(any()) //TODO should be removed as part of proccessMessageEvent refactor
         verifyZeroInteractions(repository)
     }
 
@@ -115,6 +116,7 @@ class EventServiceTest {
     fun `it does not add any AvocadoReceipts if the user sends themself an avocado`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocadoFromThemself)
 
+        verify(repository).findBySenderToday(any()) //TODO should be removed as part of proccessMessageEvent refactor
         verifyZeroInteractions(repository)
     }
 
@@ -122,6 +124,7 @@ class EventServiceTest {
     fun `it does not add any AvocadoReceipts if the avocado is from a bot`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocadoFromBot)
 
+        verify(repository).findBySenderToday(any()) //TODO should be removed as part of proccessMessageEvent refactor
         verifyZeroInteractions(repository)
     }
 
@@ -389,7 +392,9 @@ class EventServiceTest {
 class DirectMessageEventTests {
 
     private val slackClient: SlackClient = mock()
-    private val userService: UserService = mock()
+    private val userService: UserService = mock {
+        whenever(it.findByUserIdOrGetFromSlack(patrick)) doReturn feeneyfeeneybobeeney
+    }
     private val repository: AvocadoReceiptRepository = mock {
         whenever(it.findBySenderToday(patrick)) doReturn emptyList<AvocadoReceipt>()
     }
@@ -400,15 +405,17 @@ class DirectMessageEventTests {
         eventService.process(MockDirectMessages.avocados)
         val channel = (MockDirectMessages.avocados.event as MessageEvent).channel
 
-        verify(repository).findBySenderToday(patrick)
-        verify(slackClient).postMessage(eq(channel), any(), any())
+        verify(repository).findBySenderToday(patrick)//TODO should be removed as part of proccessMessageEvent refactor
+        verify(slackClient).postMessage(eq(channel), eq(ContentCrafter.avocadosLeft(5)), any())
     }
 
     @Test
     fun `it does not send number of avocados if you don't send the avocados command`() {
         eventService.process(MockDirectMessages.withNoCommand)
 
-        verifyZeroInteractions(repository)
+        verify(repository).findBySenderToday(any())//TODO should be removed as part of proccessMessageEvent refactor
+        verifyNoMoreInteractions(repository)
+
         verifyZeroInteractions(slackClient)
     }
 }
