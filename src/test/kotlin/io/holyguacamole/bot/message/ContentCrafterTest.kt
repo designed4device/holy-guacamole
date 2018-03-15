@@ -74,8 +74,8 @@ class ContentCrafterTest {
 
     @Test
     fun `it crafts the correct revoked avocado direct message`() {
-        assert(revokedAvocadoMessageForReceiver(patrick, 1, general)).isEqualTo("<@$patrick> revoked 1 avocado in <#$general>")
+        assert(revokedAvocadoMessageForReceiver(patrick, 1, general)).isEqualTo("<@$patrick> revoked 1 avocado you previously received in <#$general>")
 
-        assert(revokedAvocadoMessageForReceiver(patrick, 2, general)).isEqualTo("<@$patrick> revoked 2 avocados in <#$general>")
+        assert(revokedAvocadoMessageForReceiver(patrick, 2, general)).isEqualTo("<@$patrick> revoked 2 avocados you previously received in <#$general>")
     }
 }

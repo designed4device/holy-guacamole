@@ -113,7 +113,7 @@ You can give avocados to anyone on your team. I am always watching, so you don't
             "You revoked $revokedAvocadosPerMention ${"avocado".pluralize(revokedAvocadosPerMention)} from ${listReceivers(mentions)}. ${avocadosLeft(remainingAvocados)}"
 
     fun revokedAvocadoMessageForReceiver(sender: String, avocadosRevoked: Int, channel: String): String =
-            "${sender.asMention()} revoked $avocadosRevoked ${"avocado".pluralize(avocadosRevoked)} in ${channel.asChannelMention()}"
+            "${sender.asMention()} revoked $avocadosRevoked ${"avocado".pluralize(avocadosRevoked)} you previously received in ${channel.asChannelMention()}"
 
     private fun String.pluralize(n: Int): String = if (n != 1) "${this}s" else this
     private fun String.asMention(): String = "<@$this>"
