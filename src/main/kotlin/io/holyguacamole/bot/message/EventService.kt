@@ -65,7 +65,7 @@ class EventService(
         }
     }
 
-    private fun processAppMentionEvent(event: MessageEvent): Boolean {
+    private fun processAppMentionEvent(event: MessageEvent) {
         event.text?.toLowerCase()?.let { text ->
             when {
                 text.contains(Regex("leaderboard \\d*")) -> slackClient.postMessage(
@@ -82,46 +82,42 @@ class EventService(
                         attachments = helpMessage
                 )
             }
-            return true
         }
-        return false
     }
 
-    private fun processMessageEvent(eventId: String, event: MessageEvent): Boolean =
-            when {
-                event.previousMessage != null -> processEditedOrDeletedMessage(event)
-                channelIsDirectMessageToGuacBot(event) -> processDirectMessage(event)
-                event.user == null || event.text == null -> false
-                tacoCheck(event.text, event.user) -> sendAvocadoReminder(event.user, event.channel)
-                else -> processAvocadoMessage(event.user, event.text, event.channel, event.ts.toTimestamp(), eventId)
-            }
+    private fun processMessageEvent(eventId: String, event: MessageEvent) {
+        when {
+            event.previousMessage != null -> processEditedOrDeletedMessage(event)
+            channelIsDirectMessageToGuacBot(event) -> processDirectMessage(event)
+            event.user == null || event.text == null -> return
+            tacoCheck(event.text, event.user) -> sendAvocadoReminder(event.user, event.channel)
+            else -> processAvocadoMessage(event.user, event.text, event.channel, event.ts.toTimestamp(), eventId)
+        }
+    }
 
-    private fun processUserChangeEvent(slackUser: SlackUser): Boolean {
+    private fun processUserChangeEvent(slackUser: SlackUser) {
         userService.replace(slackUser.toUser())
-        return true
     }
 
-    private fun processMemberJoinedChannelEvent(event: JoinedChannelEvent): Boolean {
+    private fun processMemberJoinedChannelEvent(event: JoinedChannelEvent) {
         if (event.user == bot) {
             slackClient.postMessage(
                     channel = event.channel,
                     attachments = listOf(welcomeMessage)
             )
         }
-        return true
     }
 
-    private fun processDirectMessage(event: MessageEvent): Boolean {
-        if (event.user == null) return false
+    private fun processDirectMessage(event: MessageEvent) {
+        if (event.user == null) return
 
         when (event.text?.toLowerCase()) {
             AVOCADO_COMMAND -> slackClient.postMessage(event.channel, avocadosLeft(calculateRemainingAvocados(event.user)))
         }
-        return true
     }
 
-    private fun processEditedOrDeletedMessage(event: MessageEvent): Boolean {
-        return if (event.previousMessage != null && event.previousMessage.ts.toTimestamp().isToday()) {
+    private fun processEditedOrDeletedMessage(event: MessageEvent) {
+        if (event.previousMessage != null && event.previousMessage.ts.toTimestamp().isToday()) {
             when (event.subtype) {
                 MESSAGE_DELETED -> repository.revokeAvocadosBySenderAndTimestamp(
                         sender = event.previousMessage.user,
@@ -154,24 +150,23 @@ class EventService(
                     }
                 }
             }
-            true
-        } else false
+        }
     }
 
-    private fun processAvocadoMessage(user: String, text: String, channel: String, timestamp: Long, eventId: String) : Boolean {
+    private fun processAvocadoMessage(user: String, text: String, channel: String, timestamp: Long, eventId: String) {
         val mentions = findMentionedPeople(text, user)
         val avocadosInMessage = countGuacamoleIngredients(text)
-        if (avocadosInMessage == 0 || mentions.isEmpty()) return false
+        if (avocadosInMessage == 0 || mentions.isEmpty()) return
 
         val sender = userService.findByUserIdOrGetFromSlack(user)
-        if (sender == null || sender.isBot) return false
+        if (sender == null || sender.isBot) return
 
         val avocadosSentToday = repository.findBySenderToday(user).size
         val remainingAvocados = calculateRemainingAvocados(user, avocadosSentToday)
 
         if ((avocadosSentToday + (avocadosInMessage * mentions.size)) > 5) {
             slackClient.postEphemeralMessage(channel, user, notEnoughAvocados(remainingAvocados))
-            return false
+            return
         }
 
         mentions.filter {
@@ -190,17 +185,14 @@ class EventService(
             it.save()
             sendReceiptMessage(channel, user, avocadosSentToday, it)
         }
-        return true
     }
 
-    private fun sendAvocadoReminder(user: String, channel: String): Boolean {
-        slackClient.postEphemeralMessage(
-                channel = channel,
-                user = user,
-                text = AVOCADO_REMINDER
-        )
-        return true
-    }
+    private fun sendAvocadoReminder(user: String, channel: String) =
+            slackClient.postEphemeralMessage(
+                    channel = channel,
+                    user = user,
+                    text = AVOCADO_REMINDER
+            )
 
     private fun sendReceiptMessage(channel: String, sender: String, avocadosSentToday: Int, avocadoReceipts: List<AvocadoReceipt>) {
 
