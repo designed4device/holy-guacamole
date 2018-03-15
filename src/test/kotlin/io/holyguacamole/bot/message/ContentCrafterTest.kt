@@ -2,6 +2,7 @@ package io.holyguacamole.bot.message
 
 import assertk.assert
 import assertk.assertions.isEqualTo
+import io.holyguacamole.bot.MockChannels.general
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
@@ -9,7 +10,8 @@ import io.holyguacamole.bot.message.ContentCrafter.avocadosLeft
 import io.holyguacamole.bot.message.ContentCrafter.listReceivers
 import io.holyguacamole.bot.message.ContentCrafter.notEnoughAvocados
 import io.holyguacamole.bot.message.ContentCrafter.receivedAvocadoMessage
-import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessage
+import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessageForReceiver
+import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessageForSender
 import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
 import org.junit.Test
 
@@ -42,8 +44,8 @@ class ContentCrafterTest {
 
     @Test
     fun `it crafts the correct received avocados message`() {
-        assert(receivedAvocadoMessage(1, patrick,"CTEST123")).isEqualTo("You received 1 avocado from <@$patrick> in <#CTEST123>!")
-        assert(receivedAvocadoMessage(2, patrick,"CTEST125")).isEqualTo("You received 2 avocados from <@$patrick> in <#CTEST125>!")
+        assert(receivedAvocadoMessage(1, patrick, general)).isEqualTo("You received 1 avocado from <@$patrick> in <#$general>!")
+        assert(receivedAvocadoMessage(2, patrick, general)).isEqualTo("You received 2 avocados from <@$patrick> in <#$general>!")
     }
 
     @Test
@@ -61,12 +63,19 @@ class ContentCrafterTest {
     }
 
     @Test
-    fun `it crafts the correct revoked avocado message`() {
-        assert(revokedAvocadoMessage(1, listOf(patrick), 1))
+    fun `it crafts the correct revoked avocado ephemeral message`() {
+        assert(revokedAvocadoMessageForSender(1, listOf(patrick), 1))
                 .isEqualTo("You revoked 1 avocado from <@$patrick>. You have 1 avocado left to give out today.")
 
-        assert(revokedAvocadoMessage(3, listOf(mark, patrick), 4))
+        assert(revokedAvocadoMessageForSender(3, listOf(mark, patrick), 4))
                 .isEqualTo("You revoked 3 avocados from <@$mark> and <@$patrick>. You have 4 avocados left to give out today.")
 
+    }
+
+    @Test
+    fun `it crafts the correct revoked avocado direct message`() {
+        assert(revokedAvocadoMessageForReceiver(patrick, 1, general)).isEqualTo("<@$patrick> revoked 1 avocado in <#$general>")
+
+        assert(revokedAvocadoMessageForReceiver(patrick, 2, general)).isEqualTo("<@$patrick> revoked 2 avocados in <#$general>")
     }
 }

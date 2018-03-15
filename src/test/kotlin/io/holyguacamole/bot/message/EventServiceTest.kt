@@ -4,7 +4,9 @@ import assertk.assert
 import assertk.assertions.containsAll
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.check
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
@@ -377,6 +379,30 @@ class EventServiceTest {
                 user = eq(deleteMessageEvent.previousMessage?.user!!),
                 text = any()
         )
+    }
+
+    @Test
+    fun `it sends direct message to previous avocado receiver about revoked avocado`(){
+        val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday
+
+        whenever(repository.revokeAvocadosBySenderAndTimestamp(any(), any())).thenReturn(listOf(
+                AvocadoCount(mark, 2), AvocadoCount(patrick, 2)
+        ))
+
+        eventService.process(deleteMessage)
+
+        verify(slackClient).postEphemeralMessage(any(), any(), any())
+
+        verify(slackClient).sendDirectMessage(eq(mark), any(), check {
+            assert(it.size).isEqualTo(1)
+            it.first().let {
+                assert(it.title).isEmpty()
+                assert(it.pretext).isNotEmpty()
+                assert(it.text).isNotEmpty()
+                assert(it.markdownIn).isEqualTo(listOf(MARKDOWN.TEXT, MARKDOWN.PRETEXT))
+            }
+        })
+        verify(slackClient).sendDirectMessage(eq(patrick), any(), any())
     }
 
     @Test

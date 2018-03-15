@@ -49,7 +49,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
         return jacksonObjectMapper().readValue(response, SlackUserResponse::class.java).user
     }
 
-    fun sendDirectMessage(user: String, text: String, attachments: List<MessageAttachment>) {
+    fun sendDirectMessage(user: String, text: String = "", attachments: List<MessageAttachment> = emptyList()) {
         postMessage(channel = openConversationChannel(user), text = text, attachments = attachments)
     }
 

@@ -16,7 +16,8 @@ import io.holyguacamole.bot.message.ContentCrafter.avocadosLeft
 import io.holyguacamole.bot.message.ContentCrafter.helpMessage
 import io.holyguacamole.bot.message.ContentCrafter.notEnoughAvocados
 import io.holyguacamole.bot.message.ContentCrafter.receivedAvocadoMessage
-import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessage
+import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessageForReceiver
+import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessageForSender
 import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
 import io.holyguacamole.bot.message.EventService.BotCommands.AVOCADO_COMMAND
@@ -81,12 +82,27 @@ class EventService(
                     slackClient.postEphemeralMessage(
                             channel = event.channel,
                             user = event.previousMessage.user,
-                            text = revokedAvocadoMessage(
+                            text = revokedAvocadoMessageForSender(
                                     revokedAvocadosPerMention = it.first().count,
                                     mentions = it.map { it.receiver },
                                     remainingAvocados = remainingAvocados
                             )
                     )
+                    it.forEach {
+                        slackClient.sendDirectMessage(
+                                user = it.receiver,
+                                attachments = listOf(MessageAttachment(
+                                        title = "",
+                                        pretext = revokedAvocadoMessageForReceiver(
+                                                sender = event.previousMessage.user,
+                                                avocadosRevoked = it.count,
+                                                channel = event.channel
+                                        ),
+                                        text = event.previousMessage.text,
+                                        markdownIn = listOf(MARKDOWN.TEXT, MARKDOWN.PRETEXT)
+                                ))
+                        )
+                    }
                 }
             }
             return true
