@@ -33,6 +33,8 @@ import io.holyguacamole.bot.MockUsers.jeremyskywalker
 import io.holyguacamole.bot.MockUsers.markardito
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
+import io.holyguacamole.bot.message.EventService.Companion.countGuacamoleIngredients
+import io.holyguacamole.bot.message.EventService.Companion.findMentionedPeople
 import io.holyguacamole.bot.user.UserService
 import org.junit.Test
 import org.mockito.Mockito.anyList
@@ -55,32 +57,31 @@ class EventServiceTest {
 
     @Test
     fun `it knows how many avocados someone is trying to send`() {
-        assert(Empty.messageEvent.copy(text = ":avocado:").countGuacamoleIngredients()).isEqualTo(1)
-        assert(Empty.messageEvent.copy(text = ":avocado: :avocado:").countGuacamoleIngredients()).isEqualTo(2)
-        assert(Empty.messageEvent.copy(text = ":avocado::avocado:").countGuacamoleIngredients()).isEqualTo(2)
-        assert(Empty.messageEvent.copy(text = ":avocado:avocado:").countGuacamoleIngredients()).isEqualTo(1)
+        assert(Empty.messageEvent.copy(text = ":avocado:").let { countGuacamoleIngredients(it.text!!)}).isEqualTo(1)
+        assert(Empty.messageEvent.copy(text = ":avocado: :avocado:").let { countGuacamoleIngredients(it.text!!)}).isEqualTo(2)
+        assert(Empty.messageEvent.copy(text = ":avocado::avocado:").let { countGuacamoleIngredients(it.text!!)}).isEqualTo(2)
+        assert(Empty.messageEvent.copy(text = ":avocado:avocado:").let { countGuacamoleIngredients(it.text!!)}).isEqualTo(1)
     }
 
     @Test
     fun `it knows who the avocados were given to`() {
         val event = Empty.messageEvent.copy(text = "<@USER1> <@USER2>")
 
-        assert(event.findMentionedPeople()).containsAll("USER1", "USER2")
+        assert(findMentionedPeople(event.text!!, event.user!!)).containsAll("USER1", "USER2")
     }
 
     @Test
     fun `it knows if someone is not trying to send an avocado`() {
         val event = MockMessages.withoutMentionAndAvocado.event as MessageEvent
 
-        assert(event.countGuacamoleIngredients()).isEqualTo(0)
-        assert(event.findMentionedPeople()).isEmpty()
+        assert(countGuacamoleIngredients(event.text!!)).isEqualTo(0)
+        assert(findMentionedPeople(event.text!!, event.user!!)).isEmpty()
     }
 
     @Test
     fun `it does not create an AvocadoReceipt if it's just a normal message`() {
         eventService.process(MockMessages.withoutMentionAndAvocado)
 
-        verify(repository).findBySenderToday(any()) //TODO should be removed as part of proccessMessageEvent refactor
         verifyZeroInteractions(repository)
     }
 
@@ -118,7 +119,6 @@ class EventServiceTest {
     fun `it does not add any AvocadoReceipts if the user sends themself an avocado`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocadoFromThemself)
 
-        verify(repository).findBySenderToday(any()) //TODO should be removed as part of proccessMessageEvent refactor
         verifyZeroInteractions(repository)
     }
 
@@ -126,7 +126,6 @@ class EventServiceTest {
     fun `it does not add any AvocadoReceipts if the avocado is from a bot`() {
         eventService.process(MockMessages.withSingleMentionAndSingleAvocadoFromBot)
 
-        verify(repository).findBySenderToday(any()) //TODO should be removed as part of proccessMessageEvent refactor
         verifyZeroInteractions(repository)
     }
 
@@ -134,7 +133,6 @@ class EventServiceTest {
     fun `it does not add AvocadoReceipts for bots`() {
         eventService.process(MockMessages.withBotMentionAndSingleAvocado)
 
-        verify(repository).findByEventId(MockMessages.withBotMentionAndSingleAvocado.eventId)
         verify(repository).findBySenderToday((MockMessages.withBotMentionAndSingleAvocado.event as MessageEvent).user!!)
         verifyNoMoreInteractions(repository)
     }
@@ -434,7 +432,7 @@ class DirectMessageEventTests {
         eventService.process(MockDirectMessages.avocados)
         val channel = (MockDirectMessages.avocados.event as MessageEvent).channel
 
-        verify(repository).findBySenderToday(patrick)//TODO should be removed as part of proccessMessageEvent refactor
+        verify(repository).findBySenderToday(patrick)
         verify(slackClient).postMessage(eq(channel), eq(ContentCrafter.avocadosLeft(5)), any())
     }
 
@@ -442,9 +440,7 @@ class DirectMessageEventTests {
     fun `it does not send number of avocados if you don't send the avocados command`() {
         eventService.process(MockDirectMessages.withNoCommand)
 
-        verify(repository).findBySenderToday(any())//TODO should be removed as part of proccessMessageEvent refactor
-        verifyNoMoreInteractions(repository)
-
+        verifyZeroInteractions(repository)
         verifyZeroInteractions(slackClient)
     }
 }
