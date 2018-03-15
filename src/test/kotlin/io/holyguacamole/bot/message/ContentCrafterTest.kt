@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
+import io.holyguacamole.bot.message.ContentCrafter.avocadosLeft
 import io.holyguacamole.bot.message.ContentCrafter.notEnoughAvocados
 import io.holyguacamole.bot.message.ContentCrafter.receivedAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
@@ -41,5 +42,12 @@ class ContentCrafterTest {
     fun `it crafts the correct received avocados message`() {
         assert(receivedAvocadoMessage(1, patrick,"CTEST123")).isEqualTo("You received 1 avocado from <@$patrick> in <#CTEST123>!")
         assert(receivedAvocadoMessage(2, patrick,"CTEST125")).isEqualTo("You received 2 avocados from <@$patrick> in <#CTEST125>!")
+    }
+
+    @Test
+    fun `it crafts the correct avocados left message`() {
+        assert(avocadosLeft(0)).isEqualTo("You have no avocados left to give out today.")
+        assert(avocadosLeft(1)).isEqualTo("You have 1 avocado left to give out today.")
+        assert(avocadosLeft(2)).isEqualTo("You have 2 avocados left to give out today.")
     }
 }
