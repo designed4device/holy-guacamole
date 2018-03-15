@@ -12,6 +12,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
+import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockChannels.general
@@ -199,6 +200,8 @@ class MessageIntegrationTest {
         controller.message(MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday)
 
         assert(receiptRepository.findAll()).hasSize(0)
+
+        verify(slackClient).postEphemeralMessage(channel = eq(general), user = eq(jeremy), text = any())
     }
 
     @Test
@@ -209,6 +212,8 @@ class MessageIntegrationTest {
         controller.message(MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday)
 
         assert(receiptRepository.findAll()).hasSize(4)
+
+        verifyZeroInteractions(slackClient)
     }
 
     @Test

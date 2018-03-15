@@ -3,6 +3,7 @@ package io.holyguacamole.bot.message
 import assertk.assert
 import assertk.assertions.containsExactly
 import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
 import io.holyguacamole.bot.MockAvocadoReceipts
 import io.holyguacamole.bot.MockAvocadoReceipts.markToPatrick
 import io.holyguacamole.bot.MockIds
@@ -83,16 +84,19 @@ class AvocadoReceiptRepositoryTest {
 
     @Test
     fun `it deletes all avocado receipts for a user and timestamp`() {
-        val tstamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+        val timestamp = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
         repository.saveAll(listOf(
                 MockAvocadoReceipts.patrickToMark.copy(timestamp = LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC)),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = tstamp),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = tstamp),
-                MockAvocadoReceipts.jeremyToMark.copy(timestamp = tstamp)
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = timestamp),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = timestamp),
+                MockAvocadoReceipts.patrickToJeremy.copy(timestamp = timestamp),
+                MockAvocadoReceipts.patrickToJeremy.copy(timestamp = timestamp),
+                MockAvocadoReceipts.jeremyToMark.copy(timestamp = timestamp)
         ))
-        repository.deleteBySenderAndTimestamp(sender = patrick, timestamp = tstamp)
+        val deletedCount: List<AvocadoCount> = repository.revokeAvocadosBySenderAndTimestamp(patrick, timestamp)
 
         assert(repository.findAll()).hasSize(2)
+        assert(deletedCount).isEqualTo(listOf(AvocadoCount(mark, 2), AvocadoCount(jeremy, 2)))
     }
 
     @Test

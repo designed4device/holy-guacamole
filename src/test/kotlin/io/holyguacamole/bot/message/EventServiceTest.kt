@@ -347,10 +347,8 @@ class EventServiceTest {
         val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday
         eventService.process(deleteMessage)
 
-        verify(repository).deleteBySenderAndTimestamp(jeremy, (deleteMessage.event as MessageEvent).previousMessage?.ts?.toTimestamp()!!)
+        verify(repository).revokeAvocadosBySenderAndTimestamp(jeremy, (deleteMessage.event as MessageEvent).previousMessage?.ts?.toTimestamp()!!)
         verifyNoMoreInteractions(repository)
-        verifyNoMoreInteractions(slackClient)
-        verifyNoMoreInteractions(userService)
     }
 
     @Test
@@ -365,14 +363,19 @@ class EventServiceTest {
 
     @Test
     fun `it sends an ephemeral message to user when they delete avocados`() {
-        whenever(repository.deleteBySenderAndTimestamp(any(), any())).thenReturn(1)
         val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday
+        val deleteMessageEvent = (deleteMessage.event as MessageEvent)
+
+        whenever(repository.revokeAvocadosBySenderAndTimestamp(any(), any())).thenReturn(listOf(
+                AvocadoCount(mark, 2), AvocadoCount(patrick, 2)
+        ))
+
         eventService.process(deleteMessage)
 
         verify(slackClient).postEphemeralMessage(
-                channel = (MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday.event as MessageEvent).channel,
-                user = (MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday.event as MessageEvent).previousMessage?.user!!,
-                text = (MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday.event as MessageEvent).previousMessage?.text!!
+                channel = eq(deleteMessageEvent.channel),
+                user = eq(deleteMessageEvent.previousMessage?.user!!),
+                text = any()
         )
     }
 

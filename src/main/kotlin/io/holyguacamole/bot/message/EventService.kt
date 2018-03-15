@@ -16,6 +16,7 @@ import io.holyguacamole.bot.message.ContentCrafter.avocadosLeft
 import io.holyguacamole.bot.message.ContentCrafter.helpMessage
 import io.holyguacamole.bot.message.ContentCrafter.notEnoughAvocados
 import io.holyguacamole.bot.message.ContentCrafter.receivedAvocadoMessage
+import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
 import io.holyguacamole.bot.message.EventService.BotCommands.AVOCADO_COMMAND
@@ -72,21 +73,25 @@ class EventService(
 
         if (event.previousMessage != null && event.previousMessage.ts.toTimestamp().isToday()) {
             when (event.subtype) {
-                MESSAGE_DELETED -> repository.deleteBySenderAndTimestamp(
+                MESSAGE_DELETED -> repository.revokeAvocadosBySenderAndTimestamp(
                         sender = event.previousMessage.user,
                         timestamp = event.previousMessage.ts.toTimestamp()
-                ).also {
-                    if (it > 0)
-                        slackClient.postEphemeralMessage(
-                                channel = event.channel,
-                                user = event.previousMessage.user,
-                                text = event.previousMessage.text
-                        )
+                ).executeIfNotEmpty {
+                    val remainingAvocados = 5 - repository.findBySenderToday(event.previousMessage.user).size
+                    slackClient.postEphemeralMessage(
+                            channel = event.channel,
+                            user = event.previousMessage.user,
+                            text = revokedAvocadoMessage(
+                                    revokedAvocadosPerMention = it.first().count,
+                                    mentions = it.map { it.receiver },
+                                    remainingAvocados = remainingAvocados
+                            )
+                    )
                 }
-
             }
             return true
         }
+
         if (event.user == null || event.text == null) return false
 
         val mentions = event.findMentionedPeople()
