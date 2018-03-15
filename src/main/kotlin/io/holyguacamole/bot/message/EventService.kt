@@ -201,10 +201,6 @@ class EventService(
                     attachments = helpMessage
             )
         }
-
-        if (event.text?.toLowerCase()?.contains("leaderboard") == true) {
-
-        }
         return true
     }
 
