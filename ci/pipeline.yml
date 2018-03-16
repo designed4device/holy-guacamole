@@ -20,9 +20,12 @@ jobs:
         args:
         - -exc
         - |
+          export GRADLE_USER_HOME=
           ./gradlew test
+      params:
+        GRADLE_USER_HOME: /tmp/.gradle
       caches:
-        - path: /root/.gradle/
+        - path: /tmp/.gradle/
 
 - name: deploy test
   plan:
