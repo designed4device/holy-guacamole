@@ -183,6 +183,7 @@ class SlackClientTest {
                         .withHeader("Authorization", equalTo("Bearer $token"))
                         .withHeader("Accept", equalTo("application/json"))
         )
+        
     }
 
     private val channel = "GENERAL"
