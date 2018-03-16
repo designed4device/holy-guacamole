@@ -21,29 +21,16 @@ jobs:
         - -exc
         - |
           ./gradlew test
+      params:
+        GRADLE_USER_HOME: /tmp/.gradle
+      caches:
+        - path: ../../.gradle/
 
 - name: deploy test
   plan:
   - get: github
     trigger: true
     passed: [run tests]
-  - task: assemble
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: openjdk
-      inputs:
-      - name: github
-        path: holy-guacamole
-      run:
-        path: sh
-        dir: holy-guacamole
-        args:
-        - -exc
-        - |
-          ./gradlew assemble
   - put: heroku-test
     params:
       repository: github
