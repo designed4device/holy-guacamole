@@ -21,6 +21,8 @@ jobs:
         - -exc
         - |
           ./gradlew test
+      caches:
+        - path: /root/.gradle/
 
 - name: deploy test
   plan:
