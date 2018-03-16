@@ -24,7 +24,7 @@ jobs:
       params:
         GRADLE_USER_HOME: /tmp/.gradle
       caches:
-        - path: /tmp/.gradle/
+        - path: ../../.gradle/
 
 - name: deploy test
   plan:
