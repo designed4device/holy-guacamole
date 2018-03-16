@@ -11,8 +11,10 @@ import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_REMINDER
 import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_TEXT
+import io.holyguacamole.bot.message.ContentCrafter.GUACWARD_MESSAGE
 import io.holyguacamole.bot.message.ContentCrafter.TACO_TEXT
 import io.holyguacamole.bot.message.ContentCrafter.avocadosLeft
+import io.holyguacamole.bot.message.ContentCrafter.commandsMessage
 import io.holyguacamole.bot.message.ContentCrafter.helpMessage
 import io.holyguacamole.bot.message.ContentCrafter.notEnoughAvocados
 import io.holyguacamole.bot.message.ContentCrafter.receivedAvocadoMessage
@@ -80,6 +82,10 @@ class EventService(
                 text.contains("help") -> slackClient.postMessage(
                         channel = event.channel,
                         attachments = helpMessage
+                )
+                else -> slackClient.postMessage(
+                        channel = event.channel,
+                        attachments = listOf(commandsMessage.copy(title = "", pretext = GUACWARD_MESSAGE))
                 )
             }
         }
@@ -226,7 +232,7 @@ class EventService(
                     && text.contains(TACO_TEXT)
 
     private fun calculateRemainingAvocados(userId: String, sentAvocados: Int? = null): Int =
-            5 - (sentAvocados?: repository.findBySenderToday(userId).size)
+            5 - (sentAvocados ?: repository.findBySenderToday(userId).size)
 
     private fun channelIsDirectMessageToGuacBot(event: MessageEvent): Boolean = event.channel.startsWith("D")
 

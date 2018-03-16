@@ -57,10 +57,10 @@ class EventServiceTest {
 
     @Test
     fun `it knows how many avocados someone is trying to send`() {
-        assert(Empty.messageEvent.copy(text = ":avocado:").let { countGuacamoleIngredients(it.text!!)}).isEqualTo(1)
-        assert(Empty.messageEvent.copy(text = ":avocado: :avocado:").let { countGuacamoleIngredients(it.text!!)}).isEqualTo(2)
-        assert(Empty.messageEvent.copy(text = ":avocado::avocado:").let { countGuacamoleIngredients(it.text!!)}).isEqualTo(2)
-        assert(Empty.messageEvent.copy(text = ":avocado:avocado:").let { countGuacamoleIngredients(it.text!!)}).isEqualTo(1)
+        assert(Empty.messageEvent.copy(text = ":avocado:").let { countGuacamoleIngredients(it.text!!) }).isEqualTo(1)
+        assert(Empty.messageEvent.copy(text = ":avocado: :avocado:").let { countGuacamoleIngredients(it.text!!) }).isEqualTo(2)
+        assert(Empty.messageEvent.copy(text = ":avocado::avocado:").let { countGuacamoleIngredients(it.text!!) }).isEqualTo(2)
+        assert(Empty.messageEvent.copy(text = ":avocado:avocado:").let { countGuacamoleIngredients(it.text!!) }).isEqualTo(1)
     }
 
     @Test
@@ -380,7 +380,21 @@ class EventServiceTest {
     }
 
     @Test
-    fun `it sends direct message to previous avocado receiver about revoked avocado`(){
+    fun `it sends the message with guacward message and help command message if command passed is invalid`() {
+        eventService.process(MockAppMentions.unknownCommand)
+        verify(slackClient).postMessage(eq(general), eq(""), check {
+            assert(it.size).isEqualTo(1)
+            it.first().let {
+                assert(it.title).isEmpty()
+                assert(it.text).isNotEmpty()
+                assert(it.pretext).isNotEmpty()
+                assert(it.markdownIn).isEqualTo(listOf(MARKDOWN.TEXT))
+            }
+        })
+    }
+
+    @Test
+    fun `it sends direct message to previous avocado receiver about revoked avocado`() {
         val deleteMessage = MockMessages.withDeleteSubTypeForMultipleMentionsAndMultipleAvocadosToday
 
         whenever(repository.revokeAvocadosBySenderAndTimestamp(any(), any())).thenReturn(listOf(

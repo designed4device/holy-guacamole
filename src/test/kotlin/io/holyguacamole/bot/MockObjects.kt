@@ -317,36 +317,36 @@ object MockMessages {
 
 object MockDirectMessages {
     val avocados = EventCallback(
-        token = token,
-        teamId = "abc",
-        apiAppId = "123",
-        event = MessageEvent(
-            type = "message",
-            channel = directMessage,
-            user = patrick,
-            text = "avocados",
-            ts = today
-        ),
-        type = "event_callback",
-        authedUsers = listOf("U123556"),
-        eventId = "12345678",
-        eventTime = 1234567890
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    channel = directMessage,
+                    user = patrick,
+                    text = "avocados",
+                    ts = today
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
     val withNoCommand = EventCallback(
-        token = token,
-        teamId = "abc",
-        apiAppId = "123",
-        event = MessageEvent(
-            type = "message",
-            channel = directMessage,
-            user = patrick,
-            text = "how are you?",
-            ts = today
-        ),
-        type = "event_callback",
-        authedUsers = listOf("U123556"),
-        eventId = "12345678",
-        eventTime = 1234567890
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    channel = directMessage,
+                    user = patrick,
+                    text = "how are you?",
+                    ts = today
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
     )
 }
 
@@ -494,22 +494,6 @@ object MockAppMentions {
             eventId = "12345679",
             eventTime = 1234567890
     )
-    val showMeTheLeaderboard = EventCallback(
-            token = token,
-            teamId = "abc",
-            apiAppId = "123",
-            event = MessageEvent(
-                    type = APP_MENTION,
-                    channel = general,
-                    user = jeremy,
-                    text = "<@$appbot> show me the LEADERBOARD",
-                    ts = today
-            ),
-            type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
-            eventId = "12345678",
-            eventTime = 1234567890
-    )
     val help = EventCallback(
             token = token,
             teamId = "abc",
@@ -526,7 +510,25 @@ object MockAppMentions {
             eventId = "12345678",
             eventTime = 1234567890
     )
+
+    val unknownCommand = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = APP_MENTION,
+                    channel = general,
+                    user = jeremy,
+                    text = "<@$appbot> unknownCommand",
+                    ts = today
+            ),
+            type = EVENT_CALLBACK,
+            authedUsers = listOf(appbot),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
 }
+
 
 object MockJoinedChannelEvents {
     val botJoined = EventCallback(

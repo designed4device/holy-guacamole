@@ -38,15 +38,25 @@ You can give avocados to anyone on your team. I am always watching, so you don't
 `@username $AVOCADO_TEXT @anotherusername $AVOCADO_TEXT` Gives 2 avocados each to @username and @anotherusername"""
 
     const val HELP_COMMANDS_TEXT =
-            """`/invite @holyguacamole` invites me to channels
-`@holygaucamole leaderboard [number]` show the leaderboard, eg. leaderboard 20, defaults to top 10"""
+"""`/invite @holyguacamole` to invite me to a channel
+`@holyguacamole help`:  to see helpful resources and information
+`@holygaucamole leaderboard [number]` to show the leaderboard, eg. leaderboard 20, defaults to top 10"""
 
     const val AVOCADO_REMINDER = "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?"
+
+    const val GUACWARD_MESSAGE = "I don't mean to sound _guacward_ but, did you mean to use one of these commands?"
 
     val welcomeMessage = MessageAttachment(
             title = WELCOME_TITLE,
             pretext = WELCOME_PRETEXT,
             text = WELCOME_TEXT,
+            markdownIn = listOf(MARKDOWN.TEXT)
+    )
+
+    val commandsMessage = MessageAttachment(
+            title = HELP_COMMANDS_TITLE,
+            pretext = "",
+            text = HELP_COMMANDS_TEXT,
             markdownIn = listOf(MARKDOWN.TEXT)
     )
 
@@ -63,14 +73,8 @@ You can give avocados to anyone on your team. I am always watching, so you don't
                     text = HELP_HOWTO_TEXT,
                     markdownIn = listOf(MARKDOWN.TEXT)
             ),
-            MessageAttachment(
-                    title = HELP_COMMANDS_TITLE,
-                    pretext = "",
-                    text = HELP_COMMANDS_TEXT,
-                    markdownIn = listOf(MARKDOWN.TEXT)
-            )
+            commandsMessage
     )
-
 
     fun notEnoughAvocados(remainingAvocados: Int): String =
             when (remainingAvocados) {
