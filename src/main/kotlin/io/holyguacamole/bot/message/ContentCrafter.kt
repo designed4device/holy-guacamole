@@ -42,9 +42,13 @@ You can give avocados to anyone on your team. I am always watching, so you don't
 `@holyguacamole help`:  to see helpful resources and information
 `@holygaucamole leaderboard [number]` to show the leaderboard, eg. leaderboard 20, defaults to top 10"""
 
+    const val HELP_DM_TITLE = "Direct Message Commands"
+    const val HELP_DM_TEXT =
+"""`avocados` to see how many avocados you have left to give out today"""
+
     const val AVOCADO_REMINDER = "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?"
 
-    const val GUACWARD_MESSAGE = "I don't mean to sound _guacward_ but, did you mean to use one of these commands?"
+    const val GUACWARD_MESSAGE = "I don't mean to sound _guacward_ but did you mean to use one of these commands?"
 
     val welcomeMessage = MessageAttachment(
             title = WELCOME_TITLE,
@@ -72,6 +76,12 @@ You can give avocados to anyone on your team. I am always watching, so you don't
                     pretext = "",
                     text = HELP_HOWTO_TEXT,
                     markdownIn = listOf(MARKDOWN.TEXT)
+            ),
+            MessageAttachment(
+                    title = HELP_DM_TITLE,
+                    pretext = "",
+                    text = HELP_DM_TEXT,
+                    markdownIn = (listOf(MARKDOWN.TEXT))
             ),
             commandsMessage
     )
