@@ -23,6 +23,7 @@ import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessageForSende
 import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
 import io.holyguacamole.bot.message.EventService.BotCommands.AVOCADO_COMMAND
+import io.holyguacamole.bot.message.EventService.BotCommands.HELP_COMMAND
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.toUser
 import io.holyguacamole.bot.user.UserService
@@ -49,6 +50,7 @@ class EventService(
 
     object BotCommands {
         const val AVOCADO_COMMAND = "avocados"
+        const val HELP_COMMAND = "help"
     }
 
     @Async
@@ -119,6 +121,7 @@ class EventService(
 
         when (event.text?.toLowerCase()) {
             AVOCADO_COMMAND -> slackClient.postMessage(event.channel, avocadosLeft(calculateRemainingAvocados(event.user)))
+            HELP_COMMAND -> slackClient.postMessage(channel = event.channel, attachments = helpMessage)
         }
     }
 

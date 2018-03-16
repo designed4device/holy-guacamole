@@ -451,6 +451,14 @@ class DirectMessageEventTests {
     }
 
     @Test
+    fun `it sends a dm with the help command text`() {
+        eventService.process(MockDirectMessages.withHelp)
+        val channel = (MockDirectMessages.withHelp.event as MessageEvent).channel
+
+        verify(slackClient).postMessage(channel = eq(channel), text = eq(""), attachments = eq(ContentCrafter.helpMessage))
+    }
+
+    @Test
     fun `it does not send number of avocados if you don't send the avocados command`() {
         eventService.process(MockDirectMessages.withNoCommand)
 
