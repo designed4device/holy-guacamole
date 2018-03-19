@@ -332,6 +332,22 @@ object MockDirectMessages {
             eventId = "12345678",
             eventTime = 1234567890
     )
+    val leaderboard = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = "message",
+                    channel = directMessage,
+                    user = patrick,
+                    text = "leaderboard",
+                    ts = today
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
     val withNoCommand = EventCallback(
             token = token,
             teamId = "abc",

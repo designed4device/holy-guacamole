@@ -23,6 +23,7 @@ import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessageForSende
 import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
 import io.holyguacamole.bot.message.EventService.BotCommands.AVOCADO_COMMAND
+import io.holyguacamole.bot.message.EventService.BotCommands.LEADERBOARD_COMMAND
 import io.holyguacamole.bot.message.EventService.BotCommands.HELP_COMMAND
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.toUser
@@ -50,6 +51,7 @@ class EventService(
 
     object BotCommands {
         const val AVOCADO_COMMAND = "avocados"
+        const val LEADERBOARD_COMMAND = "leaderboard"
         const val HELP_COMMAND = "help"
     }
 
@@ -72,12 +74,12 @@ class EventService(
     private fun processAppMentionEvent(event: MessageEvent) {
         event.text?.toLowerCase()?.let { text ->
             when {
-                text.contains(Regex("leaderboard \\d*")) -> slackClient.postMessage(
+                text.contains(Regex("$LEADERBOARD_COMMAND \\d*")) -> slackClient.postMessage(
                         channel = event.channel,
                         text = craftLeaderboardMessage(repository.getLeaderboard(
-                                Regex("leaderboard (\\d*)").find(text)?.groupValues?.get(1)?.toLong() ?: 10))
+                                Regex("$LEADERBOARD_COMMAND (\\d*)").find(text)?.groupValues?.get(1)?.toLong() ?: 10))
                 )
-                text.contains("leaderboard") -> slackClient.postMessage(
+                text.contains(LEADERBOARD_COMMAND) -> slackClient.postMessage(
                         channel = event.channel,
                         text = craftLeaderboardMessage(repository.getLeaderboard())
                 )
@@ -93,10 +95,17 @@ class EventService(
         }
     }
 
+    private fun sendLeaderboard(channel: String, limit: Long = 10) {
+        slackClient.postMessage(
+                channel = channel,
+                text = craftLeaderboardMessage(repository.getLeaderboard(limit))
+        )
+    }
+
     private fun processMessageEvent(eventId: String, event: MessageEvent) {
         when {
             event.previousMessage != null -> processEditedOrDeletedMessage(event)
-            channelIsDirectMessageToGuacBot(event) -> processDirectMessage(event)
+            event.isDirectMessageToBot() -> processDirectMessage(event)
             event.user == null || event.text == null -> return
             tacoCheck(event.text, event.user) -> sendAvocadoReminder(event.user, event.channel)
             else -> processAvocadoMessage(event.user, event.text, event.channel, event.ts.toTimestamp(), eventId)
@@ -119,9 +128,16 @@ class EventService(
     private fun processDirectMessage(event: MessageEvent) {
         if (event.user == null) return
 
-        when (event.text?.toLowerCase()) {
-            AVOCADO_COMMAND -> slackClient.postMessage(event.channel, avocadosLeft(calculateRemainingAvocados(event.user)))
-            HELP_COMMAND -> slackClient.postMessage(channel = event.channel, attachments = helpMessage)
+        event.text?.toLowerCase()?.let { text ->
+            when {
+                text == HELP_COMMAND -> slackClient.postMessage(channel = event.channel, attachments = helpMessage)
+                text == AVOCADO_COMMAND -> slackClient.postMessage(event.channel, avocadosLeft(calculateRemainingAvocados(event.user)))
+                text.contains(Regex("$LEADERBOARD_COMMAND \\d*")) -> sendLeaderboard(
+                        channel = event.channel,
+                        limit = Regex("$LEADERBOARD_COMMAND (\\d*)").find(text)?.groupValues?.get(1)?.toLong() ?: 10
+                )
+                text.contains(LEADERBOARD_COMMAND) -> sendLeaderboard(event.channel)
+            }
         }
     }
 
@@ -237,7 +253,7 @@ class EventService(
     private fun calculateRemainingAvocados(userId: String, sentAvocados: Int? = null): Int =
             5 - (sentAvocados ?: repository.findBySenderToday(userId).size)
 
-    private fun channelIsDirectMessageToGuacBot(event: MessageEvent): Boolean = event.channel.startsWith("D")
+    fun MessageEvent.isDirectMessageToBot(): Boolean = this.channel.startsWith("D")
 
     private fun craftLeaderboardMessage(avocadoCounts: List<AvocadoCount>): String =
             avocadoCounts.joinToString(separator = "\n") {

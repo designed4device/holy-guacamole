@@ -17,6 +17,7 @@ import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.Empty
 import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
+import io.holyguacamole.bot.MockChannels.directMessage
 import io.holyguacamole.bot.MockChannels.general
 import io.holyguacamole.bot.MockDirectMessages
 import io.holyguacamole.bot.MockIds.appbot
@@ -444,10 +445,9 @@ class DirectMessageEventTests {
     @Test
     fun `it sends a dm with the number of avocados left to send`() {
         eventService.process(MockDirectMessages.avocados)
-        val channel = (MockDirectMessages.avocados.event as MessageEvent).channel
-
+9
         verify(repository).findBySenderToday(patrick)
-        verify(slackClient).postMessage(eq(channel), eq(ContentCrafter.avocadosLeft(5)), any())
+        verify(slackClient).postMessage(eq(directMessage), eq(ContentCrafter.avocadosLeft(5)), any())
     }
 
     @Test
@@ -464,5 +464,12 @@ class DirectMessageEventTests {
 
         verifyZeroInteractions(repository)
         verifyZeroInteractions(slackClient)
+    }
+
+    @Test
+    fun `it sends a dm with the leaderboard`() {
+        eventService.process(MockDirectMessages.leaderboard)
+
+        verify(slackClient).postMessage(eq(directMessage), any(), any())
     }
 }
