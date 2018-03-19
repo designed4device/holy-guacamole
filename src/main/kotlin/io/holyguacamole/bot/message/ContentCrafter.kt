@@ -45,6 +45,7 @@ You can give avocados to anyone on your team. I am always watching, so you don't
     const val HELP_DM_TITLE = "Direct Message Commands"
     const val HELP_DM_TEXT =
 """`help`: to see helpful resources and information
+`leaderboard [number]`: to show the leaderboard, eg. leaderboard 20, defaults to top 10
 `avocados`: to see how many avocados you have left to give out today"""
 
     const val AVOCADO_REMINDER = "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?"
