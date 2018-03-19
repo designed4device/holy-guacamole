@@ -53,13 +53,13 @@ class MessageIntegrationTest {
 
     val slackClient: SlackClient = mock()
 
-    @Autowired
-    lateinit var userService: UserService
+    private lateinit var userService: UserService
 
     private lateinit var controller: EventController
 
     @Before
     fun setUp() {
+        userService = UserService(userRepository, slackClient)
         controller = EventController(token, EventService(receiptRepository, slackClient, userService, MockIds.appbot))
     }
 
