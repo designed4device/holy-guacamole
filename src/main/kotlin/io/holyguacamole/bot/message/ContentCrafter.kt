@@ -16,7 +16,8 @@ object ContentCrafter {
             """- Everyone has 5 avocados to give out per day.
 - To give someone an avocado, add an avocado emoji after their username like this: `@username You're a guac star! $AVOCADO_TEXT`
 - Avocados are best served with a nice message!
-- You can give avocados to anyone on your team. I am always watching, so you don't need to invite me to your channel unless you want to talk to me.
+- You can give avocados to anyone on your team. I am always watching public channels, so you don't need to invite me unless you want to talk to me.
+- I do not watch private channels unless invited, so you will need to invite me to send avocados in a private channel.
 - If you want to interact with me directly, you can invite me like this:
 `/invite $BOT_NAME`
 - You can see the leaderboard by typing: `$BOT_NAME leaderboard`"""
