@@ -35,11 +35,19 @@ jobs:
     params:
       repository: github
 
-- name: Jeremy's PROD button
+- name: Digital Portfolio PROD
   plan:
   - get: heroku-test
     passed: [deploy test]
-  - put: heroku-prod
+  - put: heroku-digital
+    params:
+      repository: heroku-test
+
+- name: Product Solutions PROD
+  plan:
+  - get: heroku-test
+    passed: [deploy test]
+  - put: heroku-product
     params:
       repository: heroku-test
 
@@ -56,9 +64,16 @@ resources:
     uri: ssh://git@heroku.com/holy-guacamole-test.git
     branch: master
     private_key: ((heroku-private-key))
-- name: heroku-prod
+- name: heroku-digital
   type: git
   source:
     uri: ssh://git@heroku.com/holy-guacamole.git
+    branch: master
+    private_key: ((heroku-private-key))
+#heroku-product is the server for the hcscproduct slack workspace
+- name: heroku-product
+  type: git
+  source:
+    uri: ssh://git@heroku.com/holy-guacamole-product.git
     branch: master
     private_key: ((heroku-private-key))
