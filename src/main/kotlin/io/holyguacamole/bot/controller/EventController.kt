@@ -23,7 +23,6 @@ class EventController(@Value("\${slack.token.verification}") val token: String, 
                 log.error("Attempted with token: ${request.token}")
                 ResponseEntity.status(401).build()
             } else {
-                log.info(request.toString())
                 when (request) {
                     is UrlVerification -> ResponseEntity.ok(UrlVerificationResponse(challenge = request.challenge))
                     is EventCallback -> {

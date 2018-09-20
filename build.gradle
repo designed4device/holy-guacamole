@@ -44,15 +44,11 @@ dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-data-rest'
 	compile 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	compile 'org.springframework.boot:spring-boot-starter-actuator'
-	compile 'org.springframework.cloud:spring-cloud-starter-zipkin'
 	compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 	compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
 	compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlinVersion"
 	compile "com.mashape.unirest:unirest-java:$unirestVersion"
-
-	compile "io.springfox:springfox-swagger2:$swaggerVersion"
-	compile "io.springfox:springfox-swagger-ui:$swaggerVersion"
 
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile "com.willowtreeapps.assertk:assertk:$assertKVersion"
