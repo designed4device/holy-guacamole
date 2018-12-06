@@ -37,8 +37,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus.OK
 import org.springframework.test.context.junit4.SpringRunner
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
@@ -188,6 +192,29 @@ class MessageIntegrationTest {
 
         // 6 times for notifying user they sent an avocado, one more time to notify them that they're out
         verify(slackClient, times(7)).postEphemeralMessage(channel = eq(general), user = eq(patrick), text = any())
+        verify(slackClient, times(6)).sendDirectMessage(user = eq(mark), text = any(), attachments = any())
+        verifyNoMoreInteractions(slackClient)
+    }
+
+
+    // fixes bug #159712592
+    @Test
+    fun `a user can give 5 yester-dinner avos and still give brekky avos today`() {
+        userRepository.saveAll(listOf(MockUsers.feeneyfeeneybobeeney, MockUsers.markardito))
+
+        val mockAvocado = MockMessages.withSingleMentionAndSingleAvocado
+        val mockEvent = MockMessages.withSingleMentionAndSingleAvocado.event as MessageEvent
+
+        controller.message(mockAvocado.copy(eventId = "1", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "2", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "3", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "4", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "5", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "6", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now(), LocalTime.of(9, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
+
+        assert(receiptRepository.findAll()).hasSize(6)
+
+        verify(slackClient, times(6)).postEphemeralMessage(channel = eq(general), user = eq(patrick), text = any())
         verify(slackClient, times(6)).sendDirectMessage(user = eq(mark), text = any(), attachments = any())
         verifyNoMoreInteractions(slackClient)
     }

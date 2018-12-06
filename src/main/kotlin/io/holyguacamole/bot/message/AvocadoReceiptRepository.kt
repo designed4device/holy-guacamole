@@ -7,9 +7,9 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneOffset
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Repository
 class AvocadoReceiptRepository(
@@ -38,7 +38,7 @@ class AvocadoReceiptRepository(
                     AvocadoCount::class.java
             ).toList()
 
-    fun findBySenderToday(sender: String): List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestampGreaterThan(sender, LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT).toEpochSecond(ZoneOffset.UTC))
+    fun findBySenderToday(sender: String): List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestampGreaterThan(sender, ZonedDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT, ZoneId.of("America/Chicago")).toEpochSecond())
 
     fun revokeAvocadosBySenderAndTimestamp(sender: String, timestamp: Long): List<AvocadoCount> {
         val receipts: List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestamp(sender, timestamp)

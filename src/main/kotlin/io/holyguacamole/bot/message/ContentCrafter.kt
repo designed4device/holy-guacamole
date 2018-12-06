@@ -39,9 +39,9 @@ You can give avocados to anyone on your team. I am always watching, so you don't
 `@username $AVOCADO_TEXT @anotherusername $AVOCADO_TEXT` Gives 2 avocados each to @username and @anotherusername"""
 
     const val HELP_COMMANDS_TEXT =
-"""`/invite @holyguacamole`: to invite me to a channel
-`@holyguacamole help`: to see helpful resources and information
-`@holygaucamole leaderboard [number]`: to show the leaderboard, eg. leaderboard 20, defaults to top 10"""
+"""`/invite $BOT_NAME`: to invite me to a channel
+`$BOT_NAME help`: to see helpful resources and information
+`$BOT_NAME leaderboard [number]`: to show the leaderboard, eg. leaderboard 20, defaults to top 10"""
 
     const val HELP_DM_TITLE = "Direct Message Commands"
     const val HELP_DM_TEXT =
