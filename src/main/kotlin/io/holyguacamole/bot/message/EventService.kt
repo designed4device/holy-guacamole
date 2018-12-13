@@ -23,8 +23,8 @@ import io.holyguacamole.bot.message.ContentCrafter.revokedAvocadoMessageForSende
 import io.holyguacamole.bot.message.ContentCrafter.sentAvocadoMessage
 import io.holyguacamole.bot.message.ContentCrafter.welcomeMessage
 import io.holyguacamole.bot.message.EventService.BotCommands.AVOCADO_COMMAND
-import io.holyguacamole.bot.message.EventService.BotCommands.LEADERBOARD_COMMAND
 import io.holyguacamole.bot.message.EventService.BotCommands.HELP_COMMAND
+import io.holyguacamole.bot.message.EventService.BotCommands.LEADERBOARD_COMMAND
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.toUser
 import io.holyguacamole.bot.user.UserService
@@ -107,7 +107,7 @@ class EventService(
             event.previousMessage != null -> processEditedOrDeletedMessage(event)
             event.isDirectMessageToBot() -> processDirectMessage(event)
             event.user == null || event.text == null -> return
-            tacoCheck(event.text, event.user) -> sendAvocadoReminder(event.user, event.channel)
+            tacoCheck(event.text, event.user) -> sendAvocadoReminder(event.user, event.channel) //TODO: can we remove the tacoCheck?
             else -> processAvocadoMessage(event.user, event.text, event.channel, event.ts.toTimestamp(), eventId)
         }
     }
@@ -256,10 +256,12 @@ class EventService(
     fun MessageEvent.isDirectMessageToBot(): Boolean = this.channel.startsWith("D")
 
     private fun craftLeaderboardMessage(avocadoCounts: List<AvocadoCount>): String =
-            avocadoCounts.joinToString(separator = "\n") {
-                val user = userService.findByUserIdOrGetFromSlack(it.receiver)?.name ?: it.receiver
-                "$user: ${it.count}"
-            }
+            avocadoCounts
+                    .mapIndexed { index, it ->
+                        val user = userService.findByUserIdOrGetFromSlack(it.receiver)?.name ?: it.receiver
+                        "${index + 1}. $user: ${it.count}"
+                    }
+                    .joinToString(separator = "\n")
 
     private fun <T> List<T>.executeIfNotEmpty(fn: (List<T>) -> Unit): List<T> {
         if (this.isNotEmpty()) fn(this)

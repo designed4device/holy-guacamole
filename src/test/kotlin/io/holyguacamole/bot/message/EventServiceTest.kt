@@ -222,13 +222,17 @@ class EventServiceTest {
 
         eventService.process(MockAppMentions.leaderboard)
 
-        val leaderboard = "${jeremyskywalker.name}: 3\n${feeneyfeeneybobeeney.name}: 2\n${markardito.name}: 1"
+        val leaderboard = """
+            1. ${jeremyskywalker.name}: 3
+            2. ${feeneyfeeneybobeeney.name}: 2
+            3. ${markardito.name}: 1
+            """.trimIndent()
 
         verify(slackClient).postMessage(general, leaderboard)
     }
 
     @Test
-    fun `it checks for leaderboard count and post the correct leaderboard to slack`() {
+    fun `it checks for the leaderboard count and posts the correct leaderboard to slack`() {
 
         whenever(repository.getLeaderboard(1)).thenReturn(listOf(
                 AvocadoCount(jeremy, 3)
@@ -236,36 +240,18 @@ class EventServiceTest {
         whenever(repository.getLeaderboard(12)).thenReturn(listOf(
                 AvocadoCount(jeremy, 12),
                 AvocadoCount(mark, 5),
-                AvocadoCount(mark, 5),
-                AvocadoCount(mark, 5),
-                AvocadoCount(mark, 5),
-                AvocadoCount(mark, 5),
-                AvocadoCount(mark, 5),
-                AvocadoCount(mark, 5),
-                AvocadoCount(patrick, 3),
-                AvocadoCount(patrick, 3),
-                AvocadoCount(patrick, 3),
                 AvocadoCount(patrick, 3)
         ))
 
         eventService.process(MockAppMentions.leaderboard1)
-        verify(slackClient).postMessage(general, "${jeremyskywalker.name}: 3")
+        verify(slackClient).postMessage(general, "1. ${jeremyskywalker.name}: 3")
 
         eventService.process(MockAppMentions.leaderboard12)
         verify(slackClient).postMessage(general,
                 """
-                  ${jeremyskywalker.name}: 12
-                  ${markardito.name}: 5
-                  ${markardito.name}: 5
-                  ${markardito.name}: 5
-                  ${markardito.name}: 5
-                  ${markardito.name}: 5
-                  ${markardito.name}: 5
-                  ${markardito.name}: 5
-                  ${feeneyfeeneybobeeney.name}: 3
-                  ${feeneyfeeneybobeeney.name}: 3
-                  ${feeneyfeeneybobeeney.name}: 3
-                  ${feeneyfeeneybobeeney.name}: 3
+                  1. ${jeremyskywalker.name}: 12
+                  2. ${markardito.name}: 5
+                  3. ${feeneyfeeneybobeeney.name}: 3
                 """.trimIndent()
         )
     }
@@ -445,7 +431,7 @@ class DirectMessageEventTests {
     @Test
     fun `it sends a dm with the number of avocados left to send`() {
         eventService.process(MockDirectMessages.avocados)
-9
+
         verify(repository).findBySenderToday(patrick)
         verify(slackClient).postMessage(eq(directMessage), eq(ContentCrafter.avocadosLeft(5)), any())
     }

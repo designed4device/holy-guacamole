@@ -29,8 +29,10 @@ class AvocadoReceiptRepository(
             template.aggregate(
                     Aggregation.newAggregation(
                             Aggregation.group("receiver")
-                                    .count().`as`("count"), //TODO do we actually need the as?
-                            Aggregation.sort(Sort.Direction.DESC, "count"),
+                                    .max("timestamp").`as`("maxTimestamp")
+                                    .count().`as`("count"),
+                            Aggregation.sort(Sort.Direction.DESC, "count")
+                                    .and(Sort.Direction.ASC, "maxTimestamp"),
                             Aggregation.project("receiver", "count"),
                             Aggregation.limit(limit)
                     ),
