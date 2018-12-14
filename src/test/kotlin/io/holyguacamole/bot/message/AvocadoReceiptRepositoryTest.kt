@@ -94,13 +94,14 @@ class AvocadoReceiptRepositoryTest {
     fun `it retrieves all avocados a user sent today`() {
         repository.saveAll(listOf(
                 MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.now().minusDays(2).toEpochSecond()),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.of(LocalDate.now(), LocalTime.MIN, ZoneId.of("America/Chicago")).minusMinutes(1).toEpochSecond()),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.now().toEpochSecond()),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.now().toEpochSecond()),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.now().toEpochSecond()),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.now().toEpochSecond()),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.now().toEpochSecond())
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.of(LocalDate.now(), LocalTime.MIN, ZoneId.of("America/Chicago")).minusMinutes(10).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.of(LocalDate.now(), LocalTime.MIN, ZoneId.of("America/Chicago")).plusMinutes(1).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.of(LocalDate.now(), LocalTime.MAX, ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.of(LocalDate.now(), LocalTime.NOON, ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.of(LocalDate.now(), LocalTime.MAX, ZoneId.of("America/Chicago")).minusMinutes(120).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = ZonedDateTime.of(LocalDate.now(), LocalTime.MIN, ZoneId.of("America/Chicago")).plusMinutes(120).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond())
         ))
+
 
         assert(repository.findBySenderToday(MockIds.patrick)).hasSize(5)
     }

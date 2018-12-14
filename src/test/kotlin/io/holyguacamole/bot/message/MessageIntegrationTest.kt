@@ -205,11 +205,11 @@ class MessageIntegrationTest {
         val mockAvocado = MockMessages.withSingleMentionAndSingleAvocado
         val mockEvent = MockMessages.withSingleMentionAndSingleAvocado.event as MessageEvent
 
-        controller.message(mockAvocado.copy(eventId = "1", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
-        controller.message(mockAvocado.copy(eventId = "2", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
-        controller.message(mockAvocado.copy(eventId = "3", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
-        controller.message(mockAvocado.copy(eventId = "4", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
-        controller.message(mockAvocado.copy(eventId = "5", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "1", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "2", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "3", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "4", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()}")))
+        controller.message(mockAvocado.copy(eventId = "5", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(20, 0), ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond()}")))
         controller.message(mockAvocado.copy(eventId = "6", event = mockEvent.copy(ts = "${ZonedDateTime.of(LocalDate.now(), LocalTime.of(9, 0), ZoneId.of("America/Chicago")).toEpochSecond()}")))
 
         assert(receiptRepository.findAll()).hasSize(6)
