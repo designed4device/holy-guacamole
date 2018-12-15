@@ -40,7 +40,7 @@ class AvocadoReceiptRepository(
                     AvocadoCount::class.java
             ).toList()
 
-    fun findBySenderToday(sender: String): List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestampGreaterThan(sender, ZonedDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT, ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond())
+    fun findBySenderToday(sender: String): List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestampGreaterThan(sender, ZonedDateTime.of(LocalDate.now(ZoneId.of("America/Chicago")), LocalTime.MIDNIGHT, ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond())
 
     fun revokeAvocadosBySenderAndTimestamp(sender: String, timestamp: Long): List<AvocadoCount> {
         val receipts: List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestamp(sender, timestamp)
