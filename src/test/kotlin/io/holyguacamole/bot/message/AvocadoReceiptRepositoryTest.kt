@@ -161,6 +161,13 @@ class AvocadoReceiptRepositoryTest {
     }
 
     @Test
+    fun `it actually saves the message associated with the avocado`() {
+        repository.saveAll(listOf(MockAvocadoReceipts.markToJeremy))
+
+        assert(repository.findAll()[0].message).isEqualTo(MockAvocadoReceipts.markToJeremy.message)
+    }
+
+    @Test
     fun `it only returns avocados for the current season`() {
         repository.saveAll(listOf(
                 //prior season avocados
