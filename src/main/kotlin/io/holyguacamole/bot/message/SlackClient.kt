@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mashape.unirest.http.Unirest
+import io.holyguacamole.bot.controller.EventController
 import io.holyguacamole.bot.slack.SlackUser
 import io.holyguacamole.bot.slack.SlackUserResponse
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -13,7 +15,11 @@ import org.springframework.stereotype.Service
 class SlackClient(@Value("\${slack.host}") val host: String,
                   @Value("\${slack.token.bot}") val botToken: String) {
 
+    private val log = LoggerFactory.getLogger(SlackClient::class.java)
+
+
     fun postMessage(channel: String, text: String = "", attachments: List<MessageAttachment> = emptyList()) {
+        log.debug("Sending message in channel: $channel")
         Unirest
                 .post("$host/api/chat.postMessage")
                 .header("Authorization", "Bearer $botToken")
@@ -26,6 +32,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                         )
                 ))
                 .asString()
+        log.debug("Sent message in channel: $channel")
     }
 
     fun postEphemeralMessage(channel: String, user: String, text: String) {
@@ -54,6 +61,7 @@ class SlackClient(@Value("\${slack.host}") val host: String,
     }
 
     private fun openConversationChannel(user: String): String {
+        log.debug("Opening conversation channel with $user")
         val response = Unirest
                 .post("$host/api/conversations.open")
                 .header("Authorization", "Bearer $botToken")
@@ -63,7 +71,9 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                         SlackOpenConversationRequest(users = user)
                 ))
                 .asString().body
-        return jacksonObjectMapper().readValue(response, SlackOpenConversationResponse::class.java).channel?.id!!
+        val channel = jacksonObjectMapper().readValue(response, SlackOpenConversationResponse::class.java).channel?.id!!
+        log.debug("Conversation channel opened: $channel")
+        return channel
     }
 }
 
