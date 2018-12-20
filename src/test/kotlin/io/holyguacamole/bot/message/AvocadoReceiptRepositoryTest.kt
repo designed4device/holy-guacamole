@@ -10,6 +10,8 @@ import io.holyguacamole.bot.MockIds
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
+import io.holyguacamole.bot.helper.HGEpochSeconds
+import io.holyguacamole.bot.helper.HGEpochSecondsNow
 import io.holyguacamole.nullifyIds
 import org.junit.After
 import org.junit.Before
@@ -35,9 +37,12 @@ class AvocadoReceiptRepositoryTest {
 
     private lateinit var repository: AvocadoReceiptRepository
 
+    private val resetMonth = 1
+    private val resetDay = 1
+
     @Before
     fun setUp() {
-        repository = AvocadoReceiptRepository(mongoRepository, mongoTemplate)
+        repository = AvocadoReceiptRepository(mongoRepository, mongoTemplate, resetMonth, resetDay)
     }
 
     @After
@@ -75,12 +80,12 @@ class AvocadoReceiptRepositoryTest {
     @Test
     fun `it breaks leaderboard ties by the person who received the tying avocado first`() {
         repository.saveAll(listOf(
-                MockAvocadoReceipts.markToJeremy.copy(timestamp = 1),
-                MockAvocadoReceipts.markToJeremy.copy(timestamp = 1),
-                MockAvocadoReceipts.jeremyToPatrick.copy(timestamp = 2),
-                MockAvocadoReceipts.jeremyToPatrick.copy(timestamp = 5),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = 3),
-                MockAvocadoReceipts.patrickToMark.copy(timestamp = 4)
+                MockAvocadoReceipts.markToJeremy.copy(timestamp = HGEpochSecondsNow()),
+                MockAvocadoReceipts.markToJeremy.copy(timestamp = HGEpochSecondsNow()),
+                MockAvocadoReceipts.jeremyToPatrick.copy(timestamp = HGEpochSecondsNow() + 1),
+                MockAvocadoReceipts.jeremyToPatrick.copy(timestamp = HGEpochSecondsNow() + 4),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSecondsNow() + 2),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSecondsNow() + 3)
                 ))
 
         assert(repository.getLeaderboard(10)).containsExactly(
@@ -153,5 +158,22 @@ class AvocadoReceiptRepositoryTest {
         assert(repository.getLeaderboard()).hasSize(10)
         assert(repository.getLeaderboard(5)).hasSize(5)
         assert(repository.getLeaderboard(15)).hasSize(11)
+    }
+
+    @Test
+    fun `it only returns avocados for the current season`() {
+        repository.saveAll(listOf(
+                //prior season avocados
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now().minusYears(1))),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.of(LocalDate.now().year, resetMonth, resetDay).minusDays(1), LocalTime.now())),
+                //current season avocados
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now())),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now())),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.of(LocalDate.now().year, resetMonth, resetDay), LocalTime.now()))
+        ))
+
+        assert(repository.getLeaderboard(10)).containsExactly(
+                AvocadoCount(mark, 3)
+        )
     }
 }

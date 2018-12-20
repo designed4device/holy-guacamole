@@ -11,3 +11,8 @@ logging:
   level:
     io.holyguacamole.bot.controller: INFO
     org.springframework.web.filter.CommonsRequestLoggingFilter: debug
+
+season:
+  reset:
+    month: 01
+    day: 01

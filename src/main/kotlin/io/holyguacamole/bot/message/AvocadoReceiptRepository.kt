@@ -1,9 +1,13 @@
 package io.holyguacamole.bot.message
 
+import io.holyguacamole.bot.helper.HGEpochSeconds
+import io.holyguacamole.bot.helper.HGEpochSecondsNow
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
+import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
@@ -14,7 +18,15 @@ import java.time.ZonedDateTime
 @Repository
 class AvocadoReceiptRepository(
         private val mongoRepository: AvocadoReceiptMongoRepository,
-        private val template: MongoTemplate) {
+        private val template: MongoTemplate,
+        @Value("\${season.reset.month}") seasonResetMonth: Int,
+        @Value("\${season.reset.day}") seasonResetDay: Int) {
+
+    val resetEpoch = HGEpochSeconds(LocalDate.of(LocalDate.now().year, seasonResetMonth, seasonResetDay), LocalTime.MIDNIGHT)
+            .let {
+                if(it < (HGEpochSecondsNow())) it
+                else HGEpochSeconds(LocalDate.of(LocalDate.now().year - 1, seasonResetMonth, seasonResetDay), LocalTime.MIDNIGHT)
+            }
 
     fun findByEventId(eventId: String): List<AvocadoReceipt> = mongoRepository.findByEventId(eventId)
 
@@ -28,6 +40,7 @@ class AvocadoReceiptRepository(
     fun getLeaderboard(limit: Long = 10): List<AvocadoCount> =
             template.aggregate(
                     Aggregation.newAggregation(
+                            Aggregation.match(Criteria("timestamp").gte(resetEpoch)),
                             Aggregation.group("receiver")
                                     .max("timestamp").`as`("maxTimestamp")
                                     .count().`as`("count"),
