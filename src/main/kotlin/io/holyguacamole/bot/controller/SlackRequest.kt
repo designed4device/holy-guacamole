@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
 import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
 import io.holyguacamole.bot.controller.EventCallbackType.MESSAGE
+import io.holyguacamole.bot.controller.EventCallbackType.TEAM_JOIN
 import io.holyguacamole.bot.controller.EventCallbackType.USER_CHANGE
 import io.holyguacamole.bot.controller.RequestType.EVENT_CALLBACK
 import io.holyguacamole.bot.controller.RequestType.URL_VERIFICATION
@@ -69,7 +70,8 @@ data class UrlVerification(override val token: String,
     JsonSubTypes.Type(value = MessageEvent::class, name = MESSAGE),
     JsonSubTypes.Type(value = MessageEvent::class, name = APP_MENTION),
     JsonSubTypes.Type(value = UserChangeEvent::class, name = USER_CHANGE),
-    JsonSubTypes.Type(value = JoinedChannelEvent::class, name = MEMBER_JOINED_CHANNEL)
+    JsonSubTypes.Type(value = JoinedChannelEvent::class, name = MEMBER_JOINED_CHANNEL),
+    JsonSubTypes.Type(value = TeamJoinEvent::class, name = TEAM_JOIN)
 ])
 interface Event {
     val type: String
