@@ -5,9 +5,11 @@ import io.holyguacamole.bot.controller.EventCallbackSubtype.MESSAGE_DELETED
 import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
 import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
 import io.holyguacamole.bot.controller.EventCallbackType.MESSAGE
+import io.holyguacamole.bot.controller.EventCallbackType.TEAM_JOIN
 import io.holyguacamole.bot.controller.EventCallbackType.USER_CHANGE
 import io.holyguacamole.bot.controller.JoinedChannelEvent
 import io.holyguacamole.bot.controller.MessageEvent
+import io.holyguacamole.bot.controller.TeamJoinEvent
 import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_REMINDER
 import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_TEXT
@@ -68,6 +70,7 @@ class EventService(
             MESSAGE -> processMessageEvent(eventCallback.eventId, eventCallback.event as MessageEvent)
             USER_CHANGE -> processUserChangeEvent((eventCallback.event as UserChangeEvent).user)
             MEMBER_JOINED_CHANNEL -> processMemberJoinedChannelEvent(eventCallback.event as JoinedChannelEvent)
+            TEAM_JOIN -> processTeamJoinEvent(eventCallback.event as TeamJoinEvent)
         }
     }
 
@@ -122,6 +125,12 @@ class EventService(
                     channel = event.channel,
                     attachments = listOf(welcomeMessage)
             )
+        }
+    }
+
+    private fun processTeamJoinEvent(event: TeamJoinEvent) {
+        if (!event.user.isBot) {
+            slackClient.sendDirectMessage(user = event.user.id, attachments = listOf(welcomeMessage))
         }
     }
 

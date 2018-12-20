@@ -21,6 +21,7 @@ import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockMessages
+import io.holyguacamole.bot.MockTeamJoinEvents
 import io.holyguacamole.bot.MockUserChangeEvent
 import io.holyguacamole.bot.MockUsers
 import io.holyguacamole.bot.controller.EventController
@@ -259,5 +260,19 @@ class MessageIntegrationTest {
         receiptRepository.findAll().forEach {
             assert(it.message, (MockMessages.withMultipleMentionsAndMultipleAvocados.event as MessageEvent).text)
         }
+    }
+
+    @Test
+    fun `it sends a direct message when a new member joins the family`() {
+        controller.message(MockTeamJoinEvents.jeremyJoinedTeam)
+
+        verify(slackClient).sendDirectMessage(user = jeremy, attachments = listOf(ContentCrafter.welcomeMessage))
+    }
+
+    @Test
+    fun `it does not send a direct message when a new bot attempts to join the family`() {
+        controller.message(MockTeamJoinEvents.botJoinedTeam)
+
+        verifyZeroInteractions(slackClient)
     }
 }

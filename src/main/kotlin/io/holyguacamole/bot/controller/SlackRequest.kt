@@ -22,6 +22,7 @@ object EventCallbackType {
     const val MESSAGE = "message"
     const val USER_CHANGE = "user_change"
     const val MEMBER_JOINED_CHANNEL = "member_joined_channel"
+    const val TEAM_JOIN = "team_join"
 }
 
 object EventCallbackSubtype {
@@ -101,3 +102,6 @@ data class UserChangeEvent(override val type: String,
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class JoinedChannelEvent(override val type: String, val channel: String, val user: String) : Event
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TeamJoinEvent(override val type: String, val user: SlackUser) : Event

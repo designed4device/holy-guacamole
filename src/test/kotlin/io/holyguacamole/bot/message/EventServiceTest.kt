@@ -26,6 +26,7 @@ import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
 import io.holyguacamole.bot.MockJoinedChannelEvents
 import io.holyguacamole.bot.MockMessages
+import io.holyguacamole.bot.MockTeamJoinEvents
 import io.holyguacamole.bot.MockUserChangeEvent.markNameUpdate
 import io.holyguacamole.bot.MockUsers.eightRib
 import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
@@ -414,6 +415,20 @@ class EventServiceTest {
                 text = (MockMessages.withSingleMentionAndSingleAvocado.event as MessageEvent).text!!,
                 markdownIn = listOf(MARKDOWN.TEXT)
         ))))
+    }
+
+    @Test
+    fun `it calls the slack client to direct message when a user joins the team`() {
+        eventService.process(MockTeamJoinEvents.jeremyJoinedTeam)
+
+        verify(slackClient).sendDirectMessage(user = jeremy, attachments = listOf(welcomeMessage))
+    }
+
+    @Test
+    fun `it does not call the slack client to send a direct message when a new bot joins the team`() {
+        eventService.process(MockTeamJoinEvents.botJoinedTeam)
+
+        verifyZeroInteractions(slackClient)
     }
 }
 

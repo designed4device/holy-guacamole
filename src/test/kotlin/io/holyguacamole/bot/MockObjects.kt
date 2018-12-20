@@ -6,6 +6,8 @@ import io.holyguacamole.bot.MockIds.appbot
 import io.holyguacamole.bot.MockIds.jeremy
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
+import io.holyguacamole.bot.MockSlackUsers.heyTacoSlack
+import io.holyguacamole.bot.MockSlackUsers.jeremySlack
 import io.holyguacamole.bot.Timestamp.today
 import io.holyguacamole.bot.Timestamp.todayPlusOneHour
 import io.holyguacamole.bot.Timestamp.yesterday
@@ -15,12 +17,14 @@ import io.holyguacamole.bot.controller.EventCallback
 import io.holyguacamole.bot.controller.EventCallbackType.APP_MENTION
 import io.holyguacamole.bot.controller.EventCallbackType.MEMBER_JOINED_CHANNEL
 import io.holyguacamole.bot.controller.EventCallbackType.MESSAGE
+import io.holyguacamole.bot.controller.EventCallbackType.TEAM_JOIN
 import io.holyguacamole.bot.controller.EventCallbackType.USER_CHANGE
 import io.holyguacamole.bot.controller.JoinedChannelEvent
 import io.holyguacamole.bot.controller.Message
 import io.holyguacamole.bot.controller.MessageEvent
 import io.holyguacamole.bot.controller.RequestType.EVENT_CALLBACK
 import io.holyguacamole.bot.controller.RequestType.URL_VERIFICATION
+import io.holyguacamole.bot.controller.TeamJoinEvent
 import io.holyguacamole.bot.controller.UserChangeEvent
 import io.holyguacamole.bot.message.AvocadoReceipt
 import io.holyguacamole.bot.message.ContentCrafter.AVOCADO_TEXT
@@ -228,7 +232,7 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = patrick,
                     text = "<@$mark> you're the best $TACO_TEXT",
@@ -244,7 +248,7 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = patrick,
                     text = "<@$mark> you're the best $AVOCADO_TEXT $TACO_TEXT",
@@ -260,7 +264,7 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = general,
                     user = patrick,
                     text = "you're the best $TACO_TEXT",
@@ -276,7 +280,7 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     subtype = "message_deleted",
                     channel = general,
                     ts = todayPlusOneHour,
@@ -297,7 +301,7 @@ object MockMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     subtype = "message_deleted",
                     channel = general,
                     ts = todayPlusOneHour,
@@ -321,7 +325,7 @@ object MockDirectMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = directMessage,
                     user = patrick,
                     text = "avocados",
@@ -337,7 +341,7 @@ object MockDirectMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = directMessage,
                     user = patrick,
                     text = "leaderboard",
@@ -353,7 +357,7 @@ object MockDirectMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = directMessage,
                     user = patrick,
                     text = "how are you?",
@@ -369,7 +373,7 @@ object MockDirectMessages {
             teamId = "abc",
             apiAppId = "123",
             event = MessageEvent(
-                    type = "message",
+                    type = MESSAGE,
                     channel = directMessage,
                     user = patrick,
                     text = "help",
@@ -593,6 +597,35 @@ object MockJoinedChannelEvents {
     )
 }
 
+object MockTeamJoinEvents {
+    val jeremyJoinedTeam = EventCallback(
+        token = token,
+        teamId = "abc",
+        apiAppId = "123",
+        event = TeamJoinEvent(
+            type = TEAM_JOIN,
+            user = jeremySlack
+        ),
+        type = "event_callback",
+        authedUsers = listOf("U123556"),
+        eventId = "12345678",
+        eventTime = 1234567890
+    )
+    val botJoinedTeam = EventCallback(
+        token = token,
+        teamId = "abc",
+        apiAppId = "123",
+        event = TeamJoinEvent(
+            type = TEAM_JOIN,
+            user = heyTacoSlack
+        ),
+        type = "event_callback",
+        authedUsers = listOf("U123556"),
+        eventId = "12345678",
+        eventTime = 1234567890
+    )
+}
+
 object MockUsers {
     val markardito = User(userId = mark, name = "markardito", isBot = false)
     val eightRib = markardito.copy(name = "8rib")
@@ -612,6 +645,17 @@ object MockSlackUsers {
             isBot = false,
             isRestricted = false,
             isUltraRestricted = false
+    )
+    val heyTacoSlack = SlackUser(
+        id = appbot,
+        name = "heytaco",
+        profile = SlackUserProfile(
+            realName = "Jerkmy Krapler",
+            displayName = "jerkemyskywalker"
+        ),
+        isBot = true,
+        isRestricted = false,
+        isUltraRestricted = false
     )
 }
 
