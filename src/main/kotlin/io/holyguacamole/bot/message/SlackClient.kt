@@ -19,7 +19,6 @@ class SlackClient(@Value("\${slack.host}") val host: String,
 
 
     fun postMessage(channel: String, text: String = "", attachments: List<MessageAttachment> = emptyList()) {
-        log.debug("Sending message in channel: $channel")
         Unirest
                 .post("$host/api/chat.postMessage")
                 .header("Authorization", "Bearer $botToken")
@@ -32,7 +31,6 @@ class SlackClient(@Value("\${slack.host}") val host: String,
                         )
                 ))
                 .asString()
-        log.debug("Sent message in channel: $channel")
     }
 
     fun postEphemeralMessage(channel: String, user: String, text: String) {
@@ -60,21 +58,18 @@ class SlackClient(@Value("\${slack.host}") val host: String,
         postMessage(channel = openConversationChannel(user), text = text, attachments = attachments)
     }
 
-    private fun openConversationChannel(user: String): String {
-        log.debug("Opening conversation channel with $user")
-        val response = Unirest
-                .post("$host/api/conversations.open")
-                .header("Authorization", "Bearer $botToken")
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .body(jacksonObjectMapper().writeValueAsString(
-                        SlackOpenConversationRequest(users = user)
-                ))
-                .asString().body
-        val channel = jacksonObjectMapper().readValue(response, SlackOpenConversationResponse::class.java).channel?.id!!
-        log.debug("Conversation channel opened: $channel")
-        return channel
-    }
+    private fun openConversationChannel(user: String): String = Unirest
+            .post("$host/api/conversations.open")
+            .header("Authorization", "Bearer $botToken")
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
+            .body(jacksonObjectMapper().writeValueAsString(
+                    SlackOpenConversationRequest(users = user)
+            ))
+            .asString().body
+            .let {
+                jacksonObjectMapper().readValue(it, SlackOpenConversationResponse::class.java).channel?.id!!
+            }
 }
 
 data class SlackOpenConversationRequest(val users: String)
@@ -90,7 +85,7 @@ data class MessageAttachment(
     val mrkdwn_in = markdownIn.map { it.value }
 }
 
-enum class MARKDOWN(val value:String) {
+enum class MARKDOWN(val value: String) {
     TEXT("text"),
     PRETEXT("pretext")
 }
