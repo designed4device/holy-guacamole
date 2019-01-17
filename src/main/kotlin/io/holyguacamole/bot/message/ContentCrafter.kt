@@ -42,13 +42,13 @@ You can give avocados to anyone on your team. I am always watching, so you don't
 """`/invite $BOT_NAME`: to invite me to a channel
 `$BOT_NAME help`: to see helpful resources and information
 `$BOT_NAME leaderboard [number]`: to show the leaderboard, eg. leaderboard 20, defaults to top 10
-`$BOT_NAME leaderboard [me]`: to show your position in the leaderboard"""
+`$BOT_NAME leaderboard me`: to show your position in the leaderboard"""
 
     const val HELP_DM_TITLE = "Direct Message Commands"
     const val HELP_DM_TEXT =
 """`help`: to see helpful resources and information
 `leaderboard [number]`: to show the leaderboard, eg. leaderboard 20, defaults to top 10
-`leaderboard [me]`: to show your position in the leaderboard
+`leaderboard me`: to show your position in the leaderboard
 `avocados`: to see how many avocados you have left to give out today"""
 
     const val AVOCADO_REMINDER = "Well, this is guacward! Did you mean to send an $AVOCADO_TEXT?"
