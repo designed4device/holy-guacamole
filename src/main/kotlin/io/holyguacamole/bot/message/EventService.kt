@@ -77,6 +77,10 @@ class EventService(
     private fun processAppMentionEvent(event: MessageEvent) {
         event.text?.toLowerCase()?.let { text ->
             when {
+                text.contains("$LEADERBOARD_COMMAND me") -> slackClient.postMessage(
+                    channel = event.channel,
+                    text = craftMyLeaderboardMessage(repository.getLeaderboard(0), event.user?: "user not found")
+                )
                 text.contains(Regex("$LEADERBOARD_COMMAND \\d*")) -> slackClient.postMessage(
                         channel = event.channel,
                         text = craftLeaderboardMessage(repository.getLeaderboard(
@@ -141,6 +145,10 @@ class EventService(
             when {
                 text == HELP_COMMAND -> slackClient.postMessage(channel = event.channel, attachments = helpMessage)
                 text == AVOCADO_COMMAND -> slackClient.postMessage(event.channel, avocadosLeft(calculateRemainingAvocados(event.user)))
+                text.contains("$LEADERBOARD_COMMAND me") -> slackClient.postMessage(
+                    channel = event.channel,
+                    text = craftMyLeaderboardMessage(repository.getLeaderboard(0), event.user)
+                )
                 text.contains(Regex("$LEADERBOARD_COMMAND \\d*")) -> sendLeaderboard(
                         channel = event.channel,
                         limit = Regex("$LEADERBOARD_COMMAND (\\d*)").find(text)?.groupValues?.get(1)?.toLong() ?: 10
@@ -271,6 +279,18 @@ class EventService(
                         "${index + 1}. $user: ${it.count}"
                     }
                     .joinToString(separator = "\n")
+
+    private fun craftMyLeaderboardMessage(avocadoCounts: List<AvocadoCount>, userId: String): String =
+        avocadoCounts.indexOfFirst { it.receiver == userId }
+            .let { avocadoCounts.subList(
+                if (it - 2 > 0) it - 2 else 0,
+                if (it + 3 < avocadoCounts.size) it + 3 else avocadoCounts.size
+            ) }
+            .map {
+                val user = userService.findByUserIdOrGetFromSlack(it.receiver)?.name ?: it.receiver
+                "${avocadoCounts.indexOf(it) + 1}. $user: ${it.count}"
+            }
+            .joinToString(separator = "\n")
 
     private fun <T> List<T>.executeIfNotEmpty(fn: (List<T>) -> Unit): List<T> {
         if (this.isNotEmpty()) fn(this)

@@ -17,16 +17,16 @@ import java.time.ZonedDateTime
 
 @Repository
 class AvocadoReceiptRepository(
-        private val mongoRepository: AvocadoReceiptMongoRepository,
-        private val template: MongoTemplate,
-        @Value("\${season.reset.month}") seasonResetMonth: Int,
-        @Value("\${season.reset.day}") seasonResetDay: Int) {
+    private val mongoRepository: AvocadoReceiptMongoRepository,
+    private val template: MongoTemplate,
+    @Value("\${season.reset.month}") seasonResetMonth: Int,
+    @Value("\${season.reset.day}") seasonResetDay: Int) {
 
     val resetEpoch = HGEpochSeconds(LocalDate.of(LocalDate.now().year, seasonResetMonth, seasonResetDay), LocalTime.MIDNIGHT)
-            .let {
-                if(it < (HGEpochSecondsNow())) it
-                else HGEpochSeconds(LocalDate.of(LocalDate.now().year - 1, seasonResetMonth, seasonResetDay), LocalTime.MIDNIGHT)
-            }
+        .let {
+            if (it < (HGEpochSecondsNow())) it
+            else HGEpochSeconds(LocalDate.of(LocalDate.now().year - 1, seasonResetMonth, seasonResetDay), LocalTime.MIDNIGHT)
+        }
 
     fun findByEventId(eventId: String): List<AvocadoReceipt> = mongoRepository.findByEventId(eventId)
 
@@ -35,23 +35,23 @@ class AvocadoReceiptRepository(
     fun deleteAll() = mongoRepository.deleteAll()
 
     fun saveAll(entities: Iterable<AvocadoReceipt>): List<AvocadoReceipt> =
-            mongoRepository.saveAll(entities.map { it.copy() })
+        mongoRepository.saveAll(entities.map { it.copy() })
 
     fun getLeaderboard(limit: Long = 10): List<AvocadoCount> =
-            template.aggregate(
-                    Aggregation.newAggregation(
-                            Aggregation.match(Criteria("timestamp").gte(resetEpoch)),
-                            Aggregation.group("receiver")
-                                    .max("timestamp").`as`("maxTimestamp")
-                                    .count().`as`("count"),
-                            Aggregation.sort(Sort.Direction.DESC, "count")
-                                    .and(Sort.Direction.ASC, "maxTimestamp"),
-                            Aggregation.project("receiver", "count"),
-                            Aggregation.limit(limit)
-                    ),
-                    AvocadoReceipt::class.java,
-                    AvocadoCount::class.java
-            ).toList()
+        template.aggregate(
+            Aggregation.newAggregation(
+                listOf(Aggregation.match(Criteria("timestamp").gte(resetEpoch)),
+                Aggregation.group("receiver")
+                    .max("timestamp").`as`("maxTimestamp")
+                    .count().`as`("count"),
+                Aggregation.sort(Sort.Direction.DESC, "count")
+                    .and(Sort.Direction.ASC, "maxTimestamp"),
+                Aggregation.project("receiver", "count"))
+                    .let { if (limit == 0L) it else it.plus(Aggregation.limit(limit)) }
+            ),
+            AvocadoReceipt::class.java,
+            AvocadoCount::class.java
+        ).toList()
 
     fun findBySenderToday(sender: String): List<AvocadoReceipt> = mongoRepository.findBySenderAndTimestampGreaterThan(sender, ZonedDateTime.of(LocalDate.now(ZoneId.of("America/Chicago")), LocalTime.MIDNIGHT, ZoneId.of("America/Chicago")).withZoneSameInstant(ZoneId.of("UTC")).toEpochSecond())
 
@@ -73,16 +73,16 @@ interface AvocadoReceiptMongoRepository : MongoRepository<AvocadoReceipt, String
 }
 
 data class AvocadoReceipt(
-        val id: String? = null,
-        val eventId: String,
-        val sender: String,
-        val receiver: String,
-        val timestamp: Long,
-        val message: String
+    val id: String? = null,
+    val eventId: String,
+    val sender: String,
+    val receiver: String,
+    val timestamp: Long,
+    val message: String
 )
 
 data class AvocadoCount(
-        @Id
-        val receiver: String,
-        val count: Int
+    @Id
+    val receiver: String,
+    val count: Int
 )

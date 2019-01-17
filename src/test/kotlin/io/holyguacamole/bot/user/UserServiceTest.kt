@@ -1,8 +1,6 @@
 package io.holyguacamole.bot.user
 
 import assertk.assert
-import assertk.assertions.contains
-import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.doReturn
@@ -10,7 +8,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import io.holyguacamole.bot.MockSlackUsers.jeremySlack
-import io.holyguacamole.bot.MockUsers.eightRib
+import io.holyguacamole.bot.MockUsers.eightrib
 import io.holyguacamole.bot.MockUsers.feeneyfeeneybobeeney
 import io.holyguacamole.bot.MockUsers.jeremyskywalker
 import io.holyguacamole.bot.MockUsers.markardito
@@ -41,10 +39,10 @@ class UserServiceTest {
 
     @Test
     fun `it replaces a user`() {
-        service.replace(eightRib)
+        service.replace(eightrib.copy(name = "jeb"))
 
-        verify(repository).deleteByUserId(markardito.userId)
-        verify(repository).save(eightRib)
+        verify(repository).deleteByUserId(eightrib.userId)
+        verify(repository).save(eightrib.copy(name = "jeb"))
     }
 
     @Test
@@ -70,12 +68,12 @@ class UserServiceTest {
     @Test
     fun `it uses real name if user doesn't have a display name`() {
         val slackUserWithoutDisplayName = SlackUser(
-                id = "USER",
-                name = "jeremy_kapler",
-                profile = SlackUserProfile(realName = "Jeremy Kapler", displayName = ""),
-                isBot = false,
-                isRestricted = false,
-                isUltraRestricted = false
+            id = "USER",
+            name = "jeremy_kapler",
+            profile = SlackUserProfile(realName = "Jeremy Kapler", displayName = ""),
+            isBot = false,
+            isRestricted = false,
+            isUltraRestricted = false
         )
         whenever(slackClient.getUserInfo("USER")).thenReturn(slackUserWithoutDisplayName)
 

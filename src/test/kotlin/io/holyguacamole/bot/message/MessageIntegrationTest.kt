@@ -153,7 +153,7 @@ class MessageIntegrationTest {
 
         controller.message(MockUserChangeEvent.markNameUpdate)
 
-        assert(userRepository.findAll().nullifyUserIds()).containsExactly(MockUsers.eightRib)
+        assert(userRepository.findAll().nullifyUserIds()).containsExactly(MockUsers.markardito.copy(name = "jebardito"))
     }
 
     @Test

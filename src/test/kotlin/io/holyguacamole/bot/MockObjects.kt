@@ -3,9 +3,13 @@ package io.holyguacamole.bot
 import io.holyguacamole.bot.MockChannels.directMessage
 import io.holyguacamole.bot.MockChannels.general
 import io.holyguacamole.bot.MockIds.appbot
+import io.holyguacamole.bot.MockIds.dwayne
+import io.holyguacamole.bot.MockIds.eight
 import io.holyguacamole.bot.MockIds.jeremy
+import io.holyguacamole.bot.MockIds.jeremyp
 import io.holyguacamole.bot.MockIds.mark
 import io.holyguacamole.bot.MockIds.patrick
+import io.holyguacamole.bot.MockIds.ryan
 import io.holyguacamole.bot.MockSlackUsers.heyTacoSlack
 import io.holyguacamole.bot.MockSlackUsers.jeremySlack
 import io.holyguacamole.bot.Timestamp.today
@@ -43,6 +47,10 @@ object MockIds {
     val mark = "U00000Z01"
     val jeremy = "U00000Z02"
     val patrick = "U00000Z03"
+    val jeremyp = "U00000Z04"
+    val dwayne = "U00000Z05"
+    val eight = "U00000Z06"
+    val ryan = "U00000Z06"
     val appbot = "U00000APP"
 }
 
@@ -352,6 +360,22 @@ object MockDirectMessages {
             eventId = "12345678",
             eventTime = 1234567890
     )
+    val leaderboardMe = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = MESSAGE,
+                    channel = directMessage,
+                    user = mark,
+                    text = "leaderboard me",
+                    ts = today
+            ),
+            type = "event_callback",
+            authedUsers = listOf("U123556"),
+            eventId = "12345678",
+            eventTime = 1234567890
+    )
     val withNoCommand = EventCallback(
             token = token,
             teamId = "abc",
@@ -530,6 +554,22 @@ object MockAppMentions {
             eventId = "12345679",
             eventTime = 1234567890
     )
+    val leaderboardMe = EventCallback(
+        token = token,
+        teamId = "abc",
+        apiAppId = "123",
+        event = MessageEvent(
+            type = APP_MENTION,
+            channel = general,
+            user = mark,
+            text = "<@$appbot> leaderboard me",
+            ts = today
+        ),
+        type = EVENT_CALLBACK,
+        authedUsers = listOf(appbot),
+        eventId = "12345679",
+        eventTime = 1234567890
+    )
     val help = EventCallback(
             token = token,
             teamId = "abc",
@@ -628,9 +668,12 @@ object MockTeamJoinEvents {
 
 object MockUsers {
     val markardito = User(userId = mark, name = "markardito", isBot = false)
-    val eightRib = markardito.copy(name = "8rib")
+    val eightrib = User(userId = eight, name = "eightrib", isBot = false)
     val jeremyskywalker = User(userId = jeremy, name = "jeremyskywalker", isBot = false)
+    val jeremypiewalker = User(userId = jeremyp, name = "jeremypiewalker", isBot = false)
+    val dwaynetheguacjohnson = User(userId = dwayne, name = "dwaynetheguacjohnson", isBot = false)
     val feeneyfeeneybobeeney = User(userId = patrick, name = "feeneyfeeneybobeeney", isBot = false)
+    val ryanjwellen = User(userId = ryan, name = "ryanjwellen", isBot = false)
     val holyguacamole = User(userId = appbot, name = "HolyGuacamole", isBot = true)
 }
 
@@ -671,7 +714,7 @@ object MockUserChangeEvent {
                             name = "markardito",
                             profile = SlackUserProfile(
                                     realName = "Mark Ardito",
-                                    displayName = "8rib"
+                                    displayName = "jebardito"
                             ),
                             isBot = false,
                             isRestricted = false,
