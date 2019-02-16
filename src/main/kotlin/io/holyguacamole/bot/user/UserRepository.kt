@@ -1,10 +1,11 @@
 package io.holyguacamole.bot.user
 
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-class UserRepository(private val mongoRepository: UserMongoRepository) {
+class UserRepository(private val mongoRepository: UserMongoRepository, private val mongoTemplate: MongoTemplate) {
 
     fun findAll(): List<User> = mongoRepository.findAll()
 
@@ -18,6 +19,12 @@ class UserRepository(private val mongoRepository: UserMongoRepository) {
     fun deleteByUserId(userId: String): Int = mongoRepository.deleteByUserId(userId)
 
     fun findByUserId(userId: String): User? = mongoRepository.findByUserId(userId)
+
+    fun update(user: User) {
+        findByUserId(user.userId)?.run {
+            save(user.copy(id = this.id))
+        }
+    }
 }
 
 @Repository

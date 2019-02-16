@@ -41,8 +41,7 @@ class UserServiceTest {
     fun `it replaces a user`() {
         service.replace(eightrib.copy(name = "jeb"))
 
-        verify(repository).deleteByUserId(eightrib.userId)
-        verify(repository).save(eightrib.copy(name = "jeb"))
+        verify(repository).update(eightrib.copy(name = "jeb"))
     }
 
     @Test

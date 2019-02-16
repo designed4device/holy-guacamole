@@ -14,6 +14,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
@@ -21,13 +22,16 @@ import org.springframework.test.context.junit4.SpringRunner
 class UserRepositoryTest {
 
     @Autowired
-    private lateinit var mongoRepository : UserMongoRepository
+    private lateinit var mongoRepository: UserMongoRepository
+
+    @Autowired
+    private lateinit var mongoTemplate: MongoTemplate
 
     private lateinit var repository: UserRepository
 
     @Before
     fun setUp() {
-        repository = UserRepository(mongoRepository)
+        repository = UserRepository(mongoRepository, mongoTemplate)
     }
 
     @After
@@ -70,5 +74,15 @@ class UserRepositoryTest {
         assert(response).isNotNull()
 
         assert(response?.name).isEqualTo(MockUsers.feeneyfeeneybobeeney.name)
+    }
+
+    @Test
+    fun `it updates a user`() {
+        repository.saveAll(listOf(MockUsers.markardito))
+
+        repository.update(MockUsers.markardito.copy(name = "eightrib"))
+
+        assert(repository.findByUserId(MockIds.mark)?.name)
+                .isEqualTo("eightrib")
     }
 }

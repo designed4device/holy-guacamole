@@ -9,8 +9,7 @@ class UserService(private val repository: UserRepository,
                   private val slackClient: SlackClient) {
 
     fun replace(user: User) {
-        repository.deleteByUserId(user.userId)
-        repository.save(user)
+        repository.update(user)
     }
 
     fun findByUserIdOrGetFromSlack(userId: String): User? =
