@@ -1,4 +1,4 @@
-package io.holyguacamole.bot
+package io.holyguacamole
 
 import org.junit.Test
 import org.junit.runner.RunWith

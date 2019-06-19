@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>Leaderboard - Holy Guacamole!</title>
+
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div id="leaderboard-container">
+  <header><span class="accent">@holyguacamole&nbsp;</span>leaderboard</header>
+  <section id="content">
+    <section id="list">
+      <div class="row" th:each="leader, iter: ${leaderboard}">
+        <div class="entry">
+          <div class="place" th:text="${iter.index+1}"></div>
+          <div class="name" th:text="${leader.name}"></div>
+          <div class="count" th:text="${leader.count}"></div>
+        </div>
+      </div>
+    </section>
+  </section>
+</div>
+</body>
+</html>

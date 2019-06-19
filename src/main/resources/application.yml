@@ -16,3 +16,8 @@ season:
   reset:
     month: 01
     day: 01
+
+
+spring:
+  thymeleaf:
+    cache: false
