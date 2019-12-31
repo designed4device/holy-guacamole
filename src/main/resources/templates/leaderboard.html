@@ -10,7 +10,11 @@
 </head>
 <body>
 <div id="leaderboard-container">
-  <header><span class="accent">@holyguacamole&nbsp;</span>leaderboard</header>
+  <header>
+    <span th:text="${year}" th:remove="tag"></span>
+    <span class="accent">@holyguacamole&nbsp;</span>
+    leaderboard
+  </header>
   <section id="content">
     <section id="list">
       <div class="row" th:each="leader, iter: ${leaderboard}">

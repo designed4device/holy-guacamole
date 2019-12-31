@@ -230,4 +230,38 @@ class AvocadoReceiptRepositoryTest {
             AvocadoCount(mark, 3)
         )
     }
+
+    @Test
+    fun `it returns the leaderboard by year`() {
+        repository.saveAll(listOf(
+                //two years ago avocados
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now().minusYears(2))),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now().minusYears(2))),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now().minusYears(2))),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now().minusYears(2))),
+                //last year avocados
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now().minusYears(1))),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now().minusYears(1))),
+                //current year avocados
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now())),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now())),
+                MockAvocadoReceipts.patrickToMark.copy(timestamp = HGEpochSeconds(LocalDate.now()))
+        ))
+
+        val currentYear = LocalDate.now().year
+        val lastYear = LocalDate.now().minusYears(1).year
+        val twoYearsAgo = LocalDate.now().minusYears(2).year
+
+        assert(repository.getLeaderboard(limit = 0, year = currentYear)).containsExactly(
+                AvocadoCount(mark, 3)
+        )
+
+        assert(repository.getLeaderboard(limit = 0, year = lastYear)).containsExactly(
+                AvocadoCount(mark, 2)
+        )
+
+        assert(repository.getLeaderboard(limit = 0, year = twoYearsAgo)).containsExactly(
+                AvocadoCount(mark, 4)
+        )
+    }
 }

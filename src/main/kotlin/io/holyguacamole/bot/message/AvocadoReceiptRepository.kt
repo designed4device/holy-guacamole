@@ -37,10 +37,15 @@ class AvocadoReceiptRepository(
     fun saveAll(entities: Iterable<AvocadoReceipt>): List<AvocadoReceipt> =
         mongoRepository.saveAll(entities.map { it.copy() })
 
-    fun getLeaderboard(limit: Long = 10): List<AvocadoCount> =
+    fun getLeaderboard(limit: Long = 10, year: Int = 0): List<AvocadoCount> =
         template.aggregate(
             Aggregation.newAggregation(
-                listOf(Aggregation.match(Criteria("timestamp").gte(resetEpoch)),
+                listOf(Aggregation.match(
+                        if (year == 0) Criteria("timestamp").gte(resetEpoch)
+                        else Criteria("timestamp")
+                                .gte(HGEpochSeconds(LocalDate.of(year, 1, 1), LocalTime.MIN))
+                                .lte(HGEpochSeconds(LocalDate.of(year, 12, 31), LocalTime.MAX))
+                ),
                 Aggregation.group("receiver")
                     .max("timestamp").`as`("maxTimestamp")
                     .count().`as`("count"),

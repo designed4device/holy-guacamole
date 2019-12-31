@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.stereotype.Service
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 
 @Controller
 class ViewController(val leaderboardService: LeaderboardService) {
@@ -19,6 +20,17 @@ class ViewController(val leaderboardService: LeaderboardService) {
     fun getLeaderboard(model: Model): String {
         val leaderboard = leaderboardService.getLeaderboard()
 
+        model.addAttribute("year", "")
+        model.addAttribute("totalCount", leaderboard.totalCount)
+        model.addAttribute("leaderboard", leaderboard.leaders)
+        return "leaderboard"
+    }
+
+    @GetMapping("/leaderboard/{year}")
+    fun getLeaderboardByYear(model: Model, @PathVariable("year") year: Int): String {
+        val leaderboard = leaderboardService.getLeaderboard(year = year)
+
+        model.addAttribute("year", year)
         model.addAttribute("totalCount", leaderboard.totalCount)
         model.addAttribute("leaderboard", leaderboard.leaders)
         return "leaderboard"
@@ -28,9 +40,9 @@ class ViewController(val leaderboardService: LeaderboardService) {
 @Service
 class LeaderboardService(val userRepository: UserRepository, val avocadoReceiptRepository: AvocadoReceiptRepository) {
 
-    fun getLeaderboard(): Leaderboard {
+    fun getLeaderboard(year: Int = 0): Leaderboard {
         val users = userRepository.findAll()
-        val avocadoCounts = avocadoReceiptRepository.getLeaderboard(users.size.toLong())
+        val avocadoCounts = avocadoReceiptRepository.getLeaderboard(limit = 0, year = year)
         return Leaderboard(
             totalCount = avocadoCounts.size,
             leaders = avocadoCounts.map { avocadoCount ->
