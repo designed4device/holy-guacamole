@@ -570,6 +570,22 @@ object MockAppMentions {
         eventId = "12345679",
         eventTime = 1234567890
     )
+    val leaderboardOtherUser = EventCallback(
+            token = token,
+            teamId = "abc",
+            apiAppId = "123",
+            event = MessageEvent(
+                    type = APP_MENTION,
+                    channel = general,
+                    user = patrick,
+                    text = "<@$appbot> leaderboard <@$mark>",
+                    ts = today
+            ),
+            type = EVENT_CALLBACK,
+            authedUsers = listOf(appbot),
+            eventId = "12345679",
+            eventTime = 1234567890
+    )
     val help = EventCallback(
             token = token,
             teamId = "abc",

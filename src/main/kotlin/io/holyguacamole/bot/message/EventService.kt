@@ -81,6 +81,10 @@ class EventService(
                     channel = event.channel,
                     text = craftMyLeaderboardMessage(repository.getLeaderboard(0), event.user?: "user not found")
                 )
+                text.contains(Regex("$LEADERBOARD_COMMAND <@([0-9a-zA-Z]*?)>")) -> slackClient.postMessage(
+                        channel = event.channel,
+                        text = craftMyLeaderboardMessage(repository.getLeaderboard(0), cleanUserId(text))
+                )
                 text.contains(Regex("$LEADERBOARD_COMMAND \\d*")) -> slackClient.postMessage(
                         channel = event.channel,
                         text = craftLeaderboardMessage(repository.getLeaderboard(
@@ -148,6 +152,10 @@ class EventService(
                 text.contains("$LEADERBOARD_COMMAND me") -> slackClient.postMessage(
                     channel = event.channel,
                     text = craftMyLeaderboardMessage(repository.getLeaderboard(0), event.user)
+                )
+                text.contains(Regex("$LEADERBOARD_COMMAND <@([0-9a-zA-Z]*?)>")) -> slackClient.postMessage(
+                        channel = event.channel,
+                        text = craftMyLeaderboardMessage(repository.getLeaderboard(0), cleanUserId(text))
                 )
                 text.contains(Regex("$LEADERBOARD_COMMAND \\d*")) -> sendLeaderboard(
                         channel = event.channel,
@@ -306,14 +314,15 @@ class EventService(
 
     companion object {
         fun countGuacamoleIngredients(text: String): Int = (text.split(AVOCADO_TEXT).size) - 1
-        fun findMentionedPeople(text: String, user: String): List<String> = Regex("<@([0-9A-Z]*?)>")
+        fun findMentionedPeople(text: String, user: String): List<String> = Regex("<@([0-9A-Za-z]*?)>")
                 .findAll(text)
                 .mapNotNull { it.groups[1]?.value }
                 .filter { it != user }
                 .toList()
-
-
     }
+        fun cleanUserId(text: String): String {
+            return text.split("leaderboard")[1].trim().removePrefix("<").removePrefix("@").removeSuffix(">").toUpperCase()
+        }
 }
 
 fun <T> mapUntil(end: Int, fn: () -> T): List<T> = (0 until end).map { fn() }
