@@ -321,7 +321,7 @@ class EventService(
                 .toList()
     }
         fun cleanUserId(text: String): String {
-            return text.split("leaderboard")[1].trim().removePrefix("<").removePrefix("@").removeSuffix(">").toUpperCase()
+            return text.split("leaderboard")[1].trim().substringAfter("@").substringBefore(">").toUpperCase()
         }
 }
 
