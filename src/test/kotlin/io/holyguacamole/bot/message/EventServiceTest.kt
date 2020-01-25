@@ -293,6 +293,30 @@ class EventServiceTest {
     }
 
     @Test
+    fun `it checks for the 'leaderboard otherUser' and posts the leaderboard +- 2 from the user to slack`() {
+        whenever(repository.getLeaderboard(0)).thenReturn(listOf(
+                AvocadoCount(ryan, 12),
+                AvocadoCount(jeremy, 12),
+                AvocadoCount(dwayne, 8),
+                AvocadoCount(mark, 5),
+                AvocadoCount(jeremyp, 4),
+                AvocadoCount(patrick, 3),
+                AvocadoCount(eight, 1)
+        ))
+
+        eventService.process(MockAppMentions.leaderboardOtherUser)
+        verify(slackClient).postMessage(general,
+                """
+                  2. ${jeremyskywalker.name}: 12
+                  3. ${dwaynetheguacjohnson.name}: 8
+                  4. ${markardito.name}: 5
+                  5. ${jeremypiewalker.name}: 4
+                  6. ${feeneyfeeneybobeeney.name}: 3
+                """.trimIndent()
+        )
+    }
+
+    @Test
     fun `it calls the slack client to post the help message`() {
         eventService.process(MockAppMentions.help)
 
