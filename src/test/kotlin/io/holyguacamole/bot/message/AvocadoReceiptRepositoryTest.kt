@@ -264,4 +264,36 @@ class AvocadoReceiptRepositoryTest {
                 AvocadoCount(mark, 4)
         )
     }
+
+    @Test
+    fun `it returns the count of receipts`() {
+        val receiptList = listOf(
+                markToPatrick,
+                markToPatrick,
+                markToPatrick,
+                markToPatrick.copy(receiver = "mark2"),
+                markToPatrick.copy(receiver = "mark2"),
+                markToPatrick.copy(receiver = "mark3"),
+                markToPatrick.copy(receiver = "mark3"),
+                markToPatrick.copy(receiver = "mark4"),
+                markToPatrick.copy(receiver = "mark4"),
+                markToPatrick.copy(receiver = "mark5"),
+                markToPatrick.copy(receiver = "mark5"),
+                markToPatrick.copy(receiver = "mark6"),
+                markToPatrick.copy(receiver = "mark6"),
+                markToPatrick.copy(receiver = "mark7"),
+                markToPatrick.copy(receiver = "mark7"),
+                markToPatrick.copy(receiver = "mark8"),
+                markToPatrick.copy(receiver = "mark8"),
+                markToPatrick.copy(receiver = "mark9"),
+                markToPatrick.copy(receiver = "mark9"),
+                markToPatrick.copy(receiver = "mark10"),
+                markToPatrick.copy(receiver = "mark10"),
+                markToPatrick.copy(receiver = "mark11")
+        )
+
+        repository.saveAll(receiptList)
+
+        assert(repository.count()).isEqualTo(receiptList.size.toLong())
+    }
 }

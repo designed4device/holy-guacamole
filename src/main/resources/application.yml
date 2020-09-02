@@ -21,3 +21,7 @@ season:
 spring:
   thymeleaf:
     cache: false
+
+milecado:
+  next: 10
+  channel: CHANNELID

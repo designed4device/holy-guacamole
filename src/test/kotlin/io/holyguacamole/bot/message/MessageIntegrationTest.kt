@@ -65,7 +65,7 @@ class MessageIntegrationTest {
     @Before
     fun setUp() {
         userService = UserService(userRepository, slackClient)
-        controller = EventController(token, EventService(receiptRepository, slackClient, userService, MockIds.appbot))
+        controller = EventController(token, EventService(receiptRepository, slackClient, userService, MockIds.appbot, 10, "CHANNELID"))
     }
 
     @After

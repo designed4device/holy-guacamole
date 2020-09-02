@@ -68,6 +68,8 @@ class AvocadoReceiptRepository(
             AvocadoCount(receiver, count)
         }
     }
+
+    fun count() = mongoRepository.count()
 }
 
 @Repository

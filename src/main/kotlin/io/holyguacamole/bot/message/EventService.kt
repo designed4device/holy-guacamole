@@ -44,7 +44,9 @@ class EventService(
         val repository: AvocadoReceiptRepository,
         val slackClient: SlackClient,
         val userService: UserService,
-        @Value("\${bot.userId}") val bot: String
+        @Value("\${bot.userId}") val bot: String,
+        @Value("\${milecado.next}") val milecadoNext: Long,
+        @Value("\${milecado.channel}") val milecadoChannel: String
 ) {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -204,7 +206,9 @@ class EventService(
     }
 
     private fun processAvocadoMessage(user: String, text: String, channel: String, timestamp: Long, eventId: String) {
-        val mentions = findMentionedPeople(text, user)
+        val mentions = findMentionedPeople(text, user).filter {
+            userService.findByUserIdOrGetFromSlack(it)?.isBot == false
+        }
         val avocadosInMessage = countGuacamoleIngredients(text)
         if (avocadosInMessage == 0 || mentions.isEmpty()) return
 
@@ -213,15 +217,28 @@ class EventService(
 
         val avocadosSentToday = repository.findBySenderToday(user).size
         val remainingAvocados = calculateRemainingAvocados(user, avocadosSentToday)
+        val avocadosBeingSent = (avocadosInMessage * mentions.size)
 
-        if ((avocadosSentToday + (avocadosInMessage * mentions.size)) > 5) {
+        if (avocadosSentToday + avocadosBeingSent > 5) {
             slackClient.postEphemeralMessage(channel, user, notEnoughAvocados(remainingAvocados))
             return
         }
 
-        mentions.filter {
-            userService.findByUserIdOrGetFromSlack(it)?.isBot == false
-        }.flatMap { mention ->
+        val receiptCount = repository.count()
+        if (receiptCount < milecadoNext && receiptCount + avocadosBeingSent >= milecadoNext) {
+            slackClient.postMessage(
+                    channel = milecadoChannel,
+                    text = "",
+                    attachments = listOf(MessageAttachment(
+                            title = "",
+                            pretext = ":flashing_alarm: The ${milecadoNext}th avocado has been given!!! :flashing_alarm:",
+                            text = text,
+                            markdownIn = listOf(MARKDOWN.TEXT)
+                    ))
+            )
+        }
+
+        mentions.flatMap { mention ->
             mapUntil(avocadosInMessage) {
                 AvocadoReceipt(
                         eventId = eventId,

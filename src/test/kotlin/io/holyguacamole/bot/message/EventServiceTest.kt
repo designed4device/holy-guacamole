@@ -5,15 +5,7 @@ import assertk.assertions.containsAll
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.check
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockito_kotlin.*
 import io.holyguacamole.bot.Empty
 import io.holyguacamole.bot.MockAppMentions
 import io.holyguacamole.bot.MockAvocadoReceipts
@@ -66,7 +58,7 @@ class EventServiceTest {
         whenever(it.saveAll(anyList<AvocadoReceipt>())) doReturn emptyList<AvocadoReceipt>()
         whenever(it.findByEventId(any())) doReturn emptyList<AvocadoReceipt>()
     }
-    private val eventService = EventService(repository, slackClient, userService, appbot)
+    private val eventService = EventService(repository, slackClient, userService, appbot, 10, "CHANNELID")
 
     @Test
     fun `it knows how many avocados someone is trying to send`() {
@@ -146,7 +138,6 @@ class EventServiceTest {
     fun `it does not add AvocadoReceipts for bots`() {
         eventService.process(MockMessages.withBotMentionAndSingleAvocado)
 
-        verify(repository).findBySenderToday((MockMessages.withBotMentionAndSingleAvocado.event as MessageEvent).user!!)
         verifyNoMoreInteractions(repository)
     }
 
@@ -489,6 +480,45 @@ class EventServiceTest {
 
         verifyZeroInteractions(slackClient)
     }
+
+    @Test
+    fun `it doesn't send a milecado message when the milecado was previously sent`() {
+        whenever(repository.count()).thenReturn(10)
+
+        eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
+
+        verify(repository).count()
+        verify(slackClient, times(0)).postMessage(any(), any(), any())
+    }
+
+    @Test
+    fun `it doesn't send a milecado message when the milecado is not sent by current message`() {
+        whenever(repository.count()).thenReturn(1)
+
+        eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
+
+        verify(repository).count()
+        verify(slackClient, times(0)).postMessage(any(), any(), any())
+    }
+
+    @Test
+    fun `it sends a message when the milecado is sent by current message`() {
+        whenever(repository.count()).thenReturn(9)
+
+        eventService.process(MockMessages.withSingleMentionAndMultipleAvocados)
+
+        verify(repository).count()
+        verify(slackClient).postMessage(
+                channel = eq("CHANNELID"),
+                text = eq(""),
+                attachments = eq(listOf(MessageAttachment(
+                        pretext = ":flashing_alarm: The 10th avocado has been given!!! :flashing_alarm:",
+                        text = (MockMessages.withSingleMentionAndMultipleAvocados.event as MessageEvent).text!!,
+                        title = "",
+                        markdownIn = listOf(MARKDOWN.TEXT)
+                )))
+        )
+    }
 }
 
 class DirectMessageEventTests {
@@ -507,7 +537,7 @@ class DirectMessageEventTests {
     private val repository: AvocadoReceiptRepository = mock {
         whenever(it.findBySenderToday(patrick)) doReturn emptyList<AvocadoReceipt>()
     }
-    private val eventService = EventService(repository, slackClient, userService, appbot)
+    private val eventService = EventService(repository, slackClient, userService, appbot, 10, "CHANNELID")
 
     @Test
     fun `it sends a dm with the number of avocados left to send`() {
