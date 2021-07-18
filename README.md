@@ -48,13 +48,13 @@ This is a slack bot for recognizing your teammates.
        | --- | ----- |  
        | BOT_USERID | <Your [Slack app's bot user ID](#slack-bot-user-id)> |  
        | MONGODB_URI | <Your [mongodb connection string](#mongodb-uri)> |  
-       | SLACK_TOKEN_BOT |  | <Your [Slack app's Bot User OAuth Token](#slack-bot-user-token)> |  
-       | SLACK_TOKEN_VERIFICATION |  | <Your Slack app's Verification Token> |  
+       | SLACK_TOKEN_BOT | <Your [Slack app's Bot User OAuth Token](#slack-bot-user-token)> |  
+       | SLACK_TOKEN_VERIFICATION | <Your Slack app's Verification Token> |  
     1. Add the following optional config vars to enable milestone avocado functionality (when the milestone number of avocados have been given, a special message will be posted to the configured channel):
        | Key | Value |  
        | --- | ----- |  
        | MILECADO_CHANNEL | <The Slack channel id to post> |
-       | MILECADO_NEXT | <The number of avocados sent to trigger the milestone message e.g. 50000>
+       | MILECADO_NEXT | <The number of avocados sent to trigger the milestone message e.g. 50000> |
 
 1. Deploy the HolyGuacamole API to your Heroku app
     1. Clone this project.
