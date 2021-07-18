@@ -3,7 +3,7 @@ This is a slack bot for recognizing your teammates.
 
 ## How to add to your slack workspace
     
-1. Create a new slack app. This app is not distributed, so you will be creating a new app in your workspace instead of adding an exiting app to your workspace.
+1. Create a new slack app. This app is not distributed, so you will be creating a new app in your workspace instead of adding an existing app to your workspace.
     1. Create the app in the desired slack workspace.
 
 1. Configure Slack app's bot.
