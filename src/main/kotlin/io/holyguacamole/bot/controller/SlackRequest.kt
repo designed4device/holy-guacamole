@@ -51,7 +51,6 @@ data class EventCallback(override val token: String,
                          @JsonProperty("team_id") val teamId: String,
                          @JsonProperty("api_app_id") val apiAppId: String,
                          val event: Event,
-                         @JsonProperty("authed_users") val authedUsers: List<String>,
                          @JsonProperty("event_id") val eventId: String,
                          @JsonProperty("event_time") val eventTime: Long) : SlackRequest
 

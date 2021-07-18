@@ -87,7 +87,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -103,7 +102,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -119,7 +117,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -135,7 +132,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -151,7 +147,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -167,7 +162,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -183,7 +177,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -199,7 +192,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -215,7 +207,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -231,7 +222,6 @@ object MockMessages {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -247,7 +237,6 @@ object MockMessages {
                     ts = today
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -263,7 +252,6 @@ object MockMessages {
                     ts = today
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -279,7 +267,6 @@ object MockMessages {
                     ts = today
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -300,7 +287,6 @@ object MockMessages {
                     )
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -321,7 +307,6 @@ object MockMessages {
                     )
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -340,7 +325,6 @@ object MockDirectMessages {
                     ts = today
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -356,7 +340,6 @@ object MockDirectMessages {
                     ts = today
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -372,7 +355,6 @@ object MockDirectMessages {
                     ts = today
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -388,7 +370,6 @@ object MockDirectMessages {
                     ts = today
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -404,7 +385,6 @@ object MockDirectMessages {
                     ts = today
             ),
             type = "event_callback",
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -518,7 +498,6 @@ object MockAppMentions {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
             eventId = "12345677",
             eventTime = 1234567890
     )
@@ -534,7 +513,6 @@ object MockAppMentions {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -550,7 +528,6 @@ object MockAppMentions {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
             eventId = "12345679",
             eventTime = 1234567890
     )
@@ -566,7 +543,6 @@ object MockAppMentions {
             ts = today
         ),
         type = EVENT_CALLBACK,
-        authedUsers = listOf(appbot),
         eventId = "12345679",
         eventTime = 1234567890
     )
@@ -582,7 +558,6 @@ object MockAppMentions {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
             eventId = "12345679",
             eventTime = 1234567890
     )
@@ -598,7 +573,6 @@ object MockAppMentions {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -615,7 +589,6 @@ object MockAppMentions {
                     ts = today
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -633,7 +606,6 @@ object MockJoinedChannelEvents {
                     user = appbot
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -647,7 +619,6 @@ object MockJoinedChannelEvents {
                     user = mark
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf(appbot),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -663,7 +634,6 @@ object MockTeamJoinEvents {
             user = jeremySlack
         ),
         type = "event_callback",
-        authedUsers = listOf("U123556"),
         eventId = "12345678",
         eventTime = 1234567890
     )
@@ -676,7 +646,6 @@ object MockTeamJoinEvents {
             user = heyTacoSlack
         ),
         type = "event_callback",
-        authedUsers = listOf("U123556"),
         eventId = "12345678",
         eventTime = 1234567890
     )
@@ -738,7 +707,6 @@ object MockUserChangeEvent {
                     )
             ),
             type = EVENT_CALLBACK,
-            authedUsers = listOf("U123556"),
             eventId = "12345678",
             eventTime = 1234567890
     )
@@ -752,7 +720,6 @@ object Empty {
             teamId = "",
             apiAppId = "",
             event = messageEvent,
-            authedUsers = emptyList(),
             eventId = "",
             eventTime = 0L
     )
